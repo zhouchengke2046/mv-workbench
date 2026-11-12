@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.6 — 2026-11-13
+
+- Fixed the Windows test harness decoding `mvwb status` output as cp1252; CLI output is UTF-8.
+
 ## 0.2.5 — 2026-11-13
 
 - Fixed Windows `mvwb status` timeout: check 5 ports with 0.25s instead of 20 × 0.6s.

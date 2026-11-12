@@ -31,7 +31,7 @@ def test_status_reports_not_running():
     port = free_port()
     proc = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "mvwb.py"), "status", "--port", str(port)],
-        capture_output=True, text=True, env=os.environ.copy(), timeout=10,
+        capture_output=True, text=True, encoding="utf-8", errors="replace", env=os.environ.copy(), timeout=10,
     )
     assert proc.returncode == 1
     assert '"running": false' in proc.stdout

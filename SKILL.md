@@ -272,6 +272,7 @@ config/           模型价格 / provider / keys 示例
 
 ## 版本
 
+- v0.2.6（2026-11-13）：Windows 测试解码修复（CLI 输出 UTF-8）。
 - v0.2.5（2026-11-13）：Windows `mvwb status` 端口探测超时修复。
 - v0.2.4（2026-11-13）：新增 `mvwb open/status`；静态页提示“Key 需服务版”；打开方式硬规则。
 - v0.2.3（2026-11-13）：清理冗余资产、合并 Muse 指南、补 target/actual 时长契约。
