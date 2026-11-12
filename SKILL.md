@@ -272,6 +272,7 @@ config/           模型价格 / provider / keys 示例
 
 ## 版本
 
+- v0.2.5（2026-11-13）：Windows `mvwb status` 端口探测超时修复。
 - v0.2.4（2026-11-13）：新增 `mvwb open/status`；静态页提示“Key 需服务版”；打开方式硬规则。
 - v0.2.3（2026-11-13）：清理冗余资产、合并 Muse 指南、补 target/actual 时长契约。
 - v0.2（2026-11-13）：单 skill 重构；factory/trim 移除；流程到视频段；每 MV 独立目录；handoff。

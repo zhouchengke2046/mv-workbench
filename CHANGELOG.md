@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.5 — 2026-11-13
+
+- Fixed Windows `mvwb status` timeout: check 5 ports with 0.25s instead of 20 × 0.6s.
+
 ## 0.2.4 — 2026-11-13
 
 - Added `mvwb open` (reuse/start service, auto-select free port) and `mvwb status`; reuse checks the served workbench path, so an old project on the same port is not reused.

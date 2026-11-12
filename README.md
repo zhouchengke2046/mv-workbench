@@ -62,12 +62,12 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 
 ## 压缩包 / 离线使用
 
-Release 里提供 `mv-gongzuotai-v0.2.4-runtime.zip`（运行时精简包，不含 tests/.github/dev 配置），解压后目录是 `mv-gongzuotai/`。
+Release 里提供 `mv-gongzuotai-v0.2.5-runtime.zip`（运行时精简包，不含 tests/.github/dev 配置），解压后目录是 `mv-gongzuotai/`。
 
 ### 方式 A：直接放进 skills（agent 立即识别）
 
 ```bash
-unzip mv-gongzuotai-v0.2.4-runtime.zip -d ~/.agents/skills/
+unzip mv-gongzuotai-v0.2.5-runtime.zip -d ~/.agents/skills/
 cd ~/.agents/skills/mv-gongzuotai
 ./mvwb doctor
 ./mvwb open
@@ -79,7 +79,7 @@ cd ~/.agents/skills/mv-gongzuotai
 ### 方式 B：解压后安装（推荐，生成全局 mvwb）
 
 ```bash
-unzip mv-gongzuotai-v0.2.4-runtime.zip -d ~/Downloads
+unzip mv-gongzuotai-v0.2.5-runtime.zip -d ~/Downloads
 cd ~/Downloads/mv-gongzuotai
 ./install.sh
 mvwb doctor
@@ -88,7 +88,7 @@ mvwb doctor
 Windows：
 
 ```powershell
-Expand-Archive mv-gongzuotai-v0.2.4-runtime.zip -DestinationPath "$HOME\Downloads"
+Expand-Archive mv-gongzuotai-v0.2.5-runtime.zip -DestinationPath "$HOME\Downloads"
 cd "$HOME\Downloads\mv-gongzuotai"
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 .\mvwb.cmd doctor

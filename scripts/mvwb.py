@@ -134,7 +134,7 @@ def cmd_doctor(args):
 
 def _service_info(port):
     try:
-        conn = http.client.HTTPConnection("127.0.0.1", port, timeout=0.6)
+        conn = http.client.HTTPConnection("127.0.0.1", port, timeout=0.25)
         conn.request("GET", "/api/health")
         resp = conn.getresponse()
         body = resp.read()
@@ -154,7 +154,7 @@ def _service_ok(port):
     return _service_info(port) is not None
 
 
-def _find_service(start=8776, count=20):
+def _find_service(start=8776, count=5):
     fallback = None
     for port in range(start, start + count):
         info = _service_info(port)
@@ -248,7 +248,7 @@ def cmd_open(args):
 
 
 def cmd_status(args):
-    info = _find_service(args.port)
+    info = _service_info(args.port) or _find_service(args.port, 5)
     if info:
         print(json.dumps({
             "running": True,
