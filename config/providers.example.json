@@ -1,0 +1,12 @@
+{
+  "runninghub": {
+    "base_url": "https://www.runninghub.cn",
+    "key_env": "RUNNINGHUB_API_KEY"
+  },
+  "router": {
+    "base_url": "https://router.kcacher.top",
+    "model": "muse-video-ext",
+    "api": "/v1/videos",
+    "key_env": "ROUTER_API_KEY"
+  }
+}

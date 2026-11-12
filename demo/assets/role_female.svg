@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1536" viewBox="0 0 1024 1536">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5f1ea"/><stop offset="1" stop-color="#ded6ca"/></linearGradient></defs>
+  <rect width="1024" height="1536" fill="url(#bg)"/>
+  <g fill="#3b3a38">
+    <circle cx="256" cy="360" r="72"/><path d="M160 700c0-110 62-190 96-190s96 80 96 190v300h-192z"/>
+    <circle cx="512" cy="360" r="72"/><path d="M416 700c0-110 62-190 96-190s96 80 96 190v300h-192z"/>
+    <circle cx="768" cy="360" r="72"/><path d="M672 700c0-110 62-190 96-190s96 80 96 190v300h-192z"/>
+  </g>
+  <g fill="#8b8175" font-family="Helvetica,Arial,sans-serif" font-size="28" text-anchor="middle">
+    <text x="256" y="1070">正面</text><text x="512" y="1070">侧面</text><text x="768" y="1070">背面</text>
+    <text x="512" y="1320" font-size="36" fill="#5b5349">女主四视图 · DEMO 占位</text>
+  </g>
+</svg>

@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title id="title">MV 批量工作台 · 只读模板</title>
+<style>/* Doubao-like light theme · Semi Design inspired tokens (ByteDance) */
+:root{
+  --bg:#f7f8fa;--panel:#fff;--card:#fff;--card2:#fafbfc;
+  --line:#e5e6eb;--line2:#f0f1f3;
+  --fg:#1d2129;--fg2:#4e5969;--dim:#86909c;--dim2:#a9aeb8;
+  --acc:#4d6bfe;--acc2:#7c5cff;--acc-soft:#eef1ff;
+  --ok:#00b42a;--ok-soft:#e8ffea;--ok-line:#aff0b5;
+  --warn:#ff7d00;--warn-soft:#fff7e8;--warn-line:#ffd8a8;
+  --bad:#f53f3f;--bad-soft:#fff1f0;--bad-line:#ffccc7;
+  --shadow:0 2px 8px rgba(29,33,41,.06),0 1px 2px rgba(29,33,41,.04);
+  --shadow-lg:0 20px 48px rgba(29,33,41,.18);
+  --r:16px;--r-sm:10px;--r-xs:8px;--pill:999px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);
+  font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","HarmonyOS Sans SC","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased}
+button,input,select{font:inherit}
+button{cursor:pointer}
+a{color:var(--acc);text-decoration:none}
+.dim{color:var(--dim)}
+.empty{color:var(--dim);font-size:12px;padding:12px 0}
+h1,h2,h3{font-weight:600;color:var(--fg)}
+::selection{background:#dbe2ff}
+
+/* ---------- topbar ---------- */
+#topbar{height:64px;display:flex;align-items:center;gap:18px;padding:0 24px;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:11px;min-width:0;flex:none}
+.logo{width:36px;height:36px;border-radius:12px;flex:none;
+  background:linear-gradient(135deg,#4d6bfe,#8b5cf6);display:flex;align-items:center;
+  justify-content:center;color:#fff;font-weight:700;font-size:13px;letter-spacing:.02em;
+  box-shadow:0 4px 12px rgba(77,107,254,.28)}
+.ws-title{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ws-sub{color:var(--dim);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs{display:flex;align-items:center;gap:2px;background:#f2f3f5;padding:3px;border-radius:10px;flex:none}
+.tab{padding:5px 14px;border-radius:8px;font-size:12px;color:var(--fg2);transition:.15s}
+.tab:hover{color:var(--fg)}
+.tab.on{background:#fff;color:var(--fg);box-shadow:0 1px 3px rgba(29,33,41,.08);font-weight:500}
+.top-actions{display:flex;align-items:center;gap:10px;margin-left:auto;flex:none}
+.budget{font-size:11px;color:var(--dim);min-width:186px}
+.budget b{color:var(--fg);font-weight:600}
+.bar{height:4px;background:var(--line);border-radius:2px;margin-top:5px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:2px;background:linear-gradient(90deg,#4d6bfe,#8b5cf6);transition:width .3s}
+
+/* ---------- key status (read-only, source: ~/.config/mv-workbench/keys.json) ---------- */
+.key-strip{display:flex;align-items:center;gap:6px;flex:none}
+.key-item{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;
+  border:1px solid var(--line);border-radius:var(--pill);background:#fff;
+  font-size:11px;color:var(--fg2);white-space:nowrap;cursor:default;max-width:236px}
+.key-dot{width:6px;height:6px;border-radius:50%;background:var(--dim2);flex:none}
+.key-item.ok .key-dot{background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft)}
+.key-item.warn .key-dot{background:var(--warn);box-shadow:0 0 0 3px var(--warn-soft)}
+.key-item.err .key-dot{background:var(--bad);box-shadow:0 0 0 3px var(--bad-soft)}
+.key-name{font-weight:600;color:var(--fg);max-width:76px;overflow:hidden;text-overflow:ellipsis}
+.key-mask{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--dim)}
+.key-bal{font-weight:600;color:var(--fg);overflow:hidden;text-overflow:ellipsis}
+.key-item.editable{cursor:pointer}
+.key-item.editable:hover{border-color:#c9cdd4;background:#f7f8fa}
+.key-config-btn{height:30px;padding:0 12px;font-size:11px;flex:none}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  border:1px solid var(--line);background:#fff;color:var(--fg2);border-radius:var(--pill);
+  padding:7px 14px;font-size:12px;line-height:1;transition:.15s;white-space:nowrap}
+.btn:hover{border-color:#c9cdd4;background:#f7f8fa;color:var(--fg)}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:#fff;
+  box-shadow:0 2px 8px rgba(77,107,254,.24)}
+.btn.primary:hover{background:#3f5bf0;border-color:#3f5bf0}
+.btn.ok{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok)}
+.btn.ok:hover{background:#d8ffe0}
+.btn.ghost{background:transparent}
+.btn.ghost:hover{background:#f2f3f5}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- layout ---------- */
+#layout{display:flex;min-height:calc(100vh - 64px)}
+#sidebar{width:156px;flex:none;background:#fff;border-right:1px solid var(--line);
+  padding:14px 10px;overflow-y:auto;max-height:calc(100vh - 64px);position:sticky;top:64px}
+#main{flex:1;min-width:0;padding:24px 28px 60px;max-width:1360px}
+
+/* ---------- sidebar ---------- */
+.side-head input{width:100%;background:#f2f3f5;border:1px solid transparent;color:var(--fg);
+  border-radius:var(--r-sm);padding:8px 11px;outline:none;font-size:12px;transition:.15s}
+.side-head input::placeholder{color:var(--dim2)}
+.side-head input:focus{background:#fff;border-color:var(--acc);box-shadow:0 0 0 3px rgba(77,107,254,.1)}
+.filters{display:flex;flex-wrap:wrap;gap:4px;margin:11px 0 4px}
+.chip{display:inline-flex;align-items:center;gap:3px;border:1px solid transparent;
+  background:#f2f3f5;color:var(--fg2);border-radius:var(--pill);padding:2px 7px;font-size:10.5px;
+  transition:.15s}
+.chip:hover{background:#e8eaee}
+.chip.on{background:var(--acc-soft);color:var(--acc);font-weight:500}
+.batch-head{display:flex;justify-content:space-between;color:var(--dim);font-size:10px;
+  letter-spacing:.1em;margin:16px 4px 6px;text-transform:uppercase}
+.mv-row{display:grid;grid-template-columns:32px 1fr auto;gap:9px;align-items:center;
+  padding:8px 9px;border-radius:12px;border:1px solid transparent;cursor:pointer;
+  margin-bottom:2px;transition:.12s}
+.mv-row:hover{background:#f7f8fa}
+.mv-row.on{background:var(--acc-soft);border-color:#dbe2ff;box-shadow:inset 3px 0 0 var(--acc)}
+.ring{width:30px;height:30px;flex:none}
+.ring.pulse{animation:pulse 1.4s ease-in-out infinite}
+.mv-main{min-width:0}
+.mv-id{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+.mv-sub{color:var(--dim);font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mv-status{font-size:10.5px;color:var(--dim);margin-top:1px}
+.mv-status.ready{color:var(--ok)}
+.mv-status.needs_review{color:var(--warn)}
+.mv-status.in_progress{color:var(--acc)}
+.mv-status.failed{color:var(--bad)}
+.mv-status.stale{color:var(--warn)}
+.mv-pct{font-size:10px;color:var(--dim);font-variant-numeric:tabular-nums}
+.model{font-size:9px;padding:1px 5px;border-radius:4px;font-weight:500;letter-spacing:.02em}
+.model.h3{color:var(--acc);background:var(--acc-soft);border:1px solid #dbe2ff}
+.model.muse{color:var(--acc2);background:#f5efff;border:1px solid #e4d5ff}
+
+/* ---------- main head ---------- */
+.mv-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}
+.mv-title{font-size:24px;font-weight:600;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.mv-desc{color:var(--dim);font-size:11.5px;margin-top:6px}
+.mv-cost{font-size:13px;font-weight:600;white-space:nowrap;background:#fff;border:1px solid var(--line);
+  border-radius:var(--pill);padding:7px 13px;box-shadow:var(--shadow)}
+
+/* ---------- stage cards ---------- */
+.stage-list{display:flex;flex-direction:column;gap:14px}
+.stage-card{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent,#c9cdd4);
+  border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.stage-head{display:flex;align-items:center;gap:10px;padding:12px 16px;
+  background:var(--card2);border-bottom:1px solid var(--line2)}
+.stage-no{width:24px;height:24px;border-radius:50%;background:#f2f3f5;color:var(--fg2);
+  display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+.stage-title{font-size:14px;font-weight:600}
+.stage-meta{margin-left:auto;color:var(--dim);font-size:11px;font-variant-numeric:tabular-nums}
+.stage-body{padding:15px 16px;background:#fff}
+.stage-foot{display:flex;align-items:center;gap:8px;padding:10px 16px;
+  border-top:1px solid var(--line2);background:var(--card2);flex-wrap:wrap}
+.hint{color:var(--dim);font-size:11px}
+.status{font-size:10px;padding:2px 8px;border-radius:var(--pill);border:1px solid transparent}
+.status.not_started{color:var(--dim);background:#f2f3f5}
+.status.queued,.status.running{color:var(--acc);background:var(--acc-soft);border-color:#dbe2ff}
+.status.draft,.status.approved{color:var(--warn);background:var(--warn-soft);border-color:var(--warn-line)}
+.status.locked,.status.ready{color:var(--ok);background:var(--ok-soft);border-color:var(--ok-line)}
+.status.failed{color:var(--bad);background:var(--bad-soft);border-color:var(--bad-line)}
+.status.stale{color:var(--warn);background:var(--warn-soft);border-color:var(--warn-line)}
+.progress{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin:2px 0 12px}
+.progress i{display:block;height:100%;border-radius:2px;background:var(--acc);transition:width .4s}
+
+/* ---------- tables ---------- */
+.table-wrap{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line2);text-align:left;vertical-align:top}
+th{color:var(--dim);font-weight:500;position:sticky;top:0;background:#f7f8fa;z-index:1;font-size:11px}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafbfc}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--fg2)}
+pre{white-space:pre-wrap;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:var(--fg2);background:#f7f8fa;border-radius:var(--r-xs);padding:9px;
+  max-width:560px;max-height:190px;overflow:auto;margin:5px 0 0}
+details summary{cursor:pointer;color:var(--dim);font-size:11px}
+details summary:hover{color:var(--acc)}
+
+/* ---------- media ---------- */
+.music-top{display:flex;flex-direction:column;gap:7px;margin-bottom:11px}
+audio{width:100%;height:36px}
+.meta-line{color:var(--dim);font-size:11.5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:9px}
+.grid figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:12px;
+  overflow:hidden;box-shadow:0 1px 2px rgba(29,33,41,.03);transition:.15s}
+.grid figure:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+.grid img{width:100%;height:150px;object-fit:cover;display:block;cursor:zoom-in}
+.grid figcaption{font-size:10px;color:var(--dim);padding:5px 7px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.asset-section{margin-bottom:16px}
+.asset-section:last-child{margin-bottom:0}
+.subhead{display:flex;justify-content:space-between;align-items:center;font-size:12px;
+  color:var(--fg2);margin-bottom:7px;font-weight:500}
+.video-top{display:flex;gap:16px;align-items:flex-start;margin-bottom:12px}
+.video-top video{width:200px;border-radius:12px;background:#000;display:block;
+  border:1px solid var(--line);box-shadow:var(--shadow)}
+.video-top .meta-line{max-width:460px;padding-top:4px}
+.trim-empty{color:var(--dim);font-size:11.5px;margin-top:9px;padding:10px;
+  border:1px dashed var(--line);border-radius:12px;background:#fafbfc}
+.trim-block{margin-top:14px}
+.contact-wrap{margin-top:7px}
+.contact{width:100%;max-width:760px;height:300px;object-fit:cover;object-position:top;
+  border-radius:12px;border:1px solid var(--line);display:block;background:#f7f8fa}
+.contact-link{display:inline-block;margin-top:7px;font-size:11px;color:var(--acc)}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;
+  justify-content:center;z-index:90;cursor:zoom-out}
+.lightbox img{max-width:92vw;max-height:92vh;border-radius:8px}
+
+/* ---------- hero (empty workbench) ---------- */
+.hero{max-width:780px;margin:4vh auto;background:#fff;border:1px solid var(--line);
+  border-radius:20px;padding:32px;box-shadow:var(--shadow)}
+.hero-kicker{color:var(--acc);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.hero h1{font-size:32px;margin:7px 0 18px}
+.lyric-box{background:#f7f8fa;border:1px solid var(--line);border-radius:12px;
+  padding:12px 15px;max-height:380px;overflow:auto;font-size:13px}
+.lyric-box>div{padding:4px 0;border-bottom:1px solid var(--line2)}
+.lyric-box>div:last-child{border-bottom:none}
+.lyric-box .ln{color:var(--acc);font-size:10px;margin-right:9px;font-variant-numeric:tabular-nums}
+.hero-actions{display:flex;gap:10px;align-items:center;margin-top:20px;flex-wrap:wrap}
+
+/* ---------- events ---------- */
+.event-panel{margin-top:18px}
+.events{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 14px;
+  box-shadow:var(--shadow)}
+.events summary{font-size:11px;color:var(--dim)}
+.event-list{max-height:180px;overflow:auto;font-size:11px;color:var(--fg2);margin-top:7px}
+.event-list>div{padding:4px 0;border-bottom:1px solid var(--line2)}
+.event-list b{color:var(--fg);font-weight:500}
+
+/* ---------- modal ---------- */
+.modal-back{position:fixed;inset:0;background:rgba(29,33,41,.35);display:flex;align-items:center;
+  justify-content:center;z-index:60;backdrop-filter:blur(2px)}
+.modal{width:480px;max-width:92vw;background:#fff;border:1px solid var(--line);
+  border-radius:18px;padding:22px;box-shadow:var(--shadow-lg)}
+.modal h2{margin:0 0 4px;font-size:20px}
+.modal p{margin:0 0 10px;font-size:12px}
+.modal label{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  margin:12px 0;font-size:13px;color:var(--fg2)}
+.modal input,.modal select{width:195px;background:#f2f3f5;border:1px solid transparent;
+  color:var(--fg);border-radius:var(--r-sm);padding:8px 9px;outline:none;transition:.15s}
+.modal input:focus,.modal select:focus{background:#fff;border-color:var(--acc);
+  box-shadow:0 0 0 3px rgba(77,107,254,.1)}
+.estimate{background:#f7f8fa;border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+  margin-top:14px;font-size:12px;color:var(--fg2)}
+.estimate b{color:var(--acc);font-size:17px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+
+/* ---------- toast ---------- */
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:100;
+  display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+.toast-msg{background:#fff;border:1px solid var(--line);color:var(--fg);border-radius:10px;
+  padding:9px 15px;font-size:12px;box-shadow:var(--shadow-lg);animation:toastIn .18s ease-out;
+  transition:opacity .25s}
+.toast-msg.err{border-color:var(--bad-line);background:var(--bad-soft);color:var(--bad)}
+
+/* ---------- lyric page ---------- */
+.source-view{max-width:1180px;margin:0 auto;padding:4px 0 40px}
+.lyric-page{max-width:1120px;margin:0 auto;padding:28px 24px 70px}
+.lyric-hero{background:#fff;border:1px solid var(--line);border-radius:20px;
+  padding:28px 32px;box-shadow:var(--shadow)}
+.lyric-hero h1{font-size:32px;margin:7px 0 12px}
+.lyric-meta{display:flex;gap:8px;flex-wrap:wrap}
+.lyric-meta span{background:#f2f3f5;color:var(--fg2);border-radius:var(--pill);
+  padding:4px 11px;font-size:11px}
+.lyric-columns{display:grid;grid-template-columns:1fr 320px;gap:18px;margin-top:18px}
+.lyric-card{background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:6px 0;box-shadow:var(--shadow)}
+.lyric-line{display:grid;grid-template-columns:48px 1fr;gap:12px;align-items:center;
+  padding:10px 20px;border-bottom:1px solid var(--line2);font-size:14px;transition:.12s}
+.lyric-line:last-child{border-bottom:none}
+.lyric-line:hover{background:#fafbfc}
+.lyric-line .ln{color:var(--acc);font-size:11px;font-variant-numeric:tabular-nums}
+.lyric-line .lt{color:var(--fg)}
+.lyric-line .ls{color:var(--dim);font-size:11px;font-variant-numeric:tabular-nums}
+.lyric-side{display:flex;flex-direction:column;gap:14px}
+.side-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;
+  box-shadow:var(--shadow)}
+.side-card h3{font-size:14px;margin:0 0 10px}
+.side-card p{color:var(--fg2);font-size:12px;line-height:1.7;margin:0 0 12px}
+.kv{display:flex;justify-content:space-between;align-items:center;padding:7px 0;
+  border-bottom:1px solid var(--line2);font-size:12px;color:var(--dim)}
+.kv:last-child{border-bottom:none}
+.kv b{color:var(--fg);font-weight:600}
+
+/* ---------- perf hud ---------- */
+.perf-hud{position:fixed;right:16px;bottom:16px;z-index:300;background:#fff;
+  border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-lg);
+  padding:12px 14px;font:11px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:var(--fg);max-width:440px;max-height:60vh;overflow:auto;white-space:pre-wrap}
+
+/* ---------- 只读模板 ---------- */
+.readonly-badge{font-size:11px;color:var(--dim);background:#f2f3f5;border-radius:var(--pill);
+  padding:5px 10px;white-space:nowrap}
+.readonly-inline{font-size:10px;color:var(--dim);background:#f2f3f5;border-radius:4px;
+  padding:1px 5px;font-weight:400}
+.source-block{background:#f7f8fa;border:1px solid var(--line);border-radius:14px;
+  padding:10px 10px 8px;margin-bottom:14px}
+.source-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;
+  font-weight:600;color:var(--fg);margin:2px 4px 8px}
+.source-head span{font-size:10px;color:var(--dim);font-weight:400}
+.source-item{display:flex;align-items:center;gap:9px;padding:8px;border-radius:10px;
+  background:#fff;border:1px solid transparent;margin-bottom:6px;transition:.15s}
+.source-item:hover{border-color:#dbe2ff;box-shadow:var(--shadow)}
+.source-icon{width:28px;height:28px;border-radius:8px;background:var(--acc-soft);
+  color:var(--acc);display:flex;align-items:center;justify-content:center;font-size:11px;
+  font-weight:600;flex:none}
+.source-main{display:flex;flex-direction:column;min-width:0;flex:1}
+.source-main b{font-size:12px;font-weight:600;color:var(--fg)}
+.source-main small{font-size:10px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.source-arrow{color:var(--dim);font-size:12px}
+.source-history{font-size:10px;color:var(--dim);padding:2px 4px}
+.mv-list-head{display:flex;justify-content:space-between;color:var(--dim);font-size:11px;
+  margin:4px 4px 6px;font-weight:500}
+.stage-foot.readonly{justify-content:space-between}
+.history{max-width:100%}
+.history summary{font-size:10.5px;color:var(--dim);cursor:pointer}
+.history-list{margin-top:6px;border:1px solid var(--line);border-radius:8px;background:#fff;overflow:hidden}
+.run{display:grid;grid-template-columns:34px 58px 1fr;gap:4px 8px;padding:6px 9px;
+  border-bottom:1px solid var(--line2);font-size:10.5px;align-items:center}
+.run:last-child{border-bottom:none}
+.run-v{color:var(--acc);font-weight:600;font-variant-numeric:tabular-nums}
+.run-status{font-size:10px;padding:1px 6px;border-radius:var(--pill);text-align:center}
+.run-status.locked{background:var(--ok-soft);color:var(--ok)}
+.run-status.draft,.run-status.stale{background:var(--warn-soft);color:var(--warn)}
+.run-status.failed{background:var(--bad-soft);color:var(--bad)}
+.run-art{color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font:10px ui-monospace,Menlo,monospace}
+.run-meta{color:var(--dim);grid-column:1 / -1;font-size:10px}
+.run-note{color:var(--fg2);grid-column:1 / -1;font-size:10px}
+.lock-note{font-size:11px;color:var(--ok);background:var(--ok-soft);border:1px solid var(--ok-line);
+  border-radius:var(--pill);padding:3px 9px}
+.hero-desc{color:var(--fg2);font-size:13px;margin-bottom:16px}
+.skill-cmd{display:flex;flex-direction:column;gap:6px;background:#f7f8fa;border:1px solid var(--line);
+  border-radius:12px;padding:12px 14px;margin-top:16px}
+.skill-cmd span{font-size:11px;color:var(--dim)}
+.skill-cmd code{font:11px/1.5 ui-monospace,Menlo,monospace;color:var(--fg);
+  white-space:pre-wrap;word-break:break-all}
+
+/* ---------- 脚本页 ---------- */
+.script-page{max-width:1280px;margin:0 auto;padding:28px 24px 70px}
+.script-hero{background:#fff;border:1px solid var(--line);border-radius:20px;
+  padding:26px 30px;box-shadow:var(--shadow)}
+.script-hero h1{font-size:30px;margin:7px 0 10px}
+.script-meta{display:flex;gap:8px;flex-wrap:wrap}
+.script-meta span{background:#f2f3f5;color:var(--fg2);border-radius:var(--pill);
+  padding:4px 11px;font-size:11px}
+.script-table-card{background:#fff;border:1px solid var(--line);border-radius:16px;
+  box-shadow:var(--shadow);margin-top:18px;overflow:auto}
+.script-table{width:100%;border-collapse:collapse;font-size:12px}
+.script-table th{background:#f7f8fa;color:var(--dim);font-weight:500;padding:10px 12px;
+  text-align:left;position:sticky;top:0;z-index:1;border-bottom:1px solid var(--line);white-space:nowrap}
+.script-table td{padding:10px 12px;border-bottom:1px solid var(--line2);vertical-align:top}
+.script-table tr:last-child td{border-bottom:none}
+.script-table tbody tr:hover td{background:#fafbfc}
+.script-table .shot{color:var(--acc);font-weight:600;white-space:nowrap}
+.script-table .num{font-variant-numeric:tabular-nums;color:var(--fg2);white-space:nowrap}
+.script-history{background:#fff;border:1px solid var(--line);border-radius:16px;
+  box-shadow:var(--shadow);margin-top:18px;padding:16px 18px}
+.script-history h3{font-size:14px;margin:0 0 10px}
+.script-note{margin-top:16px;font-size:12px;color:var(--dim);background:#fff;
+  border:1px dashed var(--line);border-radius:12px;padding:10px 14px}
+.script-note code{font:11px ui-monospace,Menlo,monospace;color:var(--fg)}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes toastIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+@media(max-width:960px){
+  #sidebar{width:264px}
+  .lyric-columns{grid-template-columns:1fr}
+  .key-mask,.hint{display:none}
+}
+@media(max-width:760px){
+  #topbar{padding:0 14px;gap:10px}
+  .tabs{display:none}
+  .key-strip{display:none}
+  #layout{flex-direction:column}
+  #sidebar{width:auto;max-height:42vh;position:static;border-right:none;
+    border-bottom:1px solid var(--line)}
+  #main{padding:16px}
+  .mv-head{flex-direction:column;gap:6px}
+  .video-top{flex-direction:column}
+  .video-top video{width:100%;max-width:280px}
+  .hero{padding:22px}
+  .lyric-page{padding:18px 14px 50px}
+  .lyric-hero{padding:22px}
+  .lyric-line{grid-template-columns:40px 1fr;padding:9px 14px}
+  .lyric-line .ls{display:none}
+}
+/* ===== v2 模板：三大项 + 分镜表 ===== */
+.block{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);
+  margin-bottom:16px;overflow:hidden}
+.block-head{display:flex;align-items:center;gap:10px;padding:13px 18px;
+  border-bottom:1px solid var(--line2);background:var(--card2)}
+.block-head h2{font-size:15px;margin:0}
+.block-head .hint{margin-left:auto;font-size:11px;color:var(--dim)}
+.block-body{padding:16px 18px}
+
+/* 音乐 */
+.music-list{display:flex;flex-direction:column;gap:12px}
+.music-item{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fafbfc}
+.music-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.music-top b{font-size:14px}
+.music-model{margin-left:auto;font-size:11px;color:var(--dim)}
+.music-item audio{width:100%;height:34px}
+.music-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:10.5px;color:var(--dim);margin-top:6px}
+
+/* 资产图 */
+.asset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.asset-card{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  background:#fff;box-shadow:0 1px 2px rgba(29,33,41,.03);display:flex;flex-direction:column}
+.asset-name{padding:9px 11px;font-size:12px;font-weight:600;border-bottom:1px solid var(--line2);
+  display:flex;justify-content:space-between;align-items:center;gap:6px}
+.asset-name span{font-weight:400;color:var(--dim);font-size:10px}
+.asset-card img{width:100%;height:170px;object-fit:cover;display:block;cursor:zoom-in}
+.asset-meta{padding:8px 11px;font-size:10px;color:var(--dim);line-height:1.65;
+  border-top:1px solid var(--line2);margin-top:auto}
+
+/* 分镜表 */
+.storyboard-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+.storyboard{width:100%;border-collapse:collapse;font-size:12px;min-width:1180px}
+.storyboard th{position:sticky;top:0;background:#f7f8fa;color:var(--dim);font-weight:500;
+  padding:10px;text-align:left;border-bottom:1px solid var(--line);z-index:1;white-space:nowrap}
+.storyboard td{padding:10px;border-bottom:1px solid var(--line2);vertical-align:top}
+.storyboard tr:last-child td{border-bottom:none}
+.storyboard tbody tr:hover td{background:#fafbfc}
+.storyboard .shot{color:var(--acc);font-weight:600;white-space:nowrap}
+.storyboard .num{font-variant-numeric:tabular-nums;color:var(--fg2);white-space:nowrap}
+.storyboard .video-cell{width:240px;background:#fafbfc;border-right:1px solid var(--line2)}
+.storyboard .segment-cell{width:110px;background:#f7f8fa;border-right:1px solid var(--line2);font-size:11px}
+.storyboard .segment-cell b{color:var(--fg)}
+.storyboard .segment-cell span{display:block;color:var(--dim);font-size:10px;margin-top:4px}
+.video-box video{width:210px;border-radius:8px;background:#000;display:block}
+.video-meta{font-size:10px;color:var(--dim);line-height:1.55;margin-top:5px}
+.video-history{margin-top:7px}
+.video-history summary{font-size:10px;color:var(--acc);cursor:pointer}
+.video-hist{border-top:1px dashed var(--line);padding-top:7px;margin-top:7px}
+.video-hist video{width:190px}
+.video-empty{border:1px dashed var(--line);border-radius:8px;padding:18px 10px;text-align:center;
+  color:var(--dim);font-size:11px;background:#fff}
+
+/* 原文 */
+.original{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);
+  padding:22px 26px;white-space:pre-wrap;font:15px/2.05 -apple-system,BlinkMacSystemFont,
+  "PingFang SC","HarmonyOS Sans SC","Microsoft YaHei",sans-serif;color:var(--fg);
+  max-width:920px;margin-top:16px}
+
+.original{max-height:none;overflow:visible}
+
+/* 音乐紧凑表 */
+.music-body{padding:2px 0}
+.music-table{overflow:auto}
+.music-row{display:grid;grid-template-columns:42px 52px 120px 64px 58px 240px 150px;
+  gap:8px;align-items:center;padding:7px 18px;border-bottom:1px solid var(--line2);
+  min-width:780px;font-size:11px;color:var(--fg2)}
+.music-row:last-child{border-bottom:none}
+.music-row.current{background:#f7fbff;box-shadow:inset 2px 0 0 var(--acc)}
+.music-row:not(.current):not(.music-head) .mv-ver,
+.music-row:not(.current):not(.music-head) .mv-model{color:var(--dim)}
+.music-head{background:#fafbfc;color:var(--dim);font-size:10px;padding:5px 18px}
+.mv-ver{font-weight:600;color:var(--fg);font-size:11px}
+.mv-state{font-size:10px}
+.mv-state.cur{color:var(--ok)}
+.mv-state.his{color:var(--dim)}
+.mv-model{color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mv-cost,.mv-dur,.mv-time{color:var(--dim);white-space:nowrap;font-variant-numeric:tabular-nums}
+.music-row audio{width:230px;height:30px;display:block}
+
+
+/* 窄侧栏 */
+.source-item{padding:7px 6px;gap:7px}
+.source-icon{width:24px;height:24px;font-size:10px}
+.source-main b{font-size:11px}
+.source-main small{font-size:9px}
+.source-arrow{display:none}
+.source-history{font-size:9px}
+.mv-list-head{font-size:10px;margin:4px 2px 4px}
+.batch-head{font-size:9px;margin:12px 2px 4px}
+.mv-row{grid-template-columns:28px 1fr auto;gap:6px;padding:6px 5px}
+.ring{width:26px;height:26px}
+.mv-id{font-size:11px;gap:4px}
+.mv-id .model{font-size:8px;padding:0 3px}
+.mv-sub{font-size:9px}
+.mv-status{font-size:9.5px}
+.mv-pct{font-size:9px}
+/* 视频预览高度 -30% */
+.video-box video{width:100%;height:260px;object-fit:contain}
+.video-hist video{width:100%;height:236px;object-fit:contain}
+/* 音乐：音频加宽、移到费用前、删时长 */
+.music-row{grid-template-columns:42px 52px 118px 320px 64px 150px;min-width:800px}
+.music-row audio{width:310px;height:30px}
+
+
+/* 音频再宽一倍 */
+.music-row{grid-template-columns:42px 52px 118px 620px 64px 150px;min-width:1090px}
+.music-row audio{width:610px;height:30px}
+/* 视频列收窄到 9:16 实际宽度，多出的宽度给信息列 */
+.storyboard .video-cell{width:168px}
+.video-box video{width:146px;height:260px;object-fit:cover}
+.video-hist video{width:133px;height:236px;object-fit:cover}
+/* 图片/视频右下角分辨率 */
+.asset-thumb,.video-thumb{position:relative;display:inline-block;line-height:0}
+.asset-thumb{display:block}
+.res-badge{position:absolute;right:6px;bottom:6px;z-index:2;background:rgba(0,0,0,.68);
+  color:#fff;font-size:9px;line-height:1.4;padding:2px 5px;border-radius:4px;
+  letter-spacing:.02em;pointer-events:none}
+.video-thumb .res-badge{bottom:34px}
+
+
+.mv-row{grid-template-columns:28px 1fr}
+.mv-spent{font-size:9px;color:var(--dim);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+
+/* 分镜表固定列宽：压缩画面描述，保证时长可见 */
+.storyboard{width:100%;min-width:0;table-layout:fixed}
+.storyboard th:nth-child(1){width:168px}
+.storyboard th:nth-child(2){width:96px}
+.storyboard th:nth-child(3){width:54px}
+.storyboard th:nth-child(4){width:64px}
+.storyboard th:nth-child(5){width:74px}
+.storyboard th:nth-child(6){width:86px}
+.storyboard th:nth-child(7){width:38%}
+.storyboard th:nth-child(8){width:60px}
+.storyboard .video-cell{width:168px}
+.storyboard .segment-cell{width:96px}
+
+</style>
+</head>
+<body>
+<header id="topbar"></header>
+<div id="layout">
+  <aside id="sidebar"></aside>
+  <main id="main"></main>
+</div>
+<script>const DATA = {"meta": {"id": "D01", "title": "末班地铁", "generated_at": ""}, "keys": {"runninghub": {"label": "RunningHub", "account": "", "configured": false, "masked": "", "ok": false, "balance": null, "unit": "币", "wallet": null, "wallet_unit": null, "unlimited": false, "checked_at": null, "error": "未配置"}, "router": {"label": "Router", "account": "", "configured": false, "masked": "", "ok": false, "balance": null, "unit": "CNY", "wallet": null, "wallet_unit": null, "unlimited": false, "checked_at": null, "error": "未配置"}}, "lyric": {"title": "", "body": ""}, "script": {"title": "", "body": ""}, "mvs": []};
+const STATUS_COLOR = {
+  not_started: "#c9cdd4", draft: "#f5a623", locked: "#00b42a",
+  failed: "#f53f3f", stale: "#ff6b00",
+};
+
+let S = {
+  view: DATA.mvs.length ? { type: "mv", id: DATA.mvs[0].id } : { type: "source", kind: "lyric" },
+};
+
+const $ = (id) => document.getElementById(id);
+function esc(s) {
+  return (s == null ? "" : String(s)).replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+  ));
+}
+function fmt(n) {
+  if (n == null || isNaN(n)) return "0";
+  return Number(n).toLocaleString("zh-CN");
+}
+function showSource(kind) {
+  if (kind !== "lyric" && kind !== "script") return;
+  S.view = { type: "source", kind };
+  render();
+}
+function showMV(id) {
+  if (!DATA.mvs.some((m) => m.id === id)) return;
+  S.view = { type: "mv", id };
+  render();
+}
+function zoom(url) {
+  const el = document.createElement("div");
+  el.className = "lightbox";
+  el.innerHTML = `<img src="${url}">`;
+  el.onclick = () => el.remove();
+  document.body.appendChild(el);
+}
+
+function render() {
+  renderTop();
+  renderSidebar();
+  renderMain();
+}
+
+function keyFresh(k) {
+  if (!k || !k.checked_at) return false;
+  const t = Date.parse(k.checked_at);
+  return !isNaN(t) && Date.now() - t <= 6 * 3600 * 1000;
+}
+function keyChip(k, fallback, section) {
+  const name = (k && k.label) || fallback;
+  const configured = !!(k && k.configured);
+  const ok = !!(k && k.ok);
+  let cls = "", text = "未配置", note = "Key 未配置";
+  if (configured && !ok) {
+    cls = "err";
+    text = "查询失败";
+    note = (k && k.error) || "余额查询失败";
+  } else if (configured && ok) {
+    if (k.unlimited) {
+      cls = "ok";
+      text = "不限";
+      note = "额度不限";
+    } else if (k.balance == null) {
+      cls = "warn";
+      text = "—";
+      note = "余额为空";
+    } else {
+      const n = Number(k.balance);
+      if (!isFinite(n)) {
+        cls = "warn";
+        text = "—";
+        note = "余额格式异常";
+      } else {
+        const sym = k.unit === "USD" ? "$" : k.unit === "CNY" ? "¥" : "";
+        const val = sym ? sym + n.toFixed(2) : fmt(n);
+        text = val + (sym ? "" : (k.unit ? " " + k.unit : ""));
+        cls = keyFresh(k) ? "ok" : "warn";
+        note = "余额快照：" + text;
+        if (k.wallet != null) note += "；钱包 " + fmt(k.wallet) + " " + (k.wallet_unit || "");
+        if (!keyFresh(k)) note += "；超过 6 小时，建议刷新";
+      }
+    }
+  }
+  const masked = k && k.masked ? `<span class="key-mask">${esc(k.masked)}</span>` : "";
+  const account = k && k.account ? " · " + k.account : "";
+  const when = k && k.checked_at ? " · " + String(k.checked_at).replace("T", " ").slice(0, 16) : "";
+  const title = `${name}${account}${when}\n${note}\nKey 文件：~/.config/mv-workbench/keys.json\n${window.MV_SERVER_MODE ? "点击此胶囊配置 Key" : "配置：mv_keys.py set " + section}\n刷新：mv_keys.py balance --write <workbench.html>`;
+  const editable = window.MV_SERVER_MODE ? " editable" : "";
+  const click = window.MV_SERVER_MODE ? ` onclick="window.openKeyConfig && window.openKeyConfig()"` : "";
+  return `<span class="key-item ${cls}${editable}"${click} title="${esc(title)}"><span class="key-dot"></span><span class="key-name">${esc(name)}</span>${masked}<span class="key-bal">${esc(text)}</span></span>`;
+}
+function renderTop() {
+  document.title = DATA.meta.title + " · MV 批量工作台";
+  const keys = DATA.keys || {};
+  $("topbar").innerHTML = `
+    <div class="brand">
+      <div class="logo">MV</div>
+      <div style="min-width:0">
+        <div class="ws-title">${esc(DATA.meta.title)}</div>
+        <div class="ws-sub">${esc(DATA.meta.id)} · ${DATA.mvs.length} 条 MV · 只读模板</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="key-strip">
+        ${keyChip(keys.runninghub, "RunningHub", "runninghub")}
+        ${keyChip(keys.router, "Router", "router")}
+      </div>
+      ${window.MV_SERVER_MODE ? `<button class="btn primary key-config-btn" onclick="openKeyConfig()">配置 Key</button>` : ""}
+      <span class="hint">生成于 ${esc(DATA.meta.generated_at || "")}</span>
+      <span class="readonly-badge">${window.MV_SERVER_MODE ? "只读 · Key 可配" : "只读模板"}</span>
+    </div>`;
+}
+
+function renderSidebar() {
+  const lyricOn = S.view.type === "source" && S.view.kind === "lyric";
+  const scriptOn = S.view.type === "source" && S.view.kind === "script";
+  const groups = {};
+  for (const m of DATA.mvs) (groups[m.batch_id] = groups[m.batch_id] || []).push(m);
+  const batchHtml = Object.keys(groups).sort().map((bid) => {
+    const arr = groups[bid];
+    return `<div class="batch-head"><span>${bid}</span></div>` +
+      arr.map(mvRow).join("");
+  }).join("");
+  $("sidebar").innerHTML = `
+    <div class="source-block">
+      <div class="source-head">原文<span>甲方提供 · 只读</span></div>
+      <div class="source-item ${lyricOn ? "on" : ""}" role="button" tabindex="0"
+        onclick="showSource('lyric')">
+        <span class="source-icon">词</span>
+        <span class="source-main"><b>歌词</b><small>含歌名 / 主歌 / 副歌</small></span>
+        <span class="source-arrow">→</span>
+      </div>
+      <div class="source-item ${scriptOn ? "on" : ""}" role="button" tabindex="0"
+        onclick="showSource('script')">
+        <span class="source-icon">剧</span>
+        <span class="source-main"><b>脚本</b><small>故事脚本原文 · 未拆分镜</small></span>
+        <span class="source-arrow">→</span>
+      </div>
+    </div>
+    <div class="mv-list-head"><span>MV 列表</span><span>${DATA.mvs.length} 条</span></div>
+    ${batchHtml}`;
+}
+
+function mvRow(m) {
+  const on = S.view.type === "mv" && S.view.id === m.id;
+  return `<div class="mv-row ${on ? "on" : ""}" role="button" tabindex="0"
+    onclick="showMV('${m.id}')">
+    ${ring(m)}
+    <div class="mv-main">
+      <div class="mv-id">${m.id}</div>
+      <div class="mv-spent">已花 ${fmt(m.spent != null ? m.spent : m.cost)} 币</div>
+    </div>
+  </div>`;
+}
+
+function ring(m) {
+  const keys = ["music", "assets", "video"];
+  const r = 10, c = 2 * Math.PI * r, arc = c / 3;
+  const colors = keys.map((k) => STATUS_COLOR[((m.stages || {})[k] || {}).status] || "#c9cdd4");
+  const arcs = colors.map((col, i) => `<circle cx="14" cy="14" r="${r}" fill="none" stroke="${col}"
+    stroke-width="3" stroke-dasharray="${(arc - 2).toFixed(2)} ${(c - (arc - 2)).toFixed(2)}"
+    transform="rotate(${-90 + i * 120} 14 14)"></circle>`).join("");
+  return `<svg class="ring" viewBox="0 0 28 28">
+    <circle cx="14" cy="14" r="${r}" fill="none" stroke="#e5e6eb" stroke-width="3"></circle>
+    ${arcs}
+  </svg>`;
+}
+
+function renderMain() {
+  if (S.view.type === "source") {
+    $("main").innerHTML = S.view.kind === "lyric" ? lyricView() : scriptView();
+    return;
+  }
+  const mv = DATA.mvs.find((m) => m.id === S.view.id) || DATA.mvs[0];
+  if (!mv) {
+    $("main").innerHTML = `<div class="empty">还没有 MV</div>`;
+    return;
+  }
+  $("main").innerHTML = mvView(mv);
+}
+
+function lyricView() {
+  return `<div class="source-view">
+    <section class="lyric-hero">
+      <div class="hero-kicker">原文 · 歌词</div>
+      <h1>${esc(DATA.lyric.title)}</h1>
+      <div class="lyric-meta"><span>甲方原文</span><span>含歌名 / 主歌 / 副歌</span><span>只读</span></div>
+    </section>
+    <pre class="original">${esc(DATA.lyric.body)}</pre>
+  </div>`;
+}
+
+function scriptView() {
+  return `<div class="source-view">
+    <section class="lyric-hero">
+      <div class="hero-kicker">原文 · 脚本</div>
+      <h1>${esc(DATA.script.title)}</h1>
+      <div class="lyric-meta"><span>甲方原文</span><span>故事脚本</span><span>未拆分镜</span><span>只读</span></div>
+    </section>
+    <pre class="original">${esc(DATA.script.body)}</pre>
+  </div>`;
+}
+
+function mvView(mv) {
+  const g = mv.genome || {}, mu = g.music || {};
+  return `<div class="mv-head">
+    <div>
+      <div class="mv-title">${mv.id}
+        <span class="chip">${esc(mv.pack)}</span>
+        <span class="readonly-inline">只读</span></div>
+      <div class="mv-desc">${esc(mu.genre || "")} · ${mu.bpm || ""}BPM · ${esc(mu.key || "")} · ${esc(mu.vocal || "")}
+        ｜ ${esc((g.edit || {}).style || "")} ｜ 每句候选 ${g.candidate_count || 1}</div>
+    </div>
+    <div class="mv-cost">${fmt(mv.spent != null ? mv.spent : mv.cost)} 币 <span class="dim" style="font-size:11px">累计</span></div>
+  </div>
+  ${musicSection(mv)}
+  ${assetsSection(mv)}
+  ${storyboardSection(mv)}`;
+}
+
+
+function musicSection(mv) {
+  const items = ((mv.detail || {}).music) || [];
+  const rows = items.map((m) => `<div class="music-row ${m.current ? "current" : ""}">
+    <span class="mv-ver">v${m.version}</span>
+    <span class="mv-state ${m.current ? "cur" : "his"}">${m.current ? "当前" : "历史"}</span>
+    <span class="mv-model">${esc(m.model)}</span>
+    <span class="mv-audio"><audio controls preload="metadata" src="${m.audio}"></audio></span>
+    <span class="mv-cost">${esc(m.cost)}</span>
+    <span class="mv-time">${esc(m.generated_at)}</span>
+  </div>`).join("");
+  return `<section class="block">
+    <div class="block-head"><h2>音乐</h2><span class="hint">${items.length} 条</span></div>
+    <div class="block-body music-body">
+      ${items.length ? `<div class="music-table">
+        <div class="music-row music-head"><span>版本</span><span>状态</span><span>模型</span><span>音频</span><span>费用</span><span>生成时间</span></div>
+        ${rows}
+      </div>` : `<div class="empty">音乐未生成</div>`}
+    </div>
+  </section>`;
+}
+
+function assetsSection(mv) {
+  const items = ((mv.detail || {}).assets) || [];
+  return `<section class="block">
+    <div class="block-head"><h2>资产图</h2><span class="hint">${items.length} 张</span></div>
+    <div class="block-body">
+      ${items.length ? `<div class="asset-grid">${items.map((a) => `<figure class="asset-card">
+        <figcaption class="asset-name">${esc(a.name)}<span>${esc(a.type)}</span></figcaption>
+        <div class="asset-thumb"><img loading="lazy" src="${a.url}" onclick="zoom('${a.url}')">
+          <span class="res-badge">${esc(a.resolution)}</span></div>
+        <div class="asset-meta">${esc(a.model)} · ${esc(a.cost)}<br>${esc(a.generated_at)}</div>
+      </figure>`).join("")}</div>` : `<div class="empty">资产未生成</div>`}
+    </div>
+  </section>`;
+}
+
+function storyboardSection(mv) {
+  const sb = ((mv.detail || {}).storyboard) || { shots: [], segments: [] };
+  const byId = {};
+  (sb.shots || []).forEach((s) => { byId[s.shot_id] = s; });
+  const rows = (sb.segments || []).map((seg) => {
+    const segShots = (seg.shot_ids || []).map((id) => byId[id]).filter(Boolean);
+    return segShots.map((s, i) => `<tr>
+      ${i === 0 ? `<td class="video-cell" rowspan="${segShots.length}">${videoCell(seg)}</td>
+        <td class="segment-cell" rowspan="${segShots.length}"><b>${esc(seg.id)}</b>
+          <span>${Number(seg.duration).toFixed(2)}s · ${segShots.length} 镜</span></td>` : ""}
+      <td class="shot">${esc(s.shot_id)}</td>
+      <td>${(s.line_ids || []).join("、")}</td>
+      <td>${esc(s.shot_size || "")}</td>
+      <td>${esc(s.camera || "")}</td>
+      <td>${esc(s.visual || "")}</td>
+      <td class="num">${Number(s.duration).toFixed(2)}s</td>
+    </tr>`).join("");
+  }).join("");
+  return `<section class="block">
+    <div class="block-head"><h2>分镜表</h2>
+      <span class="hint">${(sb.shots || []).length} 镜 · ${(sb.segments || []).length} 个视频段</span></div>
+    <div class="block-body"><div class="storyboard-wrap"><table class="storyboard">
+      <thead><tr><th>视频</th><th>视频段</th><th>镜号</th><th>对应句</th><th>景别</th><th>运镜</th><th>画面描述</th><th>时长</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div></div>
+  </section>`;
+}
+
+function videoCell(seg) {
+  const videos = seg.videos || [];
+  if (!videos.length) return `<div class="video-empty">待生成</div>`;
+  const cur = videos[0], hist = videos.slice(1);
+  return `<div class="video-box">
+    <div class="video-thumb"><video controls preload="metadata" muted poster="${cur.poster || ""}" src="${cur.url}"></video>
+      <span class="res-badge">${esc(cur.resolution)}</span></div>
+    <div class="video-meta">${esc(cur.model)} · ${esc(cur.cost)}<br>${esc(cur.generated_at)} · ${cur.duration}s</div>
+    ${hist.length ? `<details class="video-history"><summary>历史视频 ${hist.length} 条</summary>
+      ${hist.map((v) => `<div class="video-hist"><div class="video-thumb"><video controls preload="metadata" muted poster="${v.poster || ""}" src="${v.url}"></video>
+        <span class="res-badge">${esc(v.resolution)}</span></div>
+        <div class="video-meta">${esc(v.model)} · ${esc(v.cost)}<br>${esc(v.generated_at)} · ${v.duration}s</div></div>`).join("")}
+    </details>` : ""}
+  </div>`;
+}
+
+render();
+
+</script>
+</body>
+</html>

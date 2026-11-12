@@ -1,0 +1,17 @@
+{
+  "_note": "复制到 ~/.config/mv-workbench/keys.json（0600），或运行 mvwb keys set ...",
+  "runninghub": {
+    "api_key": "",
+    "label": "RunningHub",
+    "account": ""
+  },
+  "router": {
+    "api_key": "",
+    "label": "Router",
+    "provider": "new-api",
+    "base_url": "https://router.kcacher.top",
+    "balance_path": "/v1/dashboard/billing/subscription",
+    "balance_mode": "newapi",
+    "proxy": ""
+  }
+}

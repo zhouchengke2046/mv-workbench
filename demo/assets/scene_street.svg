@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="2560" viewBox="0 0 1440 2560">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c1220"/><stop offset="1" stop-color="#1b2230"/></linearGradient><radialGradient id="lamp"><stop offset="0" stop-color="#ffd68a" stop-opacity=".9"/><stop offset="1" stop-color="#ffd68a" stop-opacity="0"/></radialGradient></defs>
+  <rect width="1440" height="2560" fill="url(#bg)"/>
+  <g stroke="#4a5b73" stroke-width="4" opacity=".55"><path d="M120 0l-60 2560M1320 0l60 2560M420 0l-20 2560M1020 0l20 2560"/></g>
+  <circle cx="360" cy="700" r="260" fill="url(#lamp)"/><circle cx="1080" cy="980" r="220" fill="url(#lamp)"/>
+  <g fill="#ffd68a"><circle cx="360" cy="700" r="18"/><circle cx="1080" cy="980" r="16"/></g>
+  <path d="M0 1900c280-80 520-40 720 0s440 80 720 0v660H0z" fill="#202836"/>
+  <g stroke="#9fb4ce" stroke-width="3" opacity=".5"><path d="M180 1500l-30 220M520 1420l-30 260M920 1480l-30 240M1240 1400l-30 280"/></g>
+  <text x="80" y="2320" fill="#9fb4ce" font-family="Helvetica,Arial,sans-serif" font-size="30">雨夜街道 · DEMO 占位</text>
+</svg>

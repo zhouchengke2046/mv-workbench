@@ -1,0 +1,99 @@
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+import mv_keys  # noqa: E402
+
+
+def test_mask():
+    assert mv_keys.mask("") == ""
+    assert mv_keys.mask("sk-1234567890") == "••••7890"
+
+
+def test_save_and_load(tmp_path, monkeypatch):
+    path = tmp_path / "keys.json"
+    monkeypatch.setenv("MV_KEYS_PATH", str(path))
+    cfg = json.loads(json.dumps(mv_keys.TEMPLATE))
+    cfg["runninghub"]["api_key"] = "rh-test-1234"
+    cfg["router"]["api_key"] = "router-test-5678"
+    mv_keys.save_cfg(cfg)
+    loaded, exists = mv_keys.load_cfg()
+    assert exists
+    assert loaded["runninghub"]["api_key"] == "rh-test-1234"
+    if os.name != "nt":
+        assert (path.stat().st_mode & 0o777) == 0o600
+
+
+def test_newapi_balance(tmp_path, monkeypatch):
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    import threading
+
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+
+        def _send(self, payload):
+            data = json.dumps(payload).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+
+        def do_GET(self):
+            if self.path == "/api/status":
+                self._send({"data": {"quota_display_type": "CNY"}})
+            elif self.path == "/v1/dashboard/billing/subscription":
+                self._send({"hard_limit_usd": 73.0})
+            elif self.path == "/v1/dashboard/billing/usage":
+                self._send({"total_usage": 3650})
+            else:
+                self._send({"error": "not found"})
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        cfg = json.loads(json.dumps(mv_keys.TEMPLATE))
+        cfg["router"].update({
+            "api_key": "test-key",
+            "base_url": "http://127.0.0.1:%d" % server.server_port,
+            "balance_mode": "newapi",
+            "proxy": "",
+        })
+        result = mv_keys.balance_router(cfg, 5)
+        assert result["ok"] is True
+        assert result["balance"] == 36.5
+        assert result["unit"] == "CNY"
+    finally:
+        server.shutdown()
+
+
+def test_exec_clears_stale_env(tmp_path, monkeypatch):
+    path = tmp_path / "keys.json"
+    monkeypatch.setenv("MV_KEYS_PATH", str(path))
+    cfg = json.loads(json.dumps(mv_keys.TEMPLATE))
+    cfg["runninghub"]["api_key"] = "rh-good"
+    cfg["router"]["api_key"] = "router-good"
+    mv_keys.save_cfg(cfg)
+    env = os.environ.copy()
+    env["MV_KEYS_PATH"] = str(path)
+    env["RUNNINGHUB_API_KEY"] = "wrong"
+    env["ROUTER_API_KEY"] = "wrong"
+    code = "import os; print(os.environ.get('RUNNINGHUB_API_KEY')); print(os.environ.get('ROUTER_API_KEY')); print(os.environ.get('APIMART_KEY'))"
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "mv_keys.py"), "exec", "--need", "runninghub", "--",
+         sys.executable, "-c", code],
+        env=env, capture_output=True, text=True,
+    )
+    assert proc.returncode == 0, proc.stderr
+    lines = proc.stdout.strip().splitlines()
+    assert lines[0] == "rh-good"
+    assert lines[1] == "router-good"
+    assert lines[2] == "router-good"

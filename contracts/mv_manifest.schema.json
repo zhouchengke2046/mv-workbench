@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MV Manifest",
+  "description": "每条 MV 的总清单：三段状态、版本、当前产物、历史、成本、模型、风格包、变异基因组。原文（歌词/分镜）不在 MV 内，见 原文/。",
+  "type": "object",
+  "required": ["mv_id", "lyric_id", "model", "stages"],
+  "properties": {
+    "mv_id": {"type": "string", "pattern": "^MV[0-9]+$"},
+    "lyric_id": {"type": "string"},
+    "title": {"type": "string"},
+    "model": {"type": "string", "description": "视频模型 profile；同一条 MV 不允许中途换"},
+    "pack": {"type": "string"},
+    "status": {"type": "string"},
+    "genome": {
+      "type": "object",
+      "description": "变异基因组：音乐/视觉/剪辑/候选数等，决定这条 MV 与同批其他条哪里不同"
+    },
+    "stages": {
+      "type": "object",
+      "required": ["music", "assets", "video"],
+      "properties": {
+        "music": {"$ref": "#/definitions/stage"},
+        "assets": {"$ref": "#/definitions/stage"},
+        "video": {"$ref": "#/definitions/stage"}
+      }
+    },
+    "history": {
+      "type": "array",
+      "description": "每次生成/重跑一行；不覆盖旧版本",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": {"type": "string"},
+          "version": {"type": "integer"},
+          "artifact": {"type": "string"},
+          "status": {"type": "string"},
+          "cost": {"type": "number"},
+          "note": {"type": "string"},
+          "created_at": {"type": "string"}
+        }
+      }
+    },
+    "cost": {
+      "type": "object",
+      "properties": {
+        "coins": {"type": "number"},
+        "usd": {"type": "number"}
+      }
+    },
+    "created_at": {"type": "string"},
+    "updated_at": {"type": "string"}
+  },
+  "definitions": {
+    "stage": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "enum": ["not_started", "queued", "running", "draft", "approved", "locked", "failed", "stale"]
+        },
+        "version": {"type": "integer", "minimum": 1},
+        "artifact": {"type": "string"},
+        "updated_at": {"type": "string"}
+      }
+    }
+  }
+}

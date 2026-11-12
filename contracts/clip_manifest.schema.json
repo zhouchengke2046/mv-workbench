@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MV Clip Manifest",
+  "description": "视频段合同：每个视频段是一个生成单位，带自己的 prompt，可覆盖 1+ 个分镜/歌词句。粗剪 skill 用它和 timeline 对齐。",
+  "type": "object",
+  "required": ["mv_id", "clips"],
+  "properties": {
+    "mv_id": {"type": "string"},
+    "model": {"type": "string"},
+    "provider": {"type": "string", "description": "h3 / muse / s2v"},
+    "version": {"type": "integer", "minimum": 1, "default": 1},
+    "media_root": {"type": "string"},
+    "clips": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["clip_id", "source", "duration", "shot_ids", "intended", "prompt"],
+        "properties": {
+          "clip_id": {"type": "string"},
+          "shot_ids": {
+            "type": "array",
+            "minItems": 1,
+            "description": "该视频段覆盖哪些分镜",
+            "items": {"type": "string"}
+          },
+          "source": {"type": "string", "description": "相对 media_root 或绝对路径"},
+          "duration": {"type": "number", "minimum": 0},
+          "fps": {"type": "number"},
+          "resolution": {"type": "string"},
+          "prompt": {"type": "string", "description": "以视频段为单位写的提示词"},
+          "task_id": {"type": "string"},
+          "cost": {
+            "type": "object",
+            "properties": {
+              "amount": {"type": "number"},
+              "currency": {"type": "string"}
+            }
+          },
+          "intended": {
+            "type": "array",
+            "minItems": 1,
+            "description": "该素材预期覆盖的歌词句；start/end 相对素材起点",
+            "items": {
+              "type": "object",
+              "required": ["line_id", "start", "end"],
+              "properties": {
+                "line_id": {"type": "string", "pattern": "^L[0-9]+$"},
+                "start": {"type": "number", "minimum": 0},
+                "end": {"type": "number", "minimum": 0}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

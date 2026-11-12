@@ -1,0 +1,15 @@
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+keys.json
+*.bak
+*.bak.*
+out/
+workspaces/
+tests/tmp/
+.pytest_cache/
+.ruff_cache/

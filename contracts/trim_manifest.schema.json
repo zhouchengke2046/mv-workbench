@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MV Trim Manifest",
+  "description": "粗剪产物：每句歌词最终用了哪段素材的哪几秒，置信度与标记。原始素材不被覆盖。",
+  "type": "object",
+  "required": ["mv_id", "trims"],
+  "properties": {
+    "mv_id": {"type": "string"},
+    "source_timeline": {"type": "string"},
+    "source_clips": {"type": "string"},
+    "media_root": {"type": "string"},
+    "fps": {"type": "number"},
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total": {"type": "integer"},
+        "high": {"type": "integer"},
+        "medium": {"type": "integer"},
+        "low": {"type": "integer"},
+        "missing": {"type": "integer"}
+      }
+    },
+    "trims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["line_id", "clip_id", "source_in", "source_out", "duration", "path", "confidence"],
+        "properties": {
+          "line_id": {"type": "string", "pattern": "^L[0-9]+$"},
+          "text": {"type": "string"},
+          "clip_id": {"type": "string"},
+          "source": {"type": "string"},
+          "source_in": {"type": "number", "minimum": 0},
+          "source_out": {"type": "number", "minimum": 0},
+          "duration": {"type": "number", "minimum": 0},
+          "actual_duration": {"type": "number", "minimum": 0},
+          "frames": {"type": "integer", "minimum": 1},
+          "fps": {"type": "number"},
+          "path": {"type": "string"},
+          "confidence": {"enum": ["high", "medium", "low"]},
+          "method": {"type": "string"},
+          "shift": {"type": "number", "description": "实际入点相对预期入点的偏移秒数"},
+          "cuts_inside": {"type": "integer", "description": "窗口内硬切数量"},
+          "flags": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="2560" viewBox="0 0 1440 2560">
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#101a2b"/><stop offset="1" stop-color="#1d2a3d"/></linearGradient><linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#38414e"/><stop offset="1" stop-color="#151a22"/></linearGradient></defs>
+  <rect width="1440" height="2560" fill="url(#sky)"/>
+  <rect y="1680" width="1440" height="880" fill="url(#floor)"/>
+  <rect x="0" y="1250" width="1440" height="430" rx="24" fill="#d9dde2"/>
+  <rect x="40" y="1300" width="1360" height="120" rx="18" fill="#1b2736"/><rect x="80" y="1330" width="1280" height="50" rx="12" fill="#eed9a8"/>
+  <g fill="#f6d28a"><circle cx="220" cy="820" r="34"/><circle cx="720" cy="760" r="44"/><circle cx="1220" cy="820" r="34"/></g>
+  <g stroke="#f6d28a" stroke-width="10" opacity=".35"><path d="M220 854v650"/><path d="M720 804v700"/><path d="M1220 854v650"/></g>
+  <g fill="#8ea3bd" font-family="Helvetica,Arial,sans-serif" font-size="30"><text x="80" y="2200">末班地铁 · 空站台 · DEMO</text></g>
+</svg>

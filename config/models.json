@@ -1,0 +1,41 @@
+{
+  "as_of": "2026-11-13",
+  "note": "价格为实测/公开价，可能随时变动；生成前以服务商账单为准。",
+  "models": {
+    "muse-video-ext": {
+      "provider": "router",
+      "api": "/v1/videos",
+      "unit": "CNY",
+      "price_per_second": 0.5,
+      "min_seconds": 2,
+      "max_seconds": 10,
+      "resolution": "720p",
+      "tested": "2026-11-13: 2s=1.00 CNY, 720x1280, 24fps"
+    },
+    "ace-step-1.5": {
+      "provider": "runninghub",
+      "unit": "币",
+      "price": 39,
+      "duration": 45,
+      "workflow_id": "2075301815628943362"
+    },
+    "moss": {
+      "provider": "runninghub",
+      "unit": "币",
+      "price_per_image": 26,
+      "workflow_id": "2116462203997081601"
+    },
+    "h3-yz": {
+      "provider": "runninghub",
+      "unit": "币",
+      "price_per_4s": 19,
+      "workflow_id": "2110943749894402050"
+    },
+    "s2v": {
+      "provider": "runninghub",
+      "unit": "币",
+      "price_per_8s": 176,
+      "workflow_id": "1979183169033375745"
+    }
+  }
+}
