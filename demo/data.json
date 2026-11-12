@@ -2,7 +2,12 @@
   "meta": {
     "id": "D01",
     "title": "末班地铁",
-    "generated_at": "2026-11-13 01:00"
+    "generated_at": "2026-11-13 01:00",
+    "batch": {
+      "count": 3,
+      "target_duration": 20,
+      "style": "city_pop"
+    }
   },
   "keys": {
     "runninghub": {
@@ -100,7 +105,8 @@
             "generated_at": "2026-11-13 00:40",
             "duration": 20.0,
             "status": "locked",
-            "current": true
+            "current": true,
+            "requested_duration": 20
           }
         ],
         "assets": [
@@ -337,7 +343,8 @@
             }
           ]
         }
-      }
+      },
+      "target_duration": 20
     },
     {
       "id": "MV002",
@@ -498,7 +505,8 @@
             }
           ]
         }
-      }
+      },
+      "target_duration": 20
     },
     {
       "id": "MV003",
@@ -668,7 +676,8 @@
             }
           ]
         }
-      }
+      },
+      "target_duration": 20
     }
   ]
 }

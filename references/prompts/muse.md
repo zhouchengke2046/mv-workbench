@@ -65,7 +65,6 @@ python3 scripts/mv_keys.py exec --need router -- python3 scripts/providers/token
 
 完整规则：
 
-- [`muse-prompting.md`](muse-prompting.md)
 - [`muse-guide.md`](muse-guide.md)
 
 ## 成本门

@@ -31,7 +31,7 @@ workspaces/<project>/
 
 ```json
 {
-  "meta": {"id": "D01", "title": "末班地铁", "generated_at": "2026-11-13 01:00"},
+  "meta": {"id": "D01", "title": "末班地铁", "generated_at": "2026-11-13 01:00", "batch": {"count": 3, "target_duration": 20, "style": "city_pop"}},
   "keys": {
     "runninghub": {
       "label": "RunningHub", "account": "账号备注",
@@ -55,7 +55,7 @@ workspaces/<project>/
   "lyric": {"title": "末班地铁", "body": "[主歌 1]\n…"},
   "script": {"title": "末班地铁 · 故事脚本", "body": "人物\n…"},
   "mvs": [{
-    "id": "MV001", "status": "ready", "cost": 143, "spent": 143,
+    "id": "MV001", "status": "ready", "target_duration": 20, "cost": 143, "spent": 143,
     "stages": {
       "music": {"status": "locked", "version": 1, "artifact": "01_music/timeline_v1.json", "cost": 39},
       "assets": {"status": "locked", "version": 1, "artifact": "02_assets/assets_v1.json", "cost": 104},
@@ -65,7 +65,7 @@ workspaces/<project>/
       "music": [{
         "version": 1, "audio": "MV001/01_music/song_v1.mp3",
         "model": "ACE-Step 1.5", "cost": "39 币",
-        "generated_at": "2026-11-13 00:40", "duration": 20.0,
+        "generated_at": "2026-11-13 00:40", "requested_duration": 20, "duration": 20.0,
         "status": "locked", "current": true
       }],
       "assets": [{
@@ -98,7 +98,10 @@ workspaces/<project>/
 - `spent` = 历史累计花费；左侧“已花 X 币”/MV 头部“累计”用它。
 - `music[].current` 标记当前版；历史版 `current:false`。
 - `segments[].videos` 第一条是当前视频，后面是历史视频；每条带分辨率/模型/费用/时间/时长。
-- `segments[].duration` 是该段覆盖分镜的总时长，必须 ≤10s。
+- `meta.batch.target_duration` 是用户设定的总时长；`mvs[].target_duration` 可覆盖。
+- `music[].requested_duration` 是传给 ACE 的秒数；`music[].duration` 是实际输出。
+- 分镜/段的 `duration` 在音乐出来前是计划值；音乐出来后按 `timeline` 更新为实际值。
+- `segments[].duration` 是该段覆盖分镜的实际/计划总时长，必须 ≤10s。
 - 资产/音频/视频 URL 都相对项目根；每个 MV 的文件放在自己的 `MVxxx/` 下。
 - 工作台只显示环颜色；状态字段仍写 JSON/DATA 供 agent 判断。
 
@@ -117,8 +120,9 @@ workspaces/<project>/
 1. 读 `mv_manifest.json`、`01_music/`、`02_assets/`、`03_segments/`；
 2. 只重跑点名项，写 `*_v{n+1}.json`/媒体，不覆盖旧版；
 3. 更新 `mv_manifest.json` 的 stages/history，`spent` 累加；
-4. 更新 `DATA`（或 `DATA.json` 后用 `build_workbench.py` 重建）；
-5. 刷新页面。
+4. 音乐出来后对比 `target_duration` 与 `actual_duration`；偏差 >1s 或 >2% 先暂停；更新 segments 的实际时长；
+5. 更新 `DATA`（或 `DATA.json` 后用 `build_workbench.py` 重建）；
+6. 刷新页面。
 
 ## 边界
 

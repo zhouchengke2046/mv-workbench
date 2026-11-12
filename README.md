@@ -62,12 +62,12 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 
 ## 压缩包 / 离线使用
 
-Release 里提供 `mv-gongzuotai-v0.2.2.zip`，解压后目录是 `mv-gongzuotai/`。
+Release 里提供 `mv-gongzuotai-v0.2.3-runtime.zip`（运行时精简包，不含 tests/.github/dev 配置），解压后目录是 `mv-gongzuotai/`。
 
 ### 方式 A：直接放进 skills（agent 立即识别）
 
 ```bash
-unzip mv-gongzuotai-v0.2.2.zip -d ~/.agents/skills/
+unzip mv-gongzuotai-v0.2.3-runtime.zip -d ~/.agents/skills/
 cd ~/.agents/skills/mv-gongzuotai
 ./mvwb doctor
 ./mvwb demo
@@ -79,7 +79,7 @@ cd ~/.agents/skills/mv-gongzuotai
 ### 方式 B：解压后安装（推荐，生成全局 mvwb）
 
 ```bash
-unzip mv-gongzuotai-v0.2.2.zip -d ~/Downloads
+unzip mv-gongzuotai-v0.2.3-runtime.zip -d ~/Downloads
 cd ~/Downloads/mv-gongzuotai
 ./install.sh
 mvwb doctor
@@ -88,7 +88,7 @@ mvwb doctor
 Windows：
 
 ```powershell
-Expand-Archive mv-gongzuotai-v0.2.2.zip -DestinationPath "$HOME\Downloads"
+Expand-Archive mv-gongzuotai-v0.2.3-runtime.zip -DestinationPath "$HOME\Downloads"
 cd "$HOME\Downloads\mv-gongzuotai"
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 .\mvwb.cmd doctor
@@ -232,6 +232,18 @@ Agent 生成 `MV001…MV00N`：音乐计划、资产清单、标准分镜、视�
 - 音乐先锁定；资产按参考包；视频段逐段生成。
 - 每次审核修改只重跑点名项，写 `v2`，旧版保留。
 - 所有段 `locked` 后写 `handoff_v1.json`，项目结束。
+
+## 时长：用户目标 vs 音乐实际
+
+| 时长 | 谁定 | 用途 |
+|---|---|---|
+| `target_duration` | 用户在第 2 步设定（如 45s） | 音乐请求秒数、总目标时长、预算/段数、框架计划 |
+| `actual_duration` / `timeline_v1.json` | 音乐生成后读取 | 分镜/视频段实际时长、Muse `seconds`、H3 帧数、handoff |
+
+- **总时长按用户设定**：ACE 的 `116:value` 用 `target_duration`，框架/段数/预算都按它规划。
+- **每段时长按音乐实际**：音乐出来后读实际 `duration/timeline`，更新分镜/段的 `duration`；视频按实际句长生成。
+- 实际与目标差 >1s 或 >2% 时暂停，让用户选「接受实际 / 重生成音乐 / 后期裁」。
+- 只选视频没音乐：先用 `target_duration` 做 provisional 计划；补音乐后视频段标记 `stale`。
 
 ## 模型与价格（2026-11-13，会变）
 

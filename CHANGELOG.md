@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.3 — 2026-11-13
+
+- Removed unused demo SVGs (`poster.svg`, `scene_store.svg`).
+- Merged the two Muse prompt guides into `references/prompts/muse-guide.md`.
+- Added target_duration vs actual music timeline contract for video segment planning.
+- Added runtime zip (no tests/.github/dev config).
+
 ## 0.2.1 — 2026-11-13
 
 - Windows console UTF-8 fallback for Chinese output in CI/pipes.

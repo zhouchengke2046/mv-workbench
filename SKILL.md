@@ -112,12 +112,25 @@ mvwb server --workspace my_project
 
 **门：批次参数确认。** 此步不花钱。
 
+## 时长契约（用户目标 vs 音乐实际）
+
+| 时长 | 谁定 | 用途 |
+|---|---|---|
+| `target_duration` | 用户在第 2 步设定（如 45s） | 音乐请求秒数、MV 总目标时长、预算/段数、框架计划 |
+| `actual_duration` / `timeline_v1.json` | 音乐生成后读取 | 分镜/视频段实际时长、Muse `seconds`、H3 帧数、handoff |
+
+- **总时长按用户设定**：音乐生成时把 `target_duration` 传给 ACE 的 `116:value`；框架的总时长、段数、预算都按它规划。
+- **每段时长按音乐实际**：音乐出来后读 `actual_duration` 和逐句 `timeline`，更新分镜/视频段的 `duration`；视频段按实际句长生成，不按计划时长硬切。
+- **偏差处理**：实际与目标差 >1s 或 >2% 时暂停，让用户选「接受实际 / 重生成音乐 / 后期裁」；不要偷偷用计划时长生成视频。
+- **只选视频没音乐**：先用 `target_duration` 做 provisional 计划；补音乐后所有视频段标记 `stale`，按实际时间轴重跑。
+- 这样既尊重用户设定的总时长，又保证画面与音乐逐句对齐。
+
 ### Step 3 · MV 文本框架
 
 创建 `MV001…MV00N`，每条：
 
 - `mv_manifest.json`：stages 全 `not_started`；genome、cost/spent=0。
-- `02_storyboard`（或 `00_framework.md`）：音乐计划、资产清单、标准分镜（镜号/对应句/景别/运镜/画面描述/时长）、视频段（1 段可含 1+ 镜，**≤10s**）。
+- `00_framework.md`：音乐计划、资产清单、标准分镜、视频段计划；这里的 `duration` 是**计划值**，以 `target_duration` 为总目标。
 - `03_segments/segments_v1.json`：先写计划，`videos: []`。
 - 更新 `DATA.mvs`：音乐/资产为空，分镜/段有计划；保留 `keys` 快照。
 
@@ -150,7 +163,7 @@ mvwb quote --model muse-video-ext --seconds 2
 | Muse 视频 | `mvwb muse --prompt ... --seconds N --size 720x1280 --out ...` | `03_segments/G*_v1.mp4` |
 | 交付 | 写 `handoff_v1.json` | 给剪辑 |
 
-- **音乐先锁定**；资产按参考包生成；视频段逐段生成。
+- **音乐先锁定**；读实际 `duration/timeline` 后更新段时长；资产按参考包；视频段按实际句长逐段生成。
 - 每段可生成多条视频：当前第一条，历史追加 `G1_v2.mp4`。
 - 新版本写 `*_v{n+1}.json`，不覆盖旧版。
 - 更新 `stages/status/spent`，重建 `DATA`。
@@ -249,5 +262,6 @@ config/           模型价格 / provider / keys 示例
 
 ## 版本
 
+- v0.2.3（2026-11-13）：清理冗余资产、合并 Muse 指南、补 target/actual 时长契约。
 - v0.2（2026-11-13）：单 skill 重构；factory/trim 移除；流程到视频段；每 MV 独立目录；handoff。
 - v0.1：公开打包初版。
