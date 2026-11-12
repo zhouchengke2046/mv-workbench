@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1 — 2026-11-13
+
+- Windows console UTF-8 fallback for Chinese output in CI/pipes.
+- CI green: Ubuntu 22.04/24.04, macOS, Windows; Python 3.9/3.11.
+
 ## 0.2.0 — 2026-11-13
 
 - **Single-skill refactor**: `mv-gongzuotai` is now the only skill; all MV logic lives here.
