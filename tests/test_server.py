@@ -1,11 +1,10 @@
+import http.client
 import json
 import os
 import socket
 import subprocess
 import sys
 import time
-import urllib.error
-import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -19,6 +18,16 @@ def free_port():
     return port
 
 
+def request(port, method, path, body=None, headers=None):
+    conn = http.client.HTTPConnection("127.0.0.1", port, timeout=3)
+    conn.request(method, path, body=body, headers=headers or {})
+    resp = conn.getresponse()
+    data = resp.read()
+    result = (resp.status, dict(resp.getheaders()), data)
+    conn.close()
+    return result
+
+
 def test_server_api_and_injection(tmp_path):
     keys = tmp_path / "keys.json"
     port = free_port()
@@ -28,48 +37,49 @@ def test_server_api_and_injection(tmp_path):
         sys.executable, str(ROOT / "scripts" / "mv_keys_server.py"),
         "--root", str(ROOT), "--workbench", "demo/workbench.html",
         "--port", str(port), "--timeout", "5",
-    ], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    ], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
     try:
-        base = "http://127.0.0.1:%d" % port
-        for _ in range(30):
+        for _ in range(40):
+            if proc.poll() is not None:
+                err = proc.stderr.read().decode("utf-8", "replace")
+                raise AssertionError("server exited: " + err[-1200:])
             try:
-                with urllib.request.urlopen(base + "/api/health", timeout=1) as resp:
-                    assert resp.status == 200
-                break
+                status, _, _ = request(port, "GET", "/api/health")
+                if status == 200:
+                    break
             except Exception:
-                time.sleep(0.2)
+                pass
+            time.sleep(0.2)
         else:
             raise AssertionError("server did not start")
 
-        with urllib.request.urlopen(base + "/api/keys", timeout=5) as resp:
-            data = json.loads(resp.read().decode())
+        status, _, body = request(port, "GET", "/api/keys")
+        assert status == 200
+        data = json.loads(body.decode())
         assert data["runninghub"]["configured"] is False
 
         payload = json.dumps({
             "runninghub": {"api_key": "rh-test-1234"},
             "router": {"api_key": "sk-test-5678"},
         }).encode()
-        req = urllib.request.Request(
-            base + "/api/keys", data=payload, method="POST",
-            headers={"Content-Type": "application/json", "Origin": base},
+        status, _, body = request(
+            port, "POST", "/api/keys", body=payload,
+            headers={"Content-Type": "application/json", "Origin": "http://127.0.0.1:%d" % port},
         )
-        with urllib.request.urlopen(req, timeout=5) as resp:
-            data = json.loads(resp.read().decode())
+        assert status == 200, body.decode("utf-8", "replace")
+        data = json.loads(body.decode())
         assert data["runninghub"]["masked"] == "••••1234"
         assert data["router"]["masked"] == "••••5678"
 
-        bad = urllib.request.Request(
-            base + "/api/keys", data=payload, method="POST",
+        status, _, _ = request(
+            port, "POST", "/api/keys", body=payload,
             headers={"Content-Type": "application/json", "Origin": "https://evil.example"},
         )
-        try:
-            urllib.request.urlopen(bad, timeout=5)
-            raise AssertionError("evil origin should be rejected")
-        except urllib.error.HTTPError as exc:
-            assert exc.code == 403
+        assert status == 403
 
-        with urllib.request.urlopen(base + "/go", timeout=5) as resp:
-            html = resp.read().decode()
+        status, _, body = request(port, "GET", "/demo/workbench.html")
+        assert status == 200
+        html = body.decode()
         assert "MV_SERVER_MODE=true" in html
         assert "MV_KEY_UI" in html
         assert "配置 Key" in html
