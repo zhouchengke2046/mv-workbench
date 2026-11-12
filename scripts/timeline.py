@@ -13,6 +13,10 @@ import re
 import subprocess
 import sys
 
+from console import setup
+
+setup()
+
 MARK = re.compile(r"^\[(.+)\]\s*$")
 
 

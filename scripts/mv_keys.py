@@ -31,6 +31,10 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+from console import setup
+
+setup()
+
 DEFAULT_KEYS_PATH = Path.home() / ".config" / "mv-workbench" / "keys.json"
 
 TEMPLATE = {

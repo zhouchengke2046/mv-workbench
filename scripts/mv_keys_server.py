@@ -25,6 +25,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import mv_keys  # noqa: E402
+from console import setup  # noqa: E402
+setup()
 
 UI_JS_PATH = HERE / "mv_keys_ui.js"
 MAX_BODY = 64 * 1024

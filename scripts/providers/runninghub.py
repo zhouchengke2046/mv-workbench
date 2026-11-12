@@ -19,6 +19,12 @@ import time
 import urllib.parse
 import urllib.request
 import uuid
+from pathlib import Path
+
+SCRIPTS = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(SCRIPTS))
+from console import setup  # noqa: E402
+setup()
 
 BASE = "https://www.runninghub.cn"
 

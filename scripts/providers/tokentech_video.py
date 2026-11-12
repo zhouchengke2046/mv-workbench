@@ -21,6 +21,8 @@ HERE = Path(__file__).resolve().parent
 SCRIPTS = HERE.parent
 sys.path.insert(0, str(SCRIPTS))
 import mv_keys  # noqa: E402
+from console import setup  # noqa: E402
+setup()
 
 
 def load_router():

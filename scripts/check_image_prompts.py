@@ -8,6 +8,10 @@ exit 0 = PASS; 1 = FAIL。
 import json, re, sys
 from pathlib import Path
 
+from console import setup
+
+setup()
+
 CORE = ["用途", "画风", "版式", "背景", "文字政策", "负面"]
 GROUP = {
     "C": {"must": ["三视图|三格", "面部特写", "头部完全|无头", "背面", "纯色|无缝"], "extra": ["身份锚点", "姿态"]},

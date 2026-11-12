@@ -30,6 +30,8 @@ CONFIG = ROOT / "config" / "models.json"
 
 sys.path.insert(0, str(SCRIPTS))
 import mv_keys  # noqa: E402
+from console import setup  # noqa: E402
+setup()
 
 OK = "[ok]"
 WARN = "[warn]"

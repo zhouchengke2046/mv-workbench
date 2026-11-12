@@ -9,6 +9,10 @@ import json
 import sys
 from pathlib import Path
 
+from console import setup
+
+setup()
+
 MARKER = "const DATA = "
 
 
