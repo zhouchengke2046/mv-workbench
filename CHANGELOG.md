@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.4 — 2026-11-13
+
+- Added `mvwb open` (reuse/start service, auto-select free port) and `mvwb status`; reuse checks the served workbench path, so an old project on the same port is not reused.
+- Static page now shows “只读 · Key 需服务版” and sets `data-mv-mode=static|service`.
+- SKILL hard rule: Key/balance tasks must use service mode; never `file://`/plain static server.
+
 ## 0.2.3 — 2026-11-13
 
 - Removed unused demo SVGs (`poster.svg`, `scene_store.svg`).

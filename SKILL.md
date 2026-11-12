@@ -13,6 +13,16 @@ description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 wo
 
 > 命令里的 `mvwb` 指安装后的全局命令；如果 `~/.local/bin` 不在 PATH，用 `~/.agents/skills/mv-gongzuotai/mvwb`（或 `mv-gongzuotai/scripts/mvwb.py`）。
 
+## 打开方式（硬规则）
+
+- **配置 Key / 看余额 / 用户说“打开工作台”**：必须用服务版 `mvwb open`，打开 `http://127.0.0.1:8776/go`。
+- **禁止**用 `file://`、`python -m http.server`、旧端口/旧服务来配置 Key。
+- 静态 `file://` 只用于**只读分享**；没有配置按钮是设计，不是 bug。
+- 页面没有按钮时：先看地址栏和 `document.documentElement.dataset.mvMode`：
+  - `static` → 运行 `mvwb open`，不要调试页面；
+  - `service` 且 `typeof openKeyConfig !== "function"` → 才是 UI 注入 bug。
+- `mvwb status` 可查服务是否在跑；`mvwb open` 会自动复用/启动服务并选空闲端口。
+
 ## 最终交付
 
 每个 MV 一个目录，音乐、资产、视频段都在里面：
@@ -101,7 +111,7 @@ python3 scripts/build_workbench.py \
 打开服务版：
 
 ```bash
-mvwb server --workspace my_project
+mvwb open --workspace my_project
 ```
 
 生成后停下来问：
@@ -221,7 +231,7 @@ mvwb quote --model muse-video-ext --seconds 2
 ## Key
 
 - 唯一真源：`~/.config/mv-workbench/keys.json`（0600）。
-- 页面配置：`mvwb server` → 右上角“配置 Key” → RunningHub / Router 两个输入框。
+- 页面配置：`mvwb open` → 右上角“配置 Key” → RunningHub / Router 两个输入框。
 - 命令行：`mvwb keys set runninghub`、`mvwb keys set router`。
 - 原始 Key 不进 HTML/DATA/日志；`DATA.keys` 只有掩码和余额。
 - 生成命令统一经 `mv_keys.py exec` 注入；不要依赖 shell 残留 Key。
@@ -230,8 +240,8 @@ mvwb quote --model muse-video-ext --seconds 2
 
 ```bash
 mvwb doctor
-mvwb demo
-mvwb server --workspace my_project
+mvwb open
+mvwb open --workspace my_project
 mvwb init my_project
 mvwb keys status
 mvwb keys balance
@@ -262,6 +272,7 @@ config/           模型价格 / provider / keys 示例
 
 ## 版本
 
+- v0.2.4（2026-11-13）：新增 `mvwb open/status`；静态页提示“Key 需服务版”；打开方式硬规则。
 - v0.2.3（2026-11-13）：清理冗余资产、合并 Muse 指南、补 target/actual 时长契约。
 - v0.2（2026-11-13）：单 skill 重构；factory/trim 移除；流程到视频段；每 MV 独立目录；handoff。
 - v0.1：公开打包初版。

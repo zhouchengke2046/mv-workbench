@@ -4,16 +4,19 @@
 
 Usage:
   mvwb doctor [--network]
-  mvwb server [--workspace NAME] [--port 8776] [--no-open]
-  mvwb demo
+  mvwb open [--workspace NAME] [--port 8776] [--no-open]
+  mvwb server [--workspace NAME] [--port 8776]
+  mvwb status [--port 8776]
   mvwb keys [status|set|config|balance ...]
   mvwb quote [--model muse-video-ext] [--seconds 2] [--images 1] [--segments 1]
   mvwb init <name>
   mvwb build --data demo/data.json --out demo/workbench.html
 """
 import argparse
+import http.client
 import json
 import shutil
+import socket
 import subprocess
 import sys
 import threading
@@ -67,6 +70,12 @@ def cmd_doctor(args):
         print("%s demo/workbench.html 缺失" % FAIL)
         failures += 1
 
+    service = _find_service(8776)
+    if service:
+        print("%s 服务版运行: http://127.0.0.1:%d/go（%s）" % (OK, service["port"], service.get("workbench") or "未知工作台"))
+    else:
+        print("%s 服务版未运行；配置 Key 用 mvwb open" % WARN)
+
     required = [
         "SKILL.md",
         "scripts/mvwb.py",
@@ -92,7 +101,7 @@ def cmd_doctor(args):
         print("  RunningHub: %s" % ("已配置 " + mv_keys.mask(rh) if rh else "未配置"))
         print("  Router:     %s" % ("已配置 " + mv_keys.mask(rt) if rt else "未配置"))
         if not rh and not rt:
-            print("%s 还没配 Key；运行 mvwb server，在页面右上角“配置 Key”" % WARN)
+            print("%s 还没配 Key；运行 mvwb open，在页面右上角“配置 Key”" % WARN)
     except SystemExit:
         print("%s keys.json 读取失败" % FAIL)
         failures += 1
@@ -119,8 +128,59 @@ def cmd_doctor(args):
     if failures:
         print("有 %d 个阻塞项，先修复再继续。" % failures)
         return 1
-    print("环境可用。下一步：mvwb demo  （打开 demo 工作台）")
+    print("环境可用。下一步：mvwb open  （打开服务版工作台）")
     return 0
+
+
+def _service_info(port):
+    try:
+        conn = http.client.HTTPConnection("127.0.0.1", port, timeout=0.6)
+        conn.request("GET", "/api/health")
+        resp = conn.getresponse()
+        body = resp.read()
+        conn.close()
+        if resp.status != 200:
+            return None
+        data = json.loads(body.decode("utf-8"))
+        if data.get("service") != "mv-keys":
+            return None
+        data["port"] = port
+        return data
+    except Exception:
+        return None
+
+
+def _service_ok(port):
+    return _service_info(port) is not None
+
+
+def _find_service(start=8776, count=20):
+    fallback = None
+    for port in range(start, start + count):
+        info = _service_info(port)
+        if info:
+            if info.get("workbench"):
+                return info
+            fallback = fallback or info
+    return fallback
+
+
+def _port_free(port):
+    sock = socket.socket()
+    try:
+        sock.bind(("127.0.0.1", port))
+        return True
+    except OSError:
+        return False
+    finally:
+        sock.close()
+
+
+def _choose_port(preferred):
+    for port in range(preferred, preferred + 20):
+        if _port_free(port):
+            return port
+    raise SystemExit("没有可用端口：%d-%d" % (preferred, preferred + 19))
 
 
 def _workbench_path(args):
@@ -163,7 +223,42 @@ def cmd_demo(args):
     args.workspace = None
     args.workbench = None
     args.open = True
+    return cmd_open(args)
+
+
+def cmd_open(args):
+    preferred = args.port
+    open_browser = getattr(args, "open", True)
+    desired = _workbench_path(args).relative_to(ROOT).as_posix()
+    info = _service_info(preferred)
+    if info and info.get("workbench") == desired:
+        url = "http://127.0.0.1:%d/go" % preferred
+        print("服务版已在运行：%s" % url)
+        if open_browser:
+            webbrowser.open(url)
+        return 0
+    if info:
+        print("端口 %d 是另一个工作台（%s），不会复用" % (preferred, info.get("workbench") or "未知"))
+    port = preferred if _port_free(preferred) else _choose_port(preferred + 1)
+    if port != preferred:
+        print("端口 %d 被占用，改用 %d" % (preferred, port))
+    args.port = port
+    args.open = open_browser
     return cmd_server(args)
+
+
+def cmd_status(args):
+    info = _find_service(args.port)
+    if info:
+        print(json.dumps({
+            "running": True,
+            "url": "http://127.0.0.1:%d/go" % info["port"],
+            "port": info["port"],
+            "workbench": info.get("workbench") or "",
+        }, ensure_ascii=False))
+        return 0
+    print(json.dumps({"running": False, "hint": "运行 mvwb open 启动服务版"}, ensure_ascii=False))
+    return 1
 
 
 def cmd_rh(args):
@@ -282,6 +377,17 @@ def build_parser():
     timeline = sub.add_parser("timeline", help="生成/对齐音乐时间轴（透传 timeline.py）", add_help=False)
     timeline.add_argument("args", nargs=argparse.REMAINDER)
 
+    open_cmd = sub.add_parser("open", help="启动/复用服务版并打开工作台")
+    open_cmd.add_argument("--workspace", help="workspaces/<name>")
+    open_cmd.add_argument("--workbench", help="repo 内的 workbench.html 路径")
+    open_cmd.add_argument("--port", type=int, default=8776)
+    open_cmd.add_argument("--timeout", type=int, default=12)
+    open_cmd.add_argument("--no-open", dest="open", action="store_false", help="不自动打开浏览器")
+    open_cmd.set_defaults(open=True)
+
+    status = sub.add_parser("status", help="查看服务版是否运行")
+    status.add_argument("--port", type=int, default=8776)
+
     keys = sub.add_parser("keys", help="Key 管理（status/set/config/balance）", add_help=False)
     keys.add_argument("args", nargs=argparse.REMAINDER)
 
@@ -317,6 +423,10 @@ def main():
         return cmd_server(args)
     if args.cmd == "demo":
         return cmd_demo(args)
+    if args.cmd == "open":
+        return cmd_open(args)
+    if args.cmd == "status":
+        return cmd_status(args)
     if args.cmd == "rh":
         return cmd_rh(args)
     if args.cmd == "timeline":

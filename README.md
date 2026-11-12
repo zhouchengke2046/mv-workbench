@@ -62,15 +62,15 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 
 ## 压缩包 / 离线使用
 
-Release 里提供 `mv-gongzuotai-v0.2.3-runtime.zip`（运行时精简包，不含 tests/.github/dev 配置），解压后目录是 `mv-gongzuotai/`。
+Release 里提供 `mv-gongzuotai-v0.2.4-runtime.zip`（运行时精简包，不含 tests/.github/dev 配置），解压后目录是 `mv-gongzuotai/`。
 
 ### 方式 A：直接放进 skills（agent 立即识别）
 
 ```bash
-unzip mv-gongzuotai-v0.2.3-runtime.zip -d ~/.agents/skills/
+unzip mv-gongzuotai-v0.2.4-runtime.zip -d ~/.agents/skills/
 cd ~/.agents/skills/mv-gongzuotai
 ./mvwb doctor
-./mvwb demo
+./mvwb open
 ```
 
 - skill 已被 agent 识别；`mvwb` 是文件夹内命令。
@@ -79,7 +79,7 @@ cd ~/.agents/skills/mv-gongzuotai
 ### 方式 B：解压后安装（推荐，生成全局 mvwb）
 
 ```bash
-unzip mv-gongzuotai-v0.2.3-runtime.zip -d ~/Downloads
+unzip mv-gongzuotai-v0.2.4-runtime.zip -d ~/Downloads
 cd ~/Downloads/mv-gongzuotai
 ./install.sh
 mvwb doctor
@@ -88,7 +88,7 @@ mvwb doctor
 Windows：
 
 ```powershell
-Expand-Archive mv-gongzuotai-v0.2.3-runtime.zip -DestinationPath "$HOME\Downloads"
+Expand-Archive mv-gongzuotai-v0.2.4-runtime.zip -DestinationPath "$HOME\Downloads"
 cd "$HOME\Downloads\mv-gongzuotai"
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 .\mvwb.cmd doctor
@@ -99,18 +99,18 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 ## 30 秒 demo
 
 ```bash
-./mvwb demo
+./mvwb open
 ```
 
-启动本地服务并打开 `http://127.0.0.1:8776/go`。Demo 使用原创虚构歌词/脚本和 SVG 占位资产，不含客户内容。
+`mvwb open` 会自动启动/复用服务版并打开 `http://127.0.0.1:8776/go`。Demo 使用原创虚构歌词/脚本和 SVG 占位资产，不含客户内容。
 
-静态只读版：
+静态只读分享（不要用来配 Key）：
 
 ```bash
 open demo/workbench.html
 ```
 
-> 静态 `file://` 没有“配置 Key”按钮；要配 Key / 刷余额，用 `./mvwb server` 的服务版。
+> 静态 `file://` 没有“配置 Key”按钮；要配 Key / 刷余额，用 `./mvwb open` 的服务版。
 
 ## 每个 MV 的产物
 
@@ -197,7 +197,7 @@ python3 scripts/build_workbench.py \
 打开：
 
 ```bash
-./mvwb server --workspace my_project
+./mvwb open --workspace my_project
 ```
 
 然后问：**一次多少条 / 每条多长 / 什么风格**。
@@ -291,7 +291,7 @@ mv-workbench/                ← 一个 skill
 ## Key
 
 - 唯一真源：`~/.config/mv-workbench/keys.json`（0600）。
-- 页面配置：`./mvwb server` → 右上角“配置 Key” → RunningHub / Router。
+- 页面配置：`./mvwb open` → 右上角“配置 Key” → RunningHub / Router。
 - 命令行：`./mvwb keys set runninghub`、`./mvwb keys set router`。
 - 原始 Key 不进 HTML/DATA/日志/截图。
 - 生成命令统一经 `mv_keys.py exec` 注入；不要依赖 shell 残留 Key。
@@ -304,8 +304,8 @@ mv-workbench/                ← 一个 skill
 
 ## 常见问题
 
-**页面没有“配置 Key”按钮？**  
-用 `./mvwb server` 或 `./mvwb demo`，打开 `http://127.0.0.1:8776/go`；`file://` 静态版没有按钮。
+**页面没有“配置 Key”按钮 / 点不动？**  
+先 `./mvwb status`，再 `./mvwb open`。只认它打印的 `http://127.0.0.1:8776/go`；`file://` 静态版没有按钮。Console 里 `document.documentElement.dataset.mvMode` 应为 `service`。
 
 **Router 域名打不开？**  
 用 `https://router.kcacher.top`，不要用 `router.kbtech.app`。

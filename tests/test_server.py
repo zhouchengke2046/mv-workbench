@@ -53,6 +53,11 @@ def test_server_api_and_injection(tmp_path):
         else:
             raise AssertionError("server did not start")
 
+        status, _, body = request(port, "GET", "/api/health")
+        assert status == 200
+        health = json.loads(body.decode())
+        assert health["workbench"] == "demo/workbench.html"
+
         status, _, body = request(port, "GET", "/api/keys")
         assert status == 200
         data = json.loads(body.decode())

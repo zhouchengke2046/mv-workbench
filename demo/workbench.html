@@ -552,6 +552,7 @@ function zoom(url) {
 }
 
 function render() {
+  document.documentElement.dataset.mvMode = window.MV_SERVER_MODE ? "service" : "static";
   renderTop();
   renderSidebar();
   renderMain();
@@ -600,7 +601,7 @@ function keyChip(k, fallback, section) {
   const masked = k && k.masked ? `<span class="key-mask">${esc(k.masked)}</span>` : "";
   const account = k && k.account ? " · " + k.account : "";
   const when = k && k.checked_at ? " · " + String(k.checked_at).replace("T", " ").slice(0, 16) : "";
-  const title = `${name}${account}${when}\n${note}\nKey 文件：~/.config/mv-workbench/keys.json\n${window.MV_SERVER_MODE ? "点击此胶囊配置 Key" : "配置：mv_keys.py set " + section}\n刷新：mv_keys.py balance --write <workbench.html>`;
+  const title = `${name}${account}${when}\n${note}\nKey 文件：~/.config/mv-workbench/keys.json\n${window.MV_SERVER_MODE ? "点击此胶囊配置 Key" : "静态版不能配置 Key；用 mvwb open 打开服务版"}\n刷新：mv_keys.py balance --write <workbench.html>`;
   const editable = window.MV_SERVER_MODE ? " editable" : "";
   const click = window.MV_SERVER_MODE ? ` onclick="window.openKeyConfig && window.openKeyConfig()"` : "";
   return `<span class="key-item ${cls}${editable}"${click} title="${esc(title)}"><span class="key-dot"></span><span class="key-name">${esc(name)}</span>${masked}<span class="key-bal">${esc(text)}</span></span>`;
@@ -623,7 +624,7 @@ function renderTop() {
       </div>
       ${window.MV_SERVER_MODE ? `<button class="btn primary key-config-btn" onclick="openKeyConfig()">配置 Key</button>` : ""}
       <span class="hint">生成于 ${esc(DATA.meta.generated_at || "")}</span>
-      <span class="readonly-badge">${window.MV_SERVER_MODE ? "只读 · Key 可配" : "只读模板"}</span>
+      <span class="readonly-badge">${window.MV_SERVER_MODE ? "只读 · Key 可配" : "只读 · Key 需服务版"}</span>
     </div>`;
 }
 

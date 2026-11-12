@@ -282,7 +282,7 @@ class Handler(BaseHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         path = urllib.parse.unquote(parsed.path)
         if path == "/api/health":
-            self._send_json(200, {"ok": True, "service": "mv-keys", "pid": os.getpid()})
+            self._send_json(200, {"ok": True, "service": "mv-keys", "pid": os.getpid(), "workbench": self.workbench_rel})
             return
         if path == "/api/keys":
             try:
