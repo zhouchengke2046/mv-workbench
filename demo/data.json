@@ -78,13 +78,13 @@
         "assets": {
           "status": "locked",
           "version": 1,
-          "artifact": "MV001/03_assets/assets_v1.json",
+          "artifact": "MV001/02_assets/assets_v1.json",
           "updated_at": "2026-11-13T00:40:00"
         },
         "video": {
           "status": "draft",
           "version": 1,
-          "artifact": "MV001/04_clips/clip_manifest_v1.json",
+          "artifact": "MV001/03_segments/segments_v1.json",
           "updated_at": "2026-11-13T00:40:00"
         }
       },
@@ -94,7 +94,7 @@
         "music": [
           {
             "version": 1,
-            "audio": "assets/demo_silence.mp3",
+            "audio": "MV001/01_music/song_v1.mp3",
             "model": "ACE-Step 1.5",
             "cost": "39 币",
             "generated_at": "2026-11-13 00:40",
@@ -107,7 +107,7 @@
           {
             "name": "女主四视图",
             "type": "角色",
-            "url": "assets/role_female.svg",
+            "url": "MV001/02_assets/role_female.svg",
             "resolution": "1024×1536",
             "model": "MOSS",
             "cost": "26 币",
@@ -116,7 +116,7 @@
           {
             "name": "夜班站台",
             "type": "场景",
-            "url": "assets/scene_subway.svg",
+            "url": "MV001/02_assets/scene_subway.svg",
             "resolution": "1440×2560",
             "model": "MOSS",
             "cost": "26 币",
@@ -125,7 +125,7 @@
           {
             "name": "雨夜街道",
             "type": "场景",
-            "url": "assets/scene_street.svg",
+            "url": "MV001/02_assets/scene_street.svg",
             "resolution": "1440×2560",
             "model": "MOSS",
             "cost": "26 币",
@@ -134,7 +134,7 @@
           {
             "name": "耳机",
             "type": "道具",
-            "url": "assets/product_headphone.svg",
+            "url": "MV001/02_assets/product_headphone.svg",
             "resolution": "1200×1200",
             "model": "MOSS",
             "cost": "26 币",
@@ -366,15 +366,15 @@
       },
       "stages": {
         "music": {
-          "status": "locked",
-          "version": 1,
-          "artifact": "MV002/01_music/timeline_v1.json",
+          "status": "not_started",
+          "version": 0,
+          "artifact": "",
           "updated_at": "2026-11-13T00:40:00"
         },
         "assets": {
-          "status": "draft",
-          "version": 1,
-          "artifact": "MV002/03_assets/assets_v1.json",
+          "status": "not_started",
+          "version": 0,
+          "artifact": "",
           "updated_at": "2026-11-13T00:40:00"
         },
         "video": {
@@ -384,41 +384,11 @@
           "updated_at": ""
         }
       },
-      "cost": 65,
-      "spent": 65,
+      "cost": 0,
+      "spent": 0,
       "detail": {
-        "music": [
-          {
-            "version": 1,
-            "audio": "assets/demo_silence.mp3",
-            "model": "ACE-Step 1.5",
-            "cost": "39 币",
-            "generated_at": "2026-11-13 00:40",
-            "duration": 20.0,
-            "status": "draft",
-            "current": true
-          }
-        ],
-        "assets": [
-          {
-            "name": "女主四视图",
-            "type": "角色",
-            "url": "assets/role_female.svg",
-            "resolution": "1024×1536",
-            "model": "MOSS",
-            "cost": "26 币",
-            "generated_at": "2026-11-13 00:40"
-          },
-          {
-            "name": "夜班站台",
-            "type": "场景",
-            "url": "assets/scene_subway.svg",
-            "resolution": "1440×2560",
-            "model": "MOSS",
-            "cost": "26 币",
-            "generated_at": "2026-11-13 00:40"
-          }
-        ],
+        "music": [],
+        "assets": [],
         "storyboard": {
           "shots": [
             {

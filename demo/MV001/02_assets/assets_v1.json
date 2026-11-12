@@ -1,0 +1,42 @@
+{
+  "mv_id": "MV001",
+  "version": 1,
+  "assets": [
+    {
+      "name": "女主四视图",
+      "type": "角色",
+      "file": "02_assets/role_female.svg",
+      "resolution": "1024×1536",
+      "model": "MOSS",
+      "cost": "26 币",
+      "generated_at": "2026-11-13 00:40"
+    },
+    {
+      "name": "夜班站台",
+      "type": "场景",
+      "file": "02_assets/scene_subway.svg",
+      "resolution": "1440×2560",
+      "model": "MOSS",
+      "cost": "26 币",
+      "generated_at": "2026-11-13 00:40"
+    },
+    {
+      "name": "雨夜街道",
+      "type": "场景",
+      "file": "02_assets/scene_street.svg",
+      "resolution": "1440×2560",
+      "model": "MOSS",
+      "cost": "26 币",
+      "generated_at": "2026-11-13 00:40"
+    },
+    {
+      "name": "耳机",
+      "type": "道具",
+      "file": "02_assets/product_headphone.svg",
+      "resolution": "1200×1200",
+      "model": "MOSS",
+      "cost": "26 币",
+      "generated_at": "2026-11-13 00:40"
+    }
+  ]
+}

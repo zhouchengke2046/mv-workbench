@@ -1,0 +1,23 @@
+{
+  "id": "MV001",
+  "stages": {
+    "music": {
+      "status": "locked",
+      "version": 1,
+      "artifact": "01_music/timeline_v1.json"
+    },
+    "assets": {
+      "status": "locked",
+      "version": 1,
+      "artifact": "02_assets/assets_v1.json"
+    },
+    "video": {
+      "status": "draft",
+      "version": 1,
+      "artifact": "03_segments/segments_v1.json"
+    }
+  },
+  "cost": 143,
+  "spent": 143,
+  "history": []
+}

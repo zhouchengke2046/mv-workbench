@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET="${HOME}/.agents/skills"
+TARGET="${HOME}/.agents/skills/mv-gongzuotai"
 BIN="${HOME}/.local/bin"
 FORCE=0
 
@@ -11,7 +11,7 @@ while [ $# -gt 0 ]; do
     --target) TARGET="$2"; shift 2 ;;
     --bin) BIN="$2"; shift 2 ;;
     --force) FORCE=1; shift ;;
-    -h|--help) echo "usage: ./install.sh [--target ~/.agents/skills] [--bin ~/.local/bin] [--force]"; exit 0 ;;
+    -h|--help) echo "usage: ./install.sh [--target ~/.agents/skills/mv-gongzuotai] [--bin ~/.local/bin] [--force]"; exit 0 ;;
     *) echo "unknown option: $1"; exit 1 ;;
   esac
 done
@@ -27,24 +27,22 @@ PY
 
 for tool in ffmpeg ffprobe; do
   if ! command -v "$tool" >/dev/null 2>&1; then
-    echo "warning: $tool not found (rough cut / duration checks need it)"
+    echo "warning: $tool not found (timeline / duration checks need it)"
   fi
 done
 
+if [ -e "$TARGET" ] && [ "$FORCE" -ne 1 ]; then
+  echo "target exists: $TARGET"
+  echo "use --force to replace it"
+  exit 1
+fi
+rm -rf "$TARGET"
 mkdir -p "$TARGET" "$BIN"
-SKILLS="zz-mv-gongzuotai zz-mv-factory zz-mv-trim zz-runninghub-cli ace-music h3-prompt-writing zz-manju-image-prompts muse-router"
-for name in $SKILLS; do
-  src="$REPO/skills/$name"
-  dst="$TARGET/$name"
-  if [ ! -d "$src" ]; then echo "missing skill: $src"; exit 1; fi
-  if [ -e "$dst" ] && [ "$FORCE" -ne 1 ]; then
-    echo "skip existing: $dst (use --force to replace)"
-  else
-    rm -rf "$dst"
-    cp -R "$src" "$dst"
-    echo "installed: $dst"
-  fi
+
+for item in SKILL.md references scripts templates contracts demo config README.md LICENSE NOTICE.md; do
+  cp -R "$REPO/$item" "$TARGET/"
 done
+echo "installed skill: $TARGET"
 
 mkdir -p "${HOME}/.config/mv-workbench"
 chmod 700 "${HOME}/.config/mv-workbench" 2>/dev/null || true
@@ -56,16 +54,16 @@ fi
 
 cat > "$BIN/mvwb" <<WRAP
 #!/usr/bin/env bash
-exec "$PY" "$REPO/scripts/mvwb.py" "\$@"
+exec "$PY" "$TARGET/scripts/mvwb.py" "\$@"
 WRAP
 chmod +x "$BIN/mvwb"
 echo "installed: $BIN/mvwb"
 case ":$PATH:" in
   *":$BIN:"*) ;;
-  *) echo "note: add $BIN to PATH, or run $REPO/mvwb" ;;
+  *) echo "note: add $BIN to PATH, or run $TARGET/scripts/mvwb.py" ;;
 esac
 
 echo
 echo "next:"
-echo "  $REPO/mvwb doctor"
-echo "  $REPO/mvwb demo"
+echo "  $BIN/mvwb doctor"
+echo "  $BIN/mvwb demo"

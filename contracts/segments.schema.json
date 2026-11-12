@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MV Segments",
+  "description": "每个 MV 的视频段清单：一段可含 1+ 镜，≤10s；videos 第一条为当前版本，后面为历史版本。",
+  "type": "object",
+  "required": ["mv_id", "segments"],
+  "properties": {
+    "mv_id": {"type": "string"},
+    "model": {"type": "string"},
+    "provider": {"type": "string", "enum": ["muse", "h3", "s2v"]},
+    "version": {"type": "integer", "minimum": 1, "default": 1},
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["segment_id", "shot_ids", "line_ids", "duration", "prompt", "videos"],
+        "properties": {
+          "segment_id": {"type": "string"},
+          "shot_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "line_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "duration": {"type": "number", "minimum": 0, "maximum": 10},
+          "prompt": {"type": "string"},
+          "notes": {"type": "string"},
+          "videos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["file", "resolution", "model", "cost", "generated_at", "duration"],
+              "properties": {
+                "file": {"type": "string", "description": "相对 MV 目录，如 03_segments/G1_v1.mp4"},
+                "resolution": {"type": "string"},
+                "model": {"type": "string"},
+                "cost": {"type": "string"},
+                "generated_at": {"type": "string"},
+                "duration": {"type": "number"},
+                "status": {"type": "string", "enum": ["draft", "review", "locked", "stale", "failed"]}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

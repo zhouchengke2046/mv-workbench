@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 $Repo = $PSScriptRoot
-$Target = Join-Path $HOME ".agents\skills"
+$Target = Join-Path $HOME ".agents\skills\mv-gongzuotai"
 $Bin = Join-Path $HOME ".local\bin"
 
 if ($args -contains "--help") {
@@ -21,24 +21,25 @@ $version = & $pyExe @pyArgs --version 2>&1
 Write-Host $version
 if ($version -notmatch "3\.(9|1[0-9])") { Write-Host "Python 3.9+ required"; exit 1 }
 if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) {
-  Write-Host "warning: ffmpeg not found (rough cut / duration checks need it)"
+  Write-Host "warning: ffmpeg not found (timeline / duration checks need it)"
 }
 
+if ((Test-Path $Target) -and (-not $Force)) {
+  Write-Host "target exists: $Target"
+  Write-Host "use -Force to replace it"
+  exit 1
+}
+if (Test-Path $Target) { Remove-Item -Recurse -Force $Target }
 New-Item -ItemType Directory -Force -Path $Target | Out-Null
 New-Item -ItemType Directory -Force -Path $Bin | Out-Null
-$skills = @("zz-mv-gongzuotai","zz-mv-factory","zz-mv-trim","zz-runninghub-cli","ace-music","h3-prompt-writing","zz-manju-image-prompts","muse-router")
-foreach ($name in $skills) {
-  $src = Join-Path $Repo "skills\$name"
-  $dst = Join-Path $Target $name
-  if (-not (Test-Path $src)) { Write-Host "missing skill: $src"; exit 1 }
-  if ((Test-Path $dst) -and (-not $Force)) {
-    Write-Host "skip existing: $dst (use -Force to replace)"
-  } else {
-    if (Test-Path $dst) { Remove-Item -Recurse -Force $dst }
-    Copy-Item -Recurse -Force $src $dst
-    Write-Host "installed: $dst"
-  }
+
+$items = @("SKILL.md","references","scripts","templates","contracts","demo","config","README.md","LICENSE","NOTICE.md")
+foreach ($item in $items) {
+  $src = Join-Path $Repo $item
+  if (-not (Test-Path $src)) { Write-Host "missing: $src"; exit 1 }
+  Copy-Item -Recurse -Force $src $Target
 }
+Write-Host "installed skill: $Target"
 
 $keysDir = Join-Path $HOME ".config\mv-workbench"
 New-Item -ItemType Directory -Force -Path $keysDir | Out-Null
@@ -51,11 +52,11 @@ if (-not (Test-Path $keysFile)) {
 $cmd = Join-Path $Bin "mvwb.cmd"
 @"
 @echo off
-$pyCmd "$Repo\scripts\mvwb.py" %*
+$pyCmd "$Target\scripts\mvwb.py" %*
 "@ | Set-Content -Encoding ASCII $cmd
 Write-Host "installed: $cmd"
 Write-Host ""
 Write-Host "next:"
-Write-Host "  $Repo\mvwb.cmd doctor"
-Write-Host "  $Repo\mvwb.cmd demo"
-Write-Host "note: add $Bin to PATH, or run $Repo\mvwb.cmd"
+Write-Host "  $Bin\mvwb.cmd doctor"
+Write-Host "  $Bin\mvwb.cmd demo"
+Write-Host "note: add $Bin to PATH, or run $Target\scripts\mvwb.py"

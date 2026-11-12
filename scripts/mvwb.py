@@ -22,7 +22,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "scripts"
-SKILLS = ROOT / "skills"
 DEMO = ROOT / "demo"
 KEYS_SCRIPT = SCRIPTS / "mv_keys.py"
 SERVER_SCRIPT = SCRIPTS / "mv_keys_server.py"
@@ -58,13 +57,7 @@ def cmd_doctor(args):
         if path:
             print("%s %s: %s" % (OK, tool, path))
         else:
-            print("%s %s 未找到（粗剪/时长检查需要）" % (WARN, tool))
-
-    try:
-        import PIL  # noqa: F401
-        print("%s Pillow 已安装" % OK)
-    except ImportError:
-        print("%s Pillow 未安装（粗剪 contact sheet 可选）" % WARN)
+            print("%s %s 未找到（时间轴/时长检查需要）" % (WARN, tool))
 
     if (DEMO / "workbench.html").is_file():
         print("%s demo/workbench.html" % OK)
@@ -72,22 +65,22 @@ def cmd_doctor(args):
         print("%s demo/workbench.html 缺失" % FAIL)
         failures += 1
 
-    expected = [
-        "zz-mv-gongzuotai",
-        "zz-mv-factory",
-        "zz-mv-trim",
-        "zz-runninghub-cli",
-        "ace-music",
-        "h3-prompt-writing",
-        "zz-manju-image-prompts",
-        "muse-router",
+    required = [
+        "SKILL.md",
+        "scripts/mvwb.py",
+        "scripts/mv_keys.py",
+        "scripts/providers/runninghub.py",
+        "scripts/providers/tokentech_video.py",
+        "references/workbench-contract.md",
+        "templates/workbench.html",
+        "demo/workbench.html",
     ]
-    missing = [name for name in expected if not (SKILLS / name / "SKILL.md").is_file()]
+    missing = [name for name in required if not (ROOT / name).is_file()]
     if missing:
-        print("%s 缺少 skill: %s" % (FAIL, ", ".join(missing)))
+        print("%s 缺少文件: %s" % (FAIL, ", ".join(missing)))
         failures += 1
     else:
-        print("%s 8 个 skill 齐备" % OK)
+        print("%s 单 skill 文件齐备" % OK)
 
     try:
         cfg, exists = mv_keys.load_cfg()
@@ -172,7 +165,7 @@ def cmd_demo(args):
 
 
 def cmd_rh(args):
-    script = SKILLS / "zz-mv-gongzuotai" / "scripts" / "rh_run.py"
+    script = SCRIPTS / "providers" / "runninghub.py"
     if not script.is_file():
         raise SystemExit("缺少 %s" % script)
     return subprocess.call([
@@ -181,15 +174,8 @@ def cmd_rh(args):
     ] + list(args.args or []))
 
 
-def cmd_trim(args):
-    script = SKILLS / "zz-mv-trim" / "scripts" / "trim.py"
-    if not script.is_file():
-        raise SystemExit("缺少 %s" % script)
-    return subprocess.call([sys.executable, str(script)] + list(args.args or []))
-
-
 def cmd_timeline(args):
-    script = SKILLS / "zz-mv-gongzuotai" / "scripts" / "timeline.py"
+    script = SCRIPTS / "timeline.py"
     if not script.is_file():
         raise SystemExit("缺少 %s" % script)
     return subprocess.call([sys.executable, str(script)] + list(args.args or []))
@@ -294,9 +280,6 @@ def build_parser():
     timeline = sub.add_parser("timeline", help="生成/对齐音乐时间轴（透传 timeline.py）", add_help=False)
     timeline.add_argument("args", nargs=argparse.REMAINDER)
 
-    trim = sub.add_parser("trim", help="粗剪/按歌词对齐（透传 trim.py）", add_help=False)
-    trim.add_argument("args", nargs=argparse.REMAINDER)
-
     keys = sub.add_parser("keys", help="Key 管理（status/set/config/balance）", add_help=False)
     keys.add_argument("args", nargs=argparse.REMAINDER)
 
@@ -319,7 +302,7 @@ def build_parser():
 def main():
     parser = build_parser()
     args, extras = parser.parse_known_args()
-    if args.cmd in ("rh", "muse", "timeline", "trim", "keys"):
+    if args.cmd in ("rh", "muse", "timeline", "keys"):
         args.args = list(getattr(args, "args", []) or []) + list(extras)
     elif extras:
         parser.error("unrecognized arguments: " + " ".join(extras))
@@ -336,8 +319,6 @@ def main():
         return cmd_rh(args)
     if args.cmd == "timeline":
         return cmd_timeline(args)
-    if args.cmd == "trim":
-        return cmd_trim(args)
     if args.cmd == "muse":
         return cmd_muse(args)
     if args.cmd == "keys":

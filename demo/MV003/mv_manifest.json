@@ -1,0 +1,11 @@
+{
+  "id": "MV003",
+  "stages": {
+    "music": {"status": "not_started", "version": 0, "artifact": ""},
+    "assets": {"status": "not_started", "version": 0, "artifact": ""},
+    "video": {"status": "not_started", "version": 0, "artifact": ""}
+  },
+  "cost": 0,
+  "spent": 0,
+  "history": []
+}

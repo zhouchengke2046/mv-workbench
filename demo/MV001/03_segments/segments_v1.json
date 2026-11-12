@@ -1,0 +1,59 @@
+{
+  "mv_id": "MV001",
+  "model": "muse-video-ext",
+  "provider": "muse",
+  "version": 1,
+  "segments": [
+    {
+      "segment_id": "G1",
+      "shot_ids": [
+        "S01",
+        "S02"
+      ],
+      "line_ids": [
+        "L01",
+        "L02",
+        "L03",
+        "L04"
+      ],
+      "duration": 6.0,
+      "prompt": "竖屏 9:16，固定机位，末班地铁站台，林晚戴耳机，冷白站台灯与暖色反光。",
+      "videos": []
+    },
+    {
+      "segment_id": "G2",
+      "shot_ids": [
+        "S03",
+        "S04"
+      ],
+      "line_ids": [
+        "L05",
+        "L06",
+        "L07",
+        "L08"
+      ],
+      "duration": 7.0,
+      "prompt": "竖屏 9:16，固定机位，雨后天桥，路灯把水洼照成暖色，城市远景。",
+      "videos": []
+    },
+    {
+      "segment_id": "G3",
+      "shot_ids": [
+        "S05",
+        "S06",
+        "S07"
+      ],
+      "line_ids": [
+        "L09",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14"
+      ],
+      "duration": 9.0,
+      "prompt": "竖屏 9:16，固定机位，便利店与小区门口，林晚走进夜色。",
+      "videos": []
+    }
+  ]
+}
