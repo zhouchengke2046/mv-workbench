@@ -13,3 +13,4 @@ workspaces/
 tests/tmp/
 .pytest_cache/
 .ruff_cache/
+dist/

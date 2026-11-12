@@ -11,6 +11,8 @@ description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 wo
 - 工作台只展示与统筹；生成由 agent 调用本 skill 的 `scripts/` 完成。
 - 流程到**视频段**结束：不粗剪、不拼片、不做成片；视频段 + handoff 交给下一阶段剪辑。
 
+> 命令里的 `mvwb` 指安装后的全局命令；如果 `~/.local/bin` 不在 PATH，用 `~/.agents/skills/mv-gongzuotai/mvwb`（或 `mv-gongzuotai/scripts/mvwb.py`）。
+
 ## 最终交付
 
 每个 MV 一个目录，音乐、资产、视频段都在里面：
@@ -83,7 +85,7 @@ workspaces/<project>/
 ### Step 2 · 空工作台
 
 ```bash
-./mvwb init my_project
+mvwb init my_project
 # 替换 workspaces/my_project/原文/ 后，让 agent 生成空工作台
 ```
 
@@ -99,7 +101,7 @@ python3 scripts/build_workbench.py \
 打开服务版：
 
 ```bash
-./mvwb server --workspace my_project
+mvwb server --workspace my_project
 ```
 
 生成后停下来问：
@@ -130,9 +132,9 @@ python3 scripts/build_workbench.py \
 #### 4.0 预检
 
 ```bash
-./mvwb keys status
-./mvwb keys balance
-./mvwb quote --model muse-video-ext --seconds 2
+mvwb keys status
+mvwb keys balance
+mvwb quote --model muse-video-ext --seconds 2
 ```
 
 缺 Key / 余额不足 / 查询失败：停。报价 = 数量 × 单价；用户确认才跑。
@@ -141,11 +143,11 @@ python3 scripts/build_workbench.py \
 
 | 步骤 | 命令 | 产物 |
 |---|---|---|
-| 音乐 | `./mvwb rh --app 2075301815628943362 ...` | `01_music/song_v1.mp3` |
-| 时间轴 | `./mvwb timeline ...` | `01_music/timeline_v1.json` |
-| 资产 | `./mvwb rh --app 2116462203997081601 ...` | `02_assets/*` + `assets_v1.json` |
-| H3 视频 | `./mvwb rh --wf 2110943749894402050 ...` | `03_segments/G*_v1.mp4` |
-| Muse 视频 | `./mvwb muse --prompt ... --seconds N --size 720x1280 --out ...` | `03_segments/G*_v1.mp4` |
+| 音乐 | `mvwb rh --app 2075301815628943362 ...` | `01_music/song_v1.mp3` |
+| 时间轴 | `mvwb timeline ...` | `01_music/timeline_v1.json` |
+| 资产 | `mvwb rh --app 2116462203997081601 ...` | `02_assets/*` + `assets_v1.json` |
+| H3 视频 | `mvwb rh --wf 2110943749894402050 ...` | `03_segments/G*_v1.mp4` |
+| Muse 视频 | `mvwb muse --prompt ... --seconds N --size 720x1280 --out ...` | `03_segments/G*_v1.mp4` |
 | 交付 | 写 `handoff_v1.json` | 给剪辑 |
 
 - **音乐先锁定**；资产按参考包生成；视频段逐段生成。
@@ -206,25 +208,25 @@ python3 scripts/build_workbench.py \
 ## Key
 
 - 唯一真源：`~/.config/mv-workbench/keys.json`（0600）。
-- 页面配置：`./mvwb server` → 右上角“配置 Key” → RunningHub / Router 两个输入框。
-- 命令行：`./mvwb keys set runninghub`、`./mvwb keys set router`。
+- 页面配置：`mvwb server` → 右上角“配置 Key” → RunningHub / Router 两个输入框。
+- 命令行：`mvwb keys set runninghub`、`mvwb keys set router`。
 - 原始 Key 不进 HTML/DATA/日志；`DATA.keys` 只有掩码和余额。
 - 生成命令统一经 `mv_keys.py exec` 注入；不要依赖 shell 残留 Key。
 
 ## 常用命令
 
 ```bash
-./mvwb doctor
-./mvwb demo
-./mvwb server --workspace my_project
-./mvwb init my_project
-./mvwb keys status
-./mvwb keys balance
-./mvwb quote --model muse-video-ext --seconds 2
-./mvwb build --data workspaces/my_project/data.json --out workspaces/my_project/workbench.html
-./mvwb rh --app <id> --name <tag> --overrides <json> --out <dir>
-./mvwb muse --prompt "..." --seconds 2 --size 720x1280 --out out.mp4
-./mvwb timeline <lyric.json> <audio.mp3> --out <dir>
+mvwb doctor
+mvwb demo
+mvwb server --workspace my_project
+mvwb init my_project
+mvwb keys status
+mvwb keys balance
+mvwb quote --model muse-video-ext --seconds 2
+mvwb build --data workspaces/my_project/data.json --out workspaces/my_project/workbench.html
+mvwb rh --app <id> --name <tag> --overrides <json> --out <dir>
+mvwb muse --prompt "..." --seconds 2 --size 720x1280 --out out.mp4
+mvwb timeline <lyric.json> <audio.mp3> --out <dir>
 ```
 
 ## 不做什么

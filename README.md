@@ -60,6 +60,42 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 ./install.sh --target /path/to/your/skills/mv-gongzuotai
 ```
 
+## 压缩包 / 离线使用
+
+Release 里提供 `mv-gongzuotai-v0.2.2.zip`，解压后目录是 `mv-gongzuotai/`。
+
+### 方式 A：直接放进 skills（agent 立即识别）
+
+```bash
+unzip mv-gongzuotai-v0.2.2.zip -d ~/.agents/skills/
+cd ~/.agents/skills/mv-gongzuotai
+./mvwb doctor
+./mvwb demo
+```
+
+- skill 已被 agent 识别；`mvwb` 是文件夹内命令。
+- 想全局用 `mvwb`：把 `~/.agents/skills/mv-gongzuotai` 加到 PATH，或按方式 B 安装。
+
+### 方式 B：解压后安装（推荐，生成全局 mvwb）
+
+```bash
+unzip mv-gongzuotai-v0.2.2.zip -d ~/Downloads
+cd ~/Downloads/mv-gongzuotai
+./install.sh
+mvwb doctor
+```
+
+Windows：
+
+```powershell
+Expand-Archive mv-gongzuotai-v0.2.2.zip -DestinationPath "$HOME\Downloads"
+cd "$HOME\Downloads\mv-gongzuotai"
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+.\mvwb.cmd doctor
+```
+
+> 严格说不是“双击解压就完事”：解压到 skills 目录 = agent 可识别；要全局 `mvwb` 命令，需要 `install.sh` 或手动加 PATH。推荐方式 B。
+
 ## 30 秒 demo
 
 ```bash
