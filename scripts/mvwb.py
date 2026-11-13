@@ -248,7 +248,7 @@ def cmd_open(args):
 
 
 def cmd_status(args):
-    info = _service_info(args.port) or _find_service(args.port, 5)
+    info = _find_service(args.port, 5)
     if info:
         print(json.dumps({
             "running": True,
