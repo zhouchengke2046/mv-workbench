@@ -1,367 +1,129 @@
 # zz-mv-gongzuotai
 
-**一个 skill 统筹整条 MV 产线：** 甲方歌词/脚本 → 静态 workbench → 每 MV 的音乐/资产/视频段 → handoff 给剪辑。
+**一个 skill 统筹整条 MV 产线：** 甲方歌词/脚本 → 静态工作台 → 每 MV 的音乐/资产/视频段 → handoff 给剪辑。
 
-> 面向能运行本地命令的 agent（ZCode / Claude Code / 同类 skill 宿主）。最终产物到**视频段**结束，不做粗剪、不拼成片。
+> 最终产物到**视频段**结束，不做粗剪、不拼成片。
 
-**第一次用、不知道解压后点哪个、Key/余额/比例是什么？** 先看 [START_HERE.md](START_HERE.md)（新手一页纸）。
+## 拿到压缩包后怎么开始
 
-![demo](docs/workbench.png)
+1. 解压到英文短路径，例如 `D:\MV\zz-mv-gongzuotai`。
+2. **只看工作台**：双击 `demo/workbench.html`。不需要启动服务、不占端口。
+3. **做自己的项目**：把解压后的文件夹设为 agent（WorkBuddy / ZCode）的工作区，对它说：
 
-## 这是什么
+```text
+请读取这个文件夹里的 SKILL.md，按 zz-mv-gongzuotai 的流程带我做一个 MV 项目。
+先只做原文、空工作台和 MV 框架，不要提交任何生成任务。
+```
 
-- **一个入口 skill**：`zz-mv-gongzuotai`，负责整个 MV 项目的四步流程、审核和版本。
-- **每个 MV 一个目录**：音乐、资产图、视频段都放在 `MVxxx/` 下。
-- **流程到视频段结束**：不粗剪、不做字幕/混音/成片；视频段 + `handoff` 交给剪辑。
-- **审核重跑**：每次生成可提修改意见，只重跑点名项，新版本保留历史。
-- **Key 配置**：`mvwb keys set runninghub` / `router`（终端隐藏输入，只写本地 `keys.json`）；原始 Key 不进 HTML/DATA。
+4. 没有 exe、没有“下一步”，这是正常的：它是给 agent 用的 skill 包，不是桌面软件。
 
 ## 依赖
 
 | 依赖 | 说明 |
 |---|---|
-| Python 3.9+ | 只用标准库；`mvwb` / Key 管理 / 构建器 |
-| ffmpeg + ffprobe | 读取音乐时长/时间轴、检查视频时长；macOS `brew install ffmpeg`，Windows `winget install Gyan.FFmpeg`，Ubuntu `sudo apt install ffmpeg` |
-| 一个 agent | 能读 skill、运行本地命令、读写文件 |
-| RunningHub API Key | ACE/MOSS/H3/S2V |
-| Router API Key | Muse；默认 `https://router.kcacher.top` |
+| Python 3.9+ | 跑 `mvwb`、Key 管理、构建器；只用标准库 |
+| ffmpeg + ffprobe | 读音乐时长、生成时间轴、检查视频 |
+| 一个 agent | WorkBuddy / ZCode / 同类；能读写文件、运行命令 |
+| RunningHub Key | ACE 音乐、MOSS 资产、H3 视频、S2V 口型 |
+| Router Key | Muse 视频；默认 `https://router.kcacher.top` |
 
-**不配 Key 也能用**：原文、工作台、MV 框架、分镜/视频段计划都能生成；只有真正提交模型时才需要 Key。
-
-## 安装
-
-### macOS / Linux
-
-```bash
-git clone https://github.com/zhouchengke2046/mv-workbench.git
-cd mv-workbench
-./install.sh
-./mvwb doctor
-```
-
-- 安装成一个 skill：`~/.agents/skills/zz-mv-gongzuotai/`。
-- 命令：`~/.local/bin/mvwb`；不在 PATH 就直接跑 `./mvwb`。
-- Key 文件：`~/.config/mv-workbench/keys.json`（0600）。
-
-### Windows
-
-```powershell
-git clone https://github.com/zhouchengke2046/mv-workbench.git
-cd mv-workbench
-powershell -ExecutionPolicy Bypass -File .\install.ps1
-.\mvwb.cmd doctor
-```
-
-- skill 安装到 `%USERPROFILE%\.agents\skills\zz-mv-gongzuotai`。
-- `mvwb.cmd` 在 `%USERPROFILE%\.local\bin`；加入 PATH，或直接用 `.\mvwb.cmd`。
-- 建议 clone 到英文路径；Windows 不强制 `0600`，Key 仍只存本地文件。遇到路径/权限问题用 WSL2。
-
-### 其他 agent
-
-```bash
-./install.sh --target /path/to/your/skills/zz-mv-gongzuotai
-```
-
-## 压缩包 / 离线使用
-
-Release 里提供 `zz-mv-gongzuotai-v0.3.0-runtime.zip`（运行时精简包，不含 tests/.github/dev 配置），解压后目录是 `zz-mv-gongzuotai/`。
-
-### 方式 A：直接放进 skills（agent 立即识别）
-
-```bash
-unzip zz-mv-gongzuotai-v0.3.0-runtime.zip -d ~/.agents/skills/
-cd ~/.agents/skills/zz-mv-gongzuotai
-./mvwb doctor
-./mvwb open
-```
-
-- skill 已被 agent 识别；`mvwb` 是文件夹内命令。
-- 想全局用 `mvwb`：把 `~/.agents/skills/zz-mv-gongzuotai` 加到 PATH，或按方式 B 安装。
-
-### 方式 B：解压后安装（推荐，生成全局 mvwb）
-
-```bash
-unzip zz-mv-gongzuotai-v0.3.0-runtime.zip -d ~/Downloads
-cd ~/Downloads/zz-mv-gongzuotai
-./install.sh
-mvwb doctor
-```
-
-Windows：
-
-```powershell
-Expand-Archive zz-mv-gongzuotai-v0.3.0-runtime.zip -DestinationPath "$HOME\Downloads"
-cd "$HOME\Downloads\zz-mv-gongzuotai"
-powershell -ExecutionPolicy Bypass -File .\install.ps1
-.\mvwb.cmd doctor
-```
-
-> 严格说不是“双击解压就完事”：解压到 skills 目录 = agent 可识别；要全局 `mvwb` 命令，需要 `install.sh` 或手动加 PATH。推荐方式 B。
-
-## 30 秒 demo
-
-```bash
-./mvwb open
-```
-
-`mvwb open` 只做一件事：用浏览器打开项目里的静态 `workbench.html`，**不启动后台服务**。Demo 使用原创虚构歌词/脚本和 SVG 占位资产，不含客户内容。
-
-也可以直接双击 `demo/workbench.html`，效果一样。Key/余额由 agent 用 `mvwb keys` 更新后再 `mvwb build` 刷新，页面本身不联网。
-
-## 每个 MV 的产物
-
-```text
-workspaces/<project>/
-├─ 原文/
-│  ├─ lyric_original.md
-│  ├─ story_script.md
-│  └─ lyric.json
-├─ workbench.html
-└─ MV001/
-   ├─ mv_manifest.json
-   ├─ 00_framework.md
-   ├─ 01_music/
-   │  ├─ song_v1.mp3
-   │  └─ timeline_v1.json
-   ├─ 02_assets/
-   │  ├─ assets_v1.json
-   │  ├─ role_xxx.png
-   │  ├─ scene_xxx.png
-   │  └─ prop_xxx.png
-   ├─ 03_segments/
-   │  ├─ segments_v1.json
-   │  ├─ G1_v1.mp4
-   │  ├─ G1_v2.mp4      审核重跑的历史
-   │  └─ G2_v1.mp4 …
-   └─ handoff_v1.json   交给剪辑
-```
-
-`handoff_v1.json`：
-
-```json
-{
-  "mv_id": "MV001",
-  "status": "ready",
-  "music": "01_music/song_v1.mp3",
-  "timeline": "01_music/timeline_v1.json",
-  "segments": [
-    {
-      "segment_id": "G1",
-      "line_ids": ["L01", "L02"],
-      "music_start": 0.0,
-      "music_end": 6.0,
-      "duration": 6.0,
-      "video_file": "03_segments/G1_v1.mp4",
-      "model": "muse-video-ext",
-      "resolution": "720x1280",
-      "notes": "审核通过的当前版本"
-    }
-  ]
-}
-```
+不配 Key 也能做原文、工作台、MV 框架和分镜计划；只有提交模型才需要 Key。
 
 ## 四步
 
-### 1. 原文
-
-把甲方歌词/脚本放进 `原文/`：
-
 ```text
-原文/lyric_original.md   歌名/主歌/副歌，原文
-原文/story_script.md     故事脚本原文，不拆镜
-原文/lyric.json          L01… 行号映射
+原文 → 空工作台 → MV 文本框架 → 生成与审核（音乐→资产→视频段）→ handoff
 ```
 
-没有甲方资料时，agent 会先问，再按产品/故事/人物/风格/时长/参考引导起草。
+- **原文**：歌词/脚本原样保存，生成 `L01…` 行号。
+- **空工作台**：每个 MV 一个目录，`data.json` + 静态 `workbench.html`。
+- **文本框架**：音乐计划、资产清单、分镜、视频段（≤10s）；先审核再花钱。
+- **生成**：音乐先锁定，再资产，再视频段；只重跑点名项，新版本保留历史。
+- **交付**：所有段 `locked` 后写 `handoff_v1.json`，剪辑拿视频段和清单进入下一阶段。
 
-### 2. 空工作台
+每步的输入、产物、自检和门见 `references/step-contract.md`。
+
+## 常用命令
 
 ```bash
-./mvwb init my_project
-# 替换 workspaces/my_project/原文/，让 agent 生成空工作台
-```
-
-Agent 用 `templates/workbench.html` + `DATA.json` 构建：
-
-```bash
-python3 scripts/build_workbench.py \
-  --template templates/workbench.html \
-  --data workspaces/my_project/data.json \
-  --out workspaces/my_project/workbench.html
-```
-
-打开：
-
-```bash
-./mvwb open --workspace my_project
-```
-
-然后问：**一次多少条 / 每条多长 / 什么风格**。
-
-### 3. MV 文本框架
-
-Agent 生成 `MV001…MV00N`：音乐计划、资产清单、标准分镜、视频段（≤10s）。此时不花钱。审核框架，只改点名处。
-
-### 4. 生成与审核
-
-```bash
-./mvwb keys status
-./mvwb keys balance --data workspaces/my_project/data.json
-./mvwb quote --model muse-video-ext --seconds 2
-
-# 音乐
-./mvwb rh --app 2075301815628943362 --name song_v1 --overrides ov.json --out MV001/01_music
-
-# 时间轴
-./mvwb timeline 原文/lyric.json MV001/01_music/song_v1.mp3 --out MV001/01_music
-
-# 资产
-./mvwb rh --app 2116462203997081601 --name assets --overrides ov.json --out MV001/02_assets
-
-# 视频段（H3）
-./mvwb rh --wf 2110943749894402050 --name G1 --nodes nodes.json --out MV001/03_segments
-
-# 视频段（Muse）
-./mvwb muse --prompt "..." --seconds 6 --size 720x1280 --out MV001/03_segments/G1_v1.mp4
-```
-
-- 音乐先锁定；资产按参考包；视频段逐段生成。
-- 每次审核修改只重跑点名项，写 `v2`，旧版保留。
-- **每次生成后**更新 `data.json`、重建页面并自检：
-
-```bash
-./mvwb build --data workspaces/my_project/data.json --out workspaces/my_project/workbench.html
-./mvwb check --data workspaces/my_project/data.json
-```
-
-`check` 输出 `缺失/空文件：0` 才算工作台能显示；有 `[missing]` 先修路径或重新下载。
-- 所有段 `locked` 后写 `handoff_v1.json`，项目结束。
-
-## 时长：用户目标 vs 音乐实际
-
-| 时长 | 谁定 | 用途 |
-|---|---|---|
-| `target_duration` | 用户在第 2 步设定（如 45s） | 音乐请求秒数、总目标时长、预算/段数、框架计划 |
-| `actual_duration` / `timeline_v1.json` | 音乐生成后读取 | 分镜/视频段实际时长、Muse `seconds`、H3 帧数、handoff |
-
-- **总时长按用户设定**：ACE 的 `116:value` 用 `target_duration`，框架/段数/预算都按它规划。
-- **每段时长按音乐实际**：音乐出来后读实际 `duration/timeline`，更新分镜/段的 `duration`；视频按实际句长生成。
-- 实际与目标差 >1s 或 >2% 时暂停，让用户选「接受实际 / 重生成音乐 / 后期裁」。
-- 只选视频没音乐：先用 `target_duration` 做 provisional 计划；补音乐后视频段标记 `stale`。
-
-## 模型与价格（2026-11-13，会变）
-
-| 模型 | 用途 | 价格 | 参考 |
-|---|---|---|---|
-| ACE-Step 1.5 | 音乐 | 39 币/45s | `references/prompts/ace.md` |
-| MOSS | 资产图 | 26 币/张 | `references/prompts/moss.md` |
-| H3 YZ 多参 | 视频 | 约 19 币/4s | `references/prompts/h3.md` |
-| Muse `muse-video-ext` | 视频 | **2s ≈ ¥1；10s ≈ ¥5** | `references/prompts/muse.md` |
-| S2V | 口型 | 176 币/8s | `references/prompts/h3.md` |
-
-- 以服务商账单为准；`./mvwb quote` 只是估算。
-- 共享/企业 key 未经账号所有者允许不要用。
-
-## 目录
-
-```text
-mv-workbench/                ← 一个 skill
-├─ SKILL.md                  唯一入口
-├─ START_HERE.md             新手一页纸
-├─ mvwb / mvwb.cmd
-├─ install.sh / install.ps1
-├─ scripts/
-│  ├─ mvwb.py
-│  ├─ mv_keys.py
-│  ├─ build_workbench.py
-│  ├─ timeline.py
-│  └─ providers/
-│     ├─ runninghub.py
-│     └─ tokentech_video.py
-├─ references/
-│  ├─ workbench-contract.md
-│  ├─ step-contract.md
-│  ├─ review-and-versions.md
-│  ├─ handoff.md
-│  ├─ lyrics.md
-│  ├─ prompts/ace.md, h3.md, moss.md, muse.md
-│  └─ providers/runninghub.md, router.md
-├─ templates/workbench.html
-├─ contracts/
-├─ demo/
-├─ config/
-├─ tests/
-└─ docs/
+mvwb doctor
+mvwb open
+mvwb open --workspace my_project
+mvwb init my_project
+mvwb keys status
+mvwb keys set runninghub
+mvwb keys set router
+mvwb keys balance --data workspaces/my_project/data.json
+mvwb quote --model muse-video-ext --seconds 6
+mvwb build --data workspaces/my_project/data.json --out workspaces/my_project/workbench.html
+mvwb check --data workspaces/my_project/data.json
+mvwb rh --app <id> --name <tag> --overrides <json> --out <dir>
+mvwb rh --wf <id> --name G1 --nodes nodes_G1.json --out MV001/03_segments
+mvwb muse --prompt "..." --seconds 6 --size 720x1280 --out MV001/03_segments/G1_v1.mp4
+mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
 ```
 
 ## Key
 
-- 唯一真源：`~/.config/mv-workbench/keys.json`（0600）。
-- 配置（终端隐藏输入）：`./mvwb keys set runninghub`、`./mvwb keys set router`。
-- 余额：`./mvwb keys balance --data workspaces/my_project/data.json`，再 `./mvwb build` 刷新页面快照。
+- 唯一真源：`~/.config/mv-workbench/keys.json`（macOS/Linux 0600）。
+- 配置：`mvwb keys set runninghub`、`mvwb keys set router`（终端隐藏输入）。
+- 余额：`mvwb keys balance --data <data.json>`，再 `mvwb build` 刷新页面快照。
 - 原始 Key 不进 HTML/DATA/日志/截图；页面只显示掩码和查询时间。
-- 生成命令统一经 `mv_keys.py exec` 注入；不要依赖 shell 残留 Key。
+- **不要把 Key 发到对话里**；已经发过的，去服务商后台作废重发。
 
-## 安全
+## 工作台
 
-- 工作台是纯静态 HTML，不启动服务、不开端口、不监听请求。
-- 无遥测、无云端同步；工作台和产物都在本地。
-- **不要把客户歌词/脚本/素材提交到公开仓库**；本仓库 demo 是原创虚构内容。
+- 单文件静态 HTML，双击 / `file://` 打开；不启动服务、不开端口、不联网。
+- 顶部只显示 Key 掩码和余额快照；没有“配置 Key”按钮是设计。
+- 左侧：歌词/脚本 + MV 列表；右侧：音乐、资产图、分镜/视频段。
+- 只读；生成和更新由 agent 写文件 + `mvwb build` 完成。
+
+## 费用
+
+| 消耗 | 参考价（2026-11-13，会变） |
+|---|---|
+| ACE 音乐 | 39 币 / 45s |
+| MOSS 资产 | 26 币 / 张 |
+| H3 视频 | 约 19 币 / 4s |
+| S2V 口型 | 176 币 / 8s |
+| Muse 视频 | 2s ≈ ¥1；10s ≈ ¥5 |
+
+- 以服务商账单为准；`mvwb quote` 只是估算。
+- 生成前先报价（数量 × 单价），用户确认后才提交。
 
 ## 常见问题
 
-**工作台怎么打开？需要启动服务吗？**  
-不需要。直接双击 `workbench.html`，或 `./mvwb open [--workspace NAME]`；它只是用浏览器打开一个本地文件，不开端口。
+**工作台怎么打开？需要服务吗？**  
+不需要。双击 `workbench.html`，或 `mvwb open [--workspace NAME]`；只是用浏览器打开本地文件。
 
-**资产图/视频是空白框？**  
-先 `./mvwb check --data workspaces/my_project/data.json`：有 `[missing]` 就是文件路径不对或没下载；全 0 但仍空白，执行 `./mvwb build ...` 后强制刷新（Cmd/Ctrl+Shift+R）。
+**资产图/视频空白？**  
+`mvwb check --data ...` 有 `[missing]` 就修路径或重新生成；全 0 还空白就 `mvwb build` 后强制刷新。
 
-**`mvwb rh/muse/timeline` 报 `expected one argument`？**  
-v0.3.0 之前的透传参数 bug，升级到 v0.3.0 或更高版本。
+**Key 可以发到对话里吗？**  
+不可以。让用户在终端运行 `mvwb keys set ...`，输入不回显。
 
-**Key 可以发到对话里让 agent 配吗？**  
-不可以。让用户在自己的终端运行 `mvwb keys set runninghub` / `router`，输入不回显；已经发过的 Key 建议作废重发。
+**ffmpeg 装不上？**  
+Windows 先试 `winget install Gyan.FFmpeg`；下载超时就换 npm 镜像装 `@ffmpeg-installer/ffmpeg` + `@ffprobe-installer/ffprobe`，或 WSL2。
 
-**Router 域名打不开？**  
-用 `https://router.kcacher.top`，不要用 `router.kbtech.app`。
+**Windows 要注意什么？**  
+用英文路径；命令用 `mvwb.cmd`；不强制 0600。路径/权限问题用 WSL2。
 
-**401 / 无效令牌？**  
-Key 错/过期/分组无权限；`./mvwb keys status` 看掩码，`./mvwb keys balance` 看错误。
+## 目录
 
-**429 / 503？**  
-限流或渠道未启用；退避重试，不要死循环提交。
-
-**余额不对？**  
-Router 2s 实测 ¥1；RunningHub 扣 RH 币，和钱包分开；以账单为准。
-
-**ffmpeg 找不到？**  
-安装 ffmpeg 后 `./mvwb doctor`。
-
-**macOS 和 Windows 有区别吗？**  
-核心 Python/CLI 跨平台；差异在安装脚本、`mvwb.cmd` vs `mvwb`、ffmpeg 安装、Windows 不强制 0600。建议 Windows 用英文路径或 WSL2。
-
-## 已知限制
-
-- Muse 参考图字段尚未验证（`image_urls` / `input_reference` / 单个 `image`）；当前只验证文本生视频 2s。
-- Muse 10s 未实测；2s 实测 720×1280/24fps。
-- ACE/MOSS/H3/S2V 的实测来自 RunningHub 账号；换账号/工作流版本需重验。
-- 不做粗剪/成片；剪辑在外部。
-- Windows 只做了兼容设计和 CI 冒烟，未在干净 Windows 全量跑过；建议 WSL2。
-- 价格/工作流 ID 会变；以 `config/models.json` 的 `as_of` 和服务商为准。
-
-## 开发 / 测试
-
-```bash
-python3 -m pip install -r requirements-dev.txt
-python3 -m pytest
-python3 scripts/build_workbench.py --data demo/data.json --out demo/workbench.html
-python3 scripts/mvwb.py check --data demo/data.json
-python3 scripts/check_secrets.py
+```text
+zz-mv-gongzuotai/
+├─ SKILL.md                  唯一入口（给 agent）
+├─ README.md                 本文件
+├─ mvwb / mvwb.cmd
+├─ install.sh / install.ps1
+├─ scripts/                  mvwb、keys、build、timeline、providers
+├─ references/               契约、审核、handoff、提示词、供应商
+├─ templates/workbench.html
+├─ contracts/
+├─ demo/                     可直接打开的 demo
+└─ config/
 ```
-
-- 测试不调用真实付费 API；用 mock server。
-- CI：Ubuntu 22.04/24.04、macOS、Windows + Python 3.9/3.11。
 
 ## License
 
-MIT。第三方归属见 [NOTICE.md](NOTICE.md)。
+MIT。见 `LICENSE`。

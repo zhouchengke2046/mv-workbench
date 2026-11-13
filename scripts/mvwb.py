@@ -9,7 +9,7 @@ Usage:
   mvwb keys [status|set|config|balance ...]
   mvwb quote [--model muse-video-ext] [--seconds 2] [--images 1] [--segments 1]
   mvwb check [--data demo/data.json] [--workbench PATH]
-  mvwb init <name>
+  mvwb init <name> [--demo]
   mvwb build --data demo/data.json --out demo/workbench.html
 """
 import argparse
@@ -17,6 +17,7 @@ import json
 import shutil
 import subprocess
 import sys
+import time
 import webbrowser
 from pathlib import Path
 
@@ -39,6 +40,55 @@ FAIL = "[fail]"
 
 def run(cmd):
     return subprocess.call([sys.executable] + cmd)
+
+
+def _resolve_input(value):
+    """相对路径先按当前目录，找不到再按 skill 根目录。"""
+    path = Path(value).expanduser()
+    if path.is_absolute():
+        return path
+    cwd_path = Path.cwd() / path
+    if cwd_path.exists():
+        return cwd_path.resolve()
+    root_path = ROOT / path
+    if root_path.exists():
+        return root_path.resolve()
+    return cwd_path.resolve()
+
+
+def _resolve_output(value):
+    """相对输出路径：当前目录父级存在就用当前目录，否则用 skill 根目录。"""
+    path = Path(value).expanduser()
+    if path.is_absolute():
+        return path
+    cwd_path = Path.cwd() / path
+    root_path = ROOT / path
+    if cwd_path.parent.exists() or not root_path.parent.exists():
+        return cwd_path.resolve()
+    return root_path.resolve()
+
+
+def _empty_keys():
+    """复用 demo 的 keys 形状，但全部置为未配置。"""
+    try:
+        demo = json.loads((DEMO / "data.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    keys = demo.get("keys") or {}
+    for item in keys.values():
+        if isinstance(item, dict):
+            item.update({
+                "account": "",
+                "configured": False,
+                "masked": "",
+                "ok": False,
+                "balance": None,
+                "wallet": None,
+                "wallet_unit": None,
+                "checked_at": None,
+                "error": "未配置",
+            })
+    return keys
 
 
 def cmd_doctor(args):
@@ -206,7 +256,7 @@ def _collect_refs(node, out):
 
 
 def cmd_check(args):
-    data_path = Path(args.data).expanduser().resolve()
+    data_path = _resolve_input(args.data)
     if not data_path.is_file():
         raise SystemExit("找不到 DATA：%s" % data_path)
     try:
@@ -231,9 +281,7 @@ def cmd_check(args):
     for ref in missing:
         print("  [missing] %s" % ref)
 
-    wb = Path(args.workbench).expanduser() if args.workbench else base / "workbench.html"
-    if not wb.is_absolute():
-        wb = (Path.cwd() / wb).resolve()
+    wb = _resolve_input(args.workbench) if args.workbench else base / "workbench.html"
     if wb.is_file() and data_path.stat().st_mtime > wb.stat().st_mtime:
         print("[warn] DATA 比 %s 新，页面还是旧的：先运行 mvwb build" % wb.name)
     elif not wb.is_file():
@@ -287,9 +335,43 @@ def cmd_init(args):
     if target.exists():
         raise SystemExit("已存在：%s" % target)
     target.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(DEMO, target)
-    print("已创建：%s" % target)
-    print("下一步：替换 %s/原文/ 里的歌词和脚本，然后用 agent 按四步生成。" % target.name)
+
+    if getattr(args, "demo", False):
+        shutil.copytree(DEMO, target)
+        print("已创建 demo 项目：%s" % target)
+        print("下一步：替换 %s/原文/ 里的歌词和脚本，然后用 agent 按四步生成。" % target.name)
+        return 0
+
+    original = target / "原文"
+    original.mkdir(parents=True)
+    (original / "lyric_original.md").write_text("", encoding="utf-8")
+    (original / "story_script.md").write_text("", encoding="utf-8")
+    (original / "lyric.json").write_text(
+        json.dumps({"title": "", "lines": []}, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    data = {
+        "meta": {
+            "id": "P01",
+            "title": name,
+            "generated_at": time.strftime("%Y-%m-%d %H:%M"),
+        },
+        "keys": _empty_keys(),
+        "lyric": {"title": "", "body": ""},
+        "script": {"title": "", "body": ""},
+        "mvs": [],
+    }
+    (target / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    rc = run([
+        str(BUILD_SCRIPT),
+        "--template", str(ROOT / "templates" / "workbench.html"),
+        "--data", str(target / "data.json"),
+        "--out", str(target / "workbench.html"),
+    ])
+    if rc != 0:
+        raise SystemExit("工作台构建失败")
+    print("已创建空项目：%s" % target)
+    print("下一步：把甲方歌词/脚本放进 %s/原文/，然后让 agent 按 SKILL 的四步生成。" % target.name)
     return 0
 
 
@@ -297,8 +379,8 @@ def cmd_build(args):
     return run([
         str(BUILD_SCRIPT),
         "--template", str(ROOT / args.template),
-        "--data", str(Path(args.data).expanduser()),
-        "--out", str(Path(args.out).expanduser()),
+        "--data", str(_resolve_input(args.data)),
+        "--out", str(_resolve_output(args.out)),
     ])
 
 
@@ -339,8 +421,9 @@ def build_parser():
     check.add_argument("--data", default="demo/data.json")
     check.add_argument("--workbench", help="workbench.html 路径；默认 DATA 同目录")
 
-    init = sub.add_parser("init", help="从 demo 创建 workspaces/<name>")
+    init = sub.add_parser("init", help="创建空项目（--demo 复制 demo）")
     init.add_argument("name")
+    init.add_argument("--demo", action="store_true", help="复制 demo 项目（含示例 MV）")
 
     build = sub.add_parser("build", help="用 DATA 构建 workbench.html")
     build.add_argument("--template", default="templates/workbench.html")

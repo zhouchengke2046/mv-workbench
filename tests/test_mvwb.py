@@ -1,4 +1,6 @@
 import json
+import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -53,3 +55,45 @@ def test_check_reports_missing_refs(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "missing.png" in out
     assert "缺失/空文件：2" in out
+
+
+def test_init_creates_empty_project():
+    name = "pytest_empty_%d" % os.getpid()
+    target = ROOT / "workspaces" / name
+    if target.exists():
+        shutil.rmtree(target)
+    try:
+        args = type("A", (), {"name": name, "demo": False})()
+        assert mvwb.cmd_init(args) == 0
+        data = json.loads((target / "data.json").read_text(encoding="utf-8"))
+        assert data["mvs"] == []
+        assert not (target / "MV001").exists()
+        assert (target / "workbench.html").is_file()
+        assert (target / "原文" / "lyric_original.md").read_text(encoding="utf-8") == ""
+    finally:
+        shutil.rmtree(target, ignore_errors=True)
+
+
+def test_init_demo_flag_copies_demo():
+    name = "pytest_demo_%d" % os.getpid()
+    target = ROOT / "workspaces" / name
+    if target.exists():
+        shutil.rmtree(target)
+    try:
+        args = type("A", (), {"name": name, "demo": True})()
+        assert mvwb.cmd_init(args) == 0
+        data = json.loads((target / "data.json").read_text(encoding="utf-8"))
+        assert data["mvs"]
+        assert (target / "MV001").is_dir()
+    finally:
+        shutil.rmtree(target, ignore_errors=True)
+
+
+def test_resolve_input_falls_back_to_skill_root(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    assert mvwb._resolve_input("demo/data.json") == (ROOT / "demo" / "data.json").resolve()
+
+
+def test_resolve_output_uses_skill_root_when_cwd_parent_missing(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    assert mvwb._resolve_output("templates/out.html") == (ROOT / "templates" / "out.html").resolve()

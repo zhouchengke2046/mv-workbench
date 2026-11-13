@@ -44,7 +44,8 @@ Step X · 名称：完成/未完成
 **动作**
 
 ```bash
-mvwb init <project>
+mvwb init <project>          # 空项目：原文/ 待填、mvs=[]、已生成 workbench.html
+mvwb init <project> --demo   # 需要示例时：复制完整 demo
 ```
 
 **产物**

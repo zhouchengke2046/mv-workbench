@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.1 — 2026-11-13
+
+- `install.sh --force` / `install.ps1 -Force` now preserve `workspaces/` projects instead of deleting them with the skill directory.
+- The installed skill now includes the `mvwb` fallback launcher (with executable bit), so the documented command works after install.
+- `mvwb init` now creates an empty project by default (`原文/` placeholders, `mvs=[]`, built `workbench.html`); `mvwb init <name> --demo` copies the demo.
+- `mvwb build` / `mvwb check` resolve relative `--data` / `--out` / `--workbench` against the skill root when the path does not exist in the current directory.
+- Simplified the package: removed the duplicated `START_HERE.md`, screenshots/docs and GitHub download/clone instructions; the zip is the distribution channel. README is now a one-page quick start.
+- Installers no longer copy `docs/`, `CHANGELOG.md`, `SECURITY.md` or `START_HERE.md` into the skill directory.
+
 ## 0.3.0 — 2026-11-13
 
 - Removed the local config service. `workbench.html` is a plain static file again: open it by double-click or `file://`; no port, no server, no background process.
@@ -10,7 +19,6 @@
 - Added `mvwb check` to verify all local asset/video/music references; completion now requires 0 missing.
 - Fixed `mvwb rh/muse/timeline` passthrough argument swallowing (v0.2.7 regression).
 - Fixed RunningHub raw traceback on business errors (fake key / wrong app id).
-- Added `START_HERE.md` beginner guide.
 
 ## 0.2.7 — 2026-11-13
 

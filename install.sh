@@ -33,16 +33,37 @@ done
 
 if [ -e "$TARGET" ] && [ "$FORCE" -ne 1 ]; then
   echo "target exists: $TARGET"
-  echo "use --force to replace it"
+  echo "use --force to replace it (workspaces are preserved)"
   exit 1
 fi
+
+# 升级时保留项目：项目默认在 $TARGET/workspaces，不能跟着 rm -rf 一起消失。
+WORKSPACES_BACKUP=""
+restore_workspaces() {
+  if [ -n "$WORKSPACES_BACKUP" ] && [ -d "$WORKSPACES_BACKUP" ]; then
+    mkdir -p "$TARGET"
+    rm -rf "$TARGET/workspaces"
+    mv "$WORKSPACES_BACKUP" "$TARGET/workspaces"
+    echo "restored workspaces: $TARGET/workspaces"
+  fi
+}
+trap restore_workspaces EXIT
+if [ -d "$TARGET/workspaces" ]; then
+  WORKSPACES_BACKUP="$(mktemp -d)/workspaces"
+  mv "$TARGET/workspaces" "$WORKSPACES_BACKUP"
+  echo "preserving workspaces: $TARGET/workspaces"
+fi
+
 rm -rf "$TARGET"
 mkdir -p "$TARGET" "$BIN"
 
-for item in SKILL.md START_HERE.md references scripts templates contracts demo config README.md LICENSE NOTICE.md; do
+for item in SKILL.md references scripts templates contracts demo config README.md LICENSE NOTICE.md mvwb mvwb.cmd; do
   cp -R "$REPO/$item" "$TARGET/"
 done
+chmod +x "$TARGET/mvwb" "$TARGET/scripts/mvwb.py" 2>/dev/null || true
 echo "installed skill: $TARGET"
+restore_workspaces
+WORKSPACES_BACKUP=""
 
 mkdir -p "${HOME}/.config/mv-workbench"
 chmod 700 "${HOME}/.config/mv-workbench" 2>/dev/null || true

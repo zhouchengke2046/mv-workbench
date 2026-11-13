@@ -26,18 +26,33 @@ if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) {
 
 if ((Test-Path $Target) -and (-not $Force)) {
   Write-Host "target exists: $Target"
-  Write-Host "use -Force to replace it"
+  Write-Host "use -Force to replace it (workspaces are preserved)"
   exit 1
 }
-if (Test-Path $Target) { Remove-Item -Recurse -Force $Target }
+
+# 升级时保留项目：项目默认在 $Target\workspaces。
+$workspacesBackup = $null
+if (Test-Path $Target) {
+  $ws = Join-Path $Target "workspaces"
+  if (Test-Path $ws) {
+    $workspacesBackup = Join-Path ([System.IO.Path]::GetTempPath()) ("mvwb-workspaces-" + [guid]::NewGuid().ToString("N"))
+    Move-Item -Force $ws $workspacesBackup
+    Write-Host "preserving workspaces: $ws"
+  }
+  Remove-Item -Recurse -Force $Target
+}
 New-Item -ItemType Directory -Force -Path $Target | Out-Null
 New-Item -ItemType Directory -Force -Path $Bin | Out-Null
 
-$items = @("SKILL.md","START_HERE.md","references","scripts","templates","contracts","demo","config","README.md","LICENSE","NOTICE.md")
+$items = @("SKILL.md","references","scripts","templates","contracts","demo","config","README.md","LICENSE","NOTICE.md","mvwb","mvwb.cmd")
 foreach ($item in $items) {
   $src = Join-Path $Repo $item
   if (-not (Test-Path $src)) { Write-Host "missing: $src"; exit 1 }
   Copy-Item -Recurse -Force $src $Target
+}
+if ($workspacesBackup -and (Test-Path $workspacesBackup)) {
+  Move-Item -Force $workspacesBackup (Join-Path $Target "workspaces")
+  Write-Host "restored workspaces: $(Join-Path $Target 'workspaces')"
 }
 Write-Host "installed skill: $Target"
 

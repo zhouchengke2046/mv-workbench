@@ -1,6 +1,6 @@
 ---
 name: zz-mv-gongzuotai
-description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 workbench.html，按 MV 生成音乐计划、资产清单、标准分镜和视频段计划，再逐项生成音乐、资产图、视频段并审核重跑。最终产物是每个 MV 一个本地目录（音乐/资产/视频段 + handoff），不含粗剪和成片。Key/余额/服务用 mvwb；模型提示词和 RunningHub/Router 用法在本 skill 的 references/ 内。
+description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 workbench.html，按 MV 生成音乐计划、资产清单、标准分镜和视频段计划，再逐项生成音乐、资产图、视频段并审核重跑。最终产物是每个 MV 一个本地目录（音乐/资产/视频段 + handoff），不含粗剪和成片。Key/余额用 mvwb；模型提示词和 RunningHub/Router 用法在本 skill 的 references/ 内。
 ---
 
 # zz-mv-gongzuotai · 单 skill 的 MV 项目统筹
@@ -11,7 +11,7 @@ description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 wo
 - 工作台只展示与统筹；生成由 agent 调用本 skill 的 `scripts/` 完成。
 - 流程到**视频段**结束：不粗剪、不拼片、不做成片；视频段 + handoff 交给下一阶段剪辑。
 
-> 命令里的 `mvwb` 指安装后的全局命令；如果 `~/.local/bin` 不在 PATH，用 `~/.agents/skills/zz-mv-gongzuotai/mvwb`（或 `zz-mv-gongzuotai/scripts/mvwb.py`）。
+> 命令里的 `mvwb` 指安装后的全局命令；如果 `~/.local/bin` 不在 PATH，用 `~/.agents/skills/zz-mv-gongzuotai/mvwb`（安装时已复制并加执行位）；如果仍不可用，用 `python3 ~/.agents/skills/zz-mv-gongzuotai/scripts/mvwb.py`。
 
 ## 工作台与 Key（硬规则）
 
@@ -109,11 +109,12 @@ workspaces/<project>/
 ### Step 2 · 空工作台
 
 ```bash
-mvwb init my_project
-# 替换 workspaces/my_project/原文/ 后，让 agent 生成空工作台
+mvwb init my_project          # 空项目：原文/ 待填、mvs=[]、已生成 workbench.html
+mvwb init demo_project --demo # 需要示例时：复制完整 demo
+# 填 workspaces/my_project/原文/ 后，让 agent 生成空工作台
 ```
 
-Agent 用 `templates/workbench.html` + `DATA.json` 构建：
+Agent 用 `templates/workbench.html` + `DATA.json` 重建：
 
 ```bash
 python3 scripts/build_workbench.py \
@@ -197,7 +198,7 @@ mvwb quote --model muse-video-ext --seconds 2
 - 每段可生成多条视频：当前第一条，历史追加 `G1_v2.mp4`。
 - 新版本写 `*_v{n+1}.json`，不覆盖旧版。
 - 更新 `stages/status/spent`，重建 `DATA`。
-- 重建后必须自检：`mvwb build --data ... --out ... && mvwb check --data ...`；缺失文件数必须为 0，否则先修路径/重新下载。
+- 重建后必须自检：`mvwb build --data ... --out ... && mvwb check --data ...`；缺失文件数必须为 0，否则先修路径或重新生成。
 - 页面是静态 `file://`，相对路径以 `workbench.html` 所在目录为基准；不要手动改成绝对路径。
 
 #### 4.2 审核循环
@@ -288,8 +289,8 @@ mvwb timeline <lyric.json> <audio.mp3> --out <dir>
 
 ```text
 SKILL.md
-scripts/          mvwb、keys/server、build、timeline、providers
-references/       workbench 契约、提示词、provider、handoff
+scripts/          mvwb、keys、build、timeline、providers
+references/       workbench 契约、step 契约、提示词、provider、handoff
 templates/        workbench.html
 contracts/        timeline/storyboard/segments/mv 契约
 demo/             原创 demo
@@ -298,11 +299,5 @@ config/           模型价格 / provider / keys 示例
 
 ## 版本
 
+- v0.3.1（2026-11-13）：安装升级保留 workspaces；`init` 默认空项目（`--demo` 复制 demo）；build/check 相对路径回退 skill 根目录；精简包内文档。
 - v0.3.0（2026-11-13）：移除后台服务，工作台回归纯静态；Key/余额改 CLI；新增四步执行契约与 `mvwb check`；修复透传参数。
-- v0.2.7（2026-11-13）：skill 正式命名为 `zz-mv-gongzuotai`；安装目录/压缩包同步改名。
-- v0.2.6（2026-11-13）：Windows 测试解码修复（CLI 输出 UTF-8）。
-- v0.2.5（2026-11-13）：Windows `mvwb status` 端口探测超时修复。
-- v0.2.4（2026-11-13）：新增 `mvwb open/status`；静态页提示“Key 需服务版”；打开方式硬规则。
-- v0.2.3（2026-11-13）：清理冗余资产、合并 Muse 指南、补 target/actual 时长契约。
-- v0.2（2026-11-13）：单 skill 重构；factory/trim 移除；流程到视频段；每 MV 独立目录；handoff。
-- v0.1：公开打包初版。
