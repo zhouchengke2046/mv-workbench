@@ -48,7 +48,7 @@ python3 scripts/check_image_prompts.py 图片提示词.md [--json]
 ## 与其它 skill 的关系
 
 - 本文件 + `moss/house-format.md` 是唯一真源；示例在 `moss/examples/`。
-- 本参考被 `mv-gongzuotai` 在资产阶段引用；出图执行见 `../providers/runninghub.md`。
+- 本参考被 `zz-mv-gongzuotai` 在资产阶段引用；出图执行见 `../providers/runninghub.md`。
 
 ## 维护
 

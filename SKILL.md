@@ -1,9 +1,9 @@
 ---
-name: mv-gongzuotai
+name: zz-mv-gongzuotai
 description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 workbench.html，按 MV 生成音乐计划、资产清单、标准分镜和视频段计划，再逐项生成音乐、资产图、视频段并审核重跑。最终产物是每个 MV 一个本地目录（音乐/资产/视频段 + handoff），不含粗剪和成片。Key/余额/服务用 mvwb；模型提示词和 RunningHub/Router 用法在本 skill 的 references/ 内。
 ---
 
-# MV Gongzuotai · 单 skill 的 MV 项目统筹
+# zz-mv-gongzuotai · 单 skill 的 MV 项目统筹
 
 ## 定位
 
@@ -11,7 +11,7 @@ description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 wo
 - 工作台只展示与统筹；生成由 agent 调用本 skill 的 `scripts/` 完成。
 - 流程到**视频段**结束：不粗剪、不拼片、不做成片；视频段 + handoff 交给下一阶段剪辑。
 
-> 命令里的 `mvwb` 指安装后的全局命令；如果 `~/.local/bin` 不在 PATH，用 `~/.agents/skills/mv-gongzuotai/mvwb`（或 `mv-gongzuotai/scripts/mvwb.py`）。
+> 命令里的 `mvwb` 指安装后的全局命令；如果 `~/.local/bin` 不在 PATH，用 `~/.agents/skills/zz-mv-gongzuotai/mvwb`（或 `zz-mv-gongzuotai/scripts/mvwb.py`）。
 
 ## 打开方式（硬规则）
 
@@ -272,6 +272,7 @@ config/           模型价格 / provider / keys 示例
 
 ## 版本
 
+- v0.2.7（2026-11-13）：skill 正式命名为 `zz-mv-gongzuotai`；安装目录/压缩包同步改名。
 - v0.2.6（2026-11-13）：Windows 测试解码修复（CLI 输出 UTF-8）。
 - v0.2.5（2026-11-13）：Windows `mvwb status` 端口探测超时修复。
 - v0.2.4（2026-11-13）：新增 `mvwb open/status`；静态页提示“Key 需服务版”；打开方式硬规则。

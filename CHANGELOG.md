@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.7 — 2026-11-13
+
+- Renamed the skill to `zz-mv-gongzuotai`; installer target and runtime zip follow the new name.
+- Repo name remains `mv-workbench`.
+
 ## 0.2.6 — 2026-11-13
 
 - Fixed the Windows test harness decoding `mvwb status` output as cp1252; CLI output is UTF-8.
@@ -28,13 +33,13 @@
 
 ## 0.2.0 — 2026-11-13
 
-- **Single-skill refactor**: `mv-gongzuotai` is now the only skill; all MV logic lives here.
+- **Single-skill refactor**: `zz-mv-gongzuotai` is now the only skill; all MV logic lives here.
 - Removed `zz-mv-factory` and `zz-mv-trim` as separate skills; workbench contract moved to `references/workbench-contract.md`, trim removed entirely.
 - Removed the machine rough-cut stage: the project ends at video segments + `handoff`.
 - Each MV now has its own directory: `01_music/`, `02_assets/`, `03_segments/`, `handoff_v1.json`.
 - Folded model/prompt knowledge into `references/prompts/` and provider API into `references/providers/`.
 - Folded RunningHub operations into `scripts/providers/runninghub.py` + `references/providers/runninghub.md`; no separate RH skill.
-- Installer now installs one skill to `~/.agents/skills/mv-gongzuotai`.
+- Installer now installs one skill to `~/.agents/skills/zz-mv-gongzuotai`.
 - `mvwb` commands: doctor / demo / server / keys / quote / rh / muse / timeline / init / build.
 - Demo restructured to per-MV directories; no client data.
 

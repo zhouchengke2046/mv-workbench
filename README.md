@@ -1,4 +1,4 @@
-# MV Gongzuotai
+# zz-mv-gongzuotai
 
 **一个 skill 统筹整条 MV 产线：** 甲方歌词/脚本 → 静态 workbench → 每 MV 的音乐/资产/视频段 → handoff 给剪辑。
 
@@ -8,7 +8,7 @@
 
 ## 这是什么
 
-- **一个入口 skill**：`mv-gongzuotai`，负责整个 MV 项目的四步流程、审核和版本。
+- **一个入口 skill**：`zz-mv-gongzuotai`，负责整个 MV 项目的四步流程、审核和版本。
 - **每个 MV 一个目录**：音乐、资产图、视频段都放在 `MVxxx/` 下。
 - **流程到视频段结束**：不粗剪、不做字幕/混音/成片；视频段 + `handoff` 交给剪辑。
 - **审核重跑**：每次生成可提修改意见，只重跑点名项，新版本保留历史。
@@ -37,7 +37,7 @@ cd mv-workbench
 ./mvwb doctor
 ```
 
-- 安装成一个 skill：`~/.agents/skills/mv-gongzuotai/`。
+- 安装成一个 skill：`~/.agents/skills/zz-mv-gongzuotai/`。
 - 命令：`~/.local/bin/mvwb`；不在 PATH 就直接跑 `./mvwb`。
 - Key 文件：`~/.config/mv-workbench/keys.json`（0600）。
 
@@ -50,37 +50,37 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 .\mvwb.cmd doctor
 ```
 
-- skill 安装到 `%USERPROFILE%\.agents\skills\mv-gongzuotai`。
+- skill 安装到 `%USERPROFILE%\.agents\skills\zz-mv-gongzuotai`。
 - `mvwb.cmd` 在 `%USERPROFILE%\.local\bin`；加入 PATH，或直接用 `.\mvwb.cmd`。
 - 建议 clone 到英文路径；Windows 不强制 `0600`，Key 仍只存本地文件。遇到路径/权限问题用 WSL2。
 
 ### 其他 agent
 
 ```bash
-./install.sh --target /path/to/your/skills/mv-gongzuotai
+./install.sh --target /path/to/your/skills/zz-mv-gongzuotai
 ```
 
 ## 压缩包 / 离线使用
 
-Release 里提供 `mv-gongzuotai-v0.2.6-runtime.zip`（运行时精简包，不含 tests/.github/dev 配置），解压后目录是 `mv-gongzuotai/`。
+Release 里提供 `zz-mv-gongzuotai-v0.2.7-runtime.zip`（运行时精简包，不含 tests/.github/dev 配置），解压后目录是 `zz-mv-gongzuotai/`。
 
 ### 方式 A：直接放进 skills（agent 立即识别）
 
 ```bash
-unzip mv-gongzuotai-v0.2.6-runtime.zip -d ~/.agents/skills/
-cd ~/.agents/skills/mv-gongzuotai
+unzip zz-mv-gongzuotai-v0.2.7-runtime.zip -d ~/.agents/skills/
+cd ~/.agents/skills/zz-mv-gongzuotai
 ./mvwb doctor
 ./mvwb open
 ```
 
 - skill 已被 agent 识别；`mvwb` 是文件夹内命令。
-- 想全局用 `mvwb`：把 `~/.agents/skills/mv-gongzuotai` 加到 PATH，或按方式 B 安装。
+- 想全局用 `mvwb`：把 `~/.agents/skills/zz-mv-gongzuotai` 加到 PATH，或按方式 B 安装。
 
 ### 方式 B：解压后安装（推荐，生成全局 mvwb）
 
 ```bash
-unzip mv-gongzuotai-v0.2.6-runtime.zip -d ~/Downloads
-cd ~/Downloads/mv-gongzuotai
+unzip zz-mv-gongzuotai-v0.2.7-runtime.zip -d ~/Downloads
+cd ~/Downloads/zz-mv-gongzuotai
 ./install.sh
 mvwb doctor
 ```
@@ -88,8 +88,8 @@ mvwb doctor
 Windows：
 
 ```powershell
-Expand-Archive mv-gongzuotai-v0.2.6-runtime.zip -DestinationPath "$HOME\Downloads"
-cd "$HOME\Downloads\mv-gongzuotai"
+Expand-Archive zz-mv-gongzuotai-v0.2.7-runtime.zip -DestinationPath "$HOME\Downloads"
+cd "$HOME\Downloads\zz-mv-gongzuotai"
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 .\mvwb.cmd doctor
 ```

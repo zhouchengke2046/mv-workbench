@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 $Repo = $PSScriptRoot
-$Target = Join-Path $HOME ".agents\skills\mv-gongzuotai"
+$Target = Join-Path $HOME ".agents\skills\zz-mv-gongzuotai"
 $Bin = Join-Path $HOME ".local\bin"
 
 if ($args -contains "--help") {

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET="${HOME}/.agents/skills/mv-gongzuotai"
+TARGET="${HOME}/.agents/skills/zz-mv-gongzuotai"
 BIN="${HOME}/.local/bin"
 FORCE=0
 
@@ -11,7 +11,7 @@ while [ $# -gt 0 ]; do
     --target) TARGET="$2"; shift 2 ;;
     --bin) BIN="$2"; shift 2 ;;
     --force) FORCE=1; shift ;;
-    -h|--help) echo "usage: ./install.sh [--target ~/.agents/skills/mv-gongzuotai] [--bin ~/.local/bin] [--force]"; exit 0 ;;
+    -h|--help) echo "usage: ./install.sh [--target ~/.agents/skills/zz-mv-gongzuotai] [--bin ~/.local/bin] [--force]"; exit 0 ;;
     *) echo "unknown option: $1"; exit 1 ;;
   esac
 done
