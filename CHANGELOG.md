@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.2 — 2026-11-13
+
+- Aligned the skill logic with the human-facing manual:
+  - Key is entered by the user in a local terminal; the agent only guides and never asks for or types the key.
+  - Project name is part of the initial questions.
+  - Added the three explicit gates: original → workbench → MV framework.
+  - Documented music lock (no song swap after lock) and the >1s/2% duration pause.
+  - Documented asset QA (`pass / warn / fail`) and the large-change impact/quote rule.
+  - Added `data.json` to the final project tree.
+- Updated the Feishu manual to the same logic.
+
 ## 0.3.1 — 2026-11-13
 
 - `install.sh --force` / `install.ps1 -Force` now preserve `workspaces/` projects instead of deleting them with the skill directory.
