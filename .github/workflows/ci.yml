@@ -33,7 +33,7 @@ jobs:
       - name: Tests
         run: python -m pytest
       - name: Secret scan
-        run: python scripts/check_secrets.py
+        run: python dev/check_secrets.py
       - name: Build demo
         run: python scripts/build_workbench.py --data demo/data.json --out demo/workbench.ci.html
       - name: Demo refs check
