@@ -4,9 +4,8 @@
 
 ## 形态
 
-- 单文件 `workbench.html`，CSS/JS/`DATA` 内联，`file://` 或本地服务打开。
-- 静态版：无按钮、无接口。
-- 服务版：只多右上角“配置 Key”按钮/弹窗 + `/api/keys` `/api/balance`。
+- 单文件 `workbench.html`，CSS/JS/`DATA` 内联；**纯静态，双击或 `file://` 打开，不启动服务**。
+- 无按钮、无接口、不联网；Key/余额只是 `DATA.keys` 快照，由 agent 用 `mvwb keys` 更新后重新 build。
 - 左侧：原文（歌词/脚本）+ MV 列表；MV 行 = `MV001` + `已花 X 币` + 三色环。
 - 每 MV 三大项：音乐 / 资产图 / 分镜表；分镜表前两列：视频 / 视频段。
 
@@ -94,7 +93,7 @@ workspaces/<project>/
 
 ## 规则
 
-- `keys` 只存掩码/余额/查询时间，不含原始 key；由 `mv_keys.py balance --write` 或服务版刷新。
+- `keys` 只存掩码/余额/查询时间，不含原始 key；由 `mv_keys.py balance --data data.json` 写入，再 build。
 - `spent` = 历史累计花费；左侧“已花 X 币”/MV 头部“累计”用它。
 - `music[].current` 标记当前版；历史版 `current:false`。
 - `segments[].videos` 第一条是当前视频，后面是历史视频；每条带分辨率/模型/费用/时间/时长。

@@ -13,15 +13,14 @@ description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 wo
 
 > 命令里的 `mvwb` 指安装后的全局命令；如果 `~/.local/bin` 不在 PATH，用 `~/.agents/skills/zz-mv-gongzuotai/mvwb`（或 `zz-mv-gongzuotai/scripts/mvwb.py`）。
 
-## 打开方式（硬规则）
+## 工作台与 Key（硬规则）
 
-- **配置 Key / 看余额 / 用户说“打开工作台”**：必须用服务版 `mvwb open`，打开 `http://127.0.0.1:8776/go`。
-- **禁止**用 `file://`、`python -m http.server`、旧端口/旧服务来配置 Key。
-- 静态 `file://` 只用于**只读分享**；没有配置按钮是设计，不是 bug。
-- 页面没有按钮时：先看地址栏和 `document.documentElement.dataset.mvMode`：
-  - `static` → 运行 `mvwb open`，不要调试页面；
-  - `service` 且 `typeof openKeyConfig !== "function"` → 才是 UI 注入 bug。
-- `mvwb status` 可查服务是否在跑；`mvwb open` 会自动复用/启动服务并选空闲端口。
+- **工作台是项目里的静态 `workbench.html`**：直接双击/用浏览器打开 `file://...`；**不启动任何后台服务**。
+- **禁止** `mvwb server`、`python -m http.server`、端口、服务版、旧 Key 页面。工作台没有“配置 Key”按钮是设计，不是 bug。
+- 用户说“打开工作台”：运行 `mvwb open [--workspace NAME]`，它只打开本地 HTML。
+- **Key 由 agent 用 CLI 配置**：`mvwb keys set runninghub` / `mvwb keys set router`（输入不回显）。不要让用户把 Key 发到对话里，也不要把 Key 写进 DATA、HTML、脚本、日志或截图。用户已经发过来时，提醒他重新配置并作废旧 Key。
+- **余额由 agent 刷新**：`mvwb keys balance --data <data.json>` → `mvwb build`；页面只显示掩码和快照时间，不联网。
+- **每次生成/替换文件后**：更新 `data.json` → `mvwb build` → `mvwb check --data ...`。`check` 报缺失就是工作台不会显示，不能算完成。
 
 ## 最终交付
 
@@ -75,6 +74,21 @@ workspaces/<project>/
 }
 ```
 
+## 执行契约（每步必做）
+
+详细输入/输出/自检见 `references/step-contract.md`。每一步固定五件事：
+
+| 步骤 | 先问（缺失才问） | 产物 | 自检 | 门 |
+|---|---|---|---|---|
+| 0 初始化 | 项目名、数量、时长、风格、比例、预算 | workspace + `data.json` + `workbench.html` | `mvwb check` = 0 缺失 | 参数确认 |
+| 1 原文 | 歌词/脚本文件 | `原文/*` + `lyric.json` | 行数/id 连续/未拆镜 | 原文核对 |
+| 2 空工作台 | 批次参数 | DATA + 静态 HTML | build + check + 双击可开 | 工作台确认 |
+| 3 框架 | 审核意见 | manifest + framework + segments | 时长/漏句/段≤10s | 框架确认 + 报价 |
+| 4 生成 | 点名项 | 音乐/资产/视频段/handoff | 文件存在/时长/QA/时间轴 | 逐项 locked |
+
+- 对话输出统一为「结论 + 产物路径 + 自检结果 + 待确认」，不贴整段 JSON。
+- 自检必须真跑并引用结果；失败停在当前步，不静默进入下一步。
+
 ## 四步
 
 ### Step 1 · 原文
@@ -108,19 +122,22 @@ python3 scripts/build_workbench.py \
   --out workspaces/my_project/workbench.html
 ```
 
-打开服务版：
+打开静态工作台：
 
 ```bash
 mvwb open --workspace my_project
 ```
 
-生成后停下来问：
+生成后停下来问（缺什么问什么，每项给默认值）：
 
-1. **一次生成多少条？**（建议先 5–10 条打样）
-2. **每条多长？**（15/30/45/60s）
-3. **什么风格？**（3D 皮克斯 / 真人短剧 / 日系治愈 / 甲方参考片）
+1. **一次生成多少条？** 默认 1 条打样（建议先 1–5 条）。
+2. **每条多长？** 默认 30s（15/30/45/60s）。
+3. **什么风格？** 默认按参考包（3D 皮克斯 / 真人短剧 / 日系治愈 / 甲方参考片）。
+4. **比例？** 默认 9:16 竖屏（1080×1920）。
+5. **人物/场景/产品参考？** 有图给图，没有用文字描述。
+6. **预算上限？** 没给就先报价，不提交。
 
-**门：批次参数确认。** 此步不花钱。
+输出只回：`产物路径 + 自检结果 + 这 6 项确认`。**门：批次参数确认。** 此步不花钱。
 
 ## 时长契约（用户目标 vs 音乐实际）
 
@@ -139,8 +156,11 @@ mvwb open --workspace my_project
 
 创建 `MV001…MV00N`，每条：
 
+- **比例默认 9:16 竖屏**（工作台按 1080×1920，Muse 输出 720×1280）；用户明确指定才改。
+
 - `mv_manifest.json`：stages 全 `not_started`；genome、cost/spent=0。
 - `00_framework.md`：音乐计划、资产清单、标准分镜、视频段计划；这里的 `duration` 是**计划值**，以 `target_duration` 为总目标。
+- **资产清单是给用户审核的**：人物三视图/场景空镜/道具，用来锁定后续视频的一致性；不是可选项。向用户解释“没有资产图，每条视频的人物/场景会漂”。
 - `03_segments/segments_v1.json`：先写计划，`videos: []`。
 - 更新 `DATA.mvs`：音乐/资产为空，分镜/段有计划；保留 `keys` 快照。
 
@@ -156,7 +176,7 @@ mvwb open --workspace my_project
 
 ```bash
 mvwb keys status
-mvwb keys balance
+mvwb keys balance --data workspaces/my_project/data.json
 mvwb quote --model muse-video-ext --seconds 2
 ```
 
@@ -177,6 +197,8 @@ mvwb quote --model muse-video-ext --seconds 2
 - 每段可生成多条视频：当前第一条，历史追加 `G1_v2.mp4`。
 - 新版本写 `*_v{n+1}.json`，不覆盖旧版。
 - 更新 `stages/status/spent`，重建 `DATA`。
+- 重建后必须自检：`mvwb build --data ... --out ... && mvwb check --data ...`；缺失文件数必须为 0，否则先修路径/重新下载。
+- 页面是静态 `file://`，相对路径以 `workbench.html` 所在目录为基准；不要手动改成绝对路径。
 
 #### 4.2 审核循环
 
@@ -195,6 +217,8 @@ mvwb quote --model muse-video-ext --seconds 2
 - 写 `handoff_v1.json`（或 `handoff_v1.csv`）。
 - 检查每个段：`video_file` 存在、`duration` ≤10s、`music_start/end` 与时间轴一致。
 - 项目结束；剪辑拿视频段和 handoff 进入下一阶段。
+
+**下一条 MV**：同一工作台内继续 `MV002`，复用已锁定的音乐/资产规则，先出框架再生成；换歌词/客户用 `mvwb init <项目名>` 新建 workspace，不要覆盖旧项目。
 
 ## 审核/版本规则
 
@@ -223,6 +247,7 @@ mvwb quote --model muse-video-ext --seconds 2
 | RunningHub API | — | `references/providers/runninghub.md` |
 | Router API/余额 | — | `references/providers/router.md` |
 | 工作台 DATA 契约 | — | `references/workbench-contract.md` |
+| 四步执行契约 | — | `references/step-contract.md` |
 | 交付字段 | — | `references/handoff.md` |
 
 - 视频按段确认模型；不同段可不同模型，但同一 MV 风格包/调色统一。
@@ -231,9 +256,9 @@ mvwb quote --model muse-video-ext --seconds 2
 ## Key
 
 - 唯一真源：`~/.config/mv-workbench/keys.json`（0600）。
-- 页面配置：`mvwb open` → 右上角“配置 Key” → RunningHub / Router 两个输入框。
-- 命令行：`mvwb keys set runninghub`、`mvwb keys set router`。
-- 原始 Key 不进 HTML/DATA/日志；`DATA.keys` 只有掩码和余额。
+- 配置：`mvwb keys set runninghub`、`mvwb keys set router`（终端隐藏输入）。
+- 余额：`mvwb keys balance --data workspaces/<project>/data.json` → `mvwb build`。
+- 原始 Key 不进 HTML/DATA/日志；`DATA.keys` 只有掩码和余额快照。
 - 生成命令统一经 `mv_keys.py exec` 注入；不要依赖 shell 残留 Key。
 
 ## 常用命令
@@ -244,9 +269,10 @@ mvwb open
 mvwb open --workspace my_project
 mvwb init my_project
 mvwb keys status
-mvwb keys balance
+mvwb keys balance --data workspaces/my_project/data.json
 mvwb quote --model muse-video-ext --seconds 2
 mvwb build --data workspaces/my_project/data.json --out workspaces/my_project/workbench.html
+mvwb check --data workspaces/my_project/data.json
 mvwb rh --app <id> --name <tag> --overrides <json> --out <dir>
 mvwb muse --prompt "..." --seconds 2 --size 720x1280 --out out.mp4
 mvwb timeline <lyric.json> <audio.mp3> --out <dir>
@@ -272,6 +298,7 @@ config/           模型价格 / provider / keys 示例
 
 ## 版本
 
+- v0.3.0（2026-11-13）：移除后台服务，工作台回归纯静态；Key/余额改 CLI；新增四步执行契约与 `mvwb check`；修复透传参数。
 - v0.2.7（2026-11-13）：skill 正式命名为 `zz-mv-gongzuotai`；安装目录/压缩包同步改名。
 - v0.2.6（2026-11-13）：Windows 测试解码修复（CLI 输出 UTF-8）。
 - v0.2.5（2026-11-13）：Windows `mvwb status` 端口探测超时修复。

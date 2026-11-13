@@ -16,6 +16,7 @@ import os
 import re
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
@@ -36,12 +37,56 @@ def load_key():
     return key
 
 
+def fail(msg, detail=""):
+    print("[!] %s" % msg, file=sys.stderr)
+    if detail:
+        print("    接口返回：%s" % str(detail)[:500].replace("\n", " "), file=sys.stderr)
+    sys.exit(1)
+
+
+def read_json(req, timeout=60):
+    """统一处理 HTTP/网络/JSON 错误，避免把原始 traceback 丢给用户。"""
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            raw = resp.read().decode("utf-8", "replace")
+    except urllib.error.HTTPError as exc:
+        raw = exc.read().decode("utf-8", "replace")
+        fail("RunningHub 返回 HTTP %s" % exc.code, raw)
+    except urllib.error.URLError as exc:
+        fail("连不上 RunningHub（%s）" % exc.reason,
+             "检查网络、代理或防火墙；RunningHub 国内通常可直连")
+    except (TimeoutError, OSError) as exc:
+        fail("请求 RunningHub 超时或中断（%s）" % exc,
+             "稍后重试；持续失败先运行 mvwb doctor --network")
+    try:
+        return json.loads(raw)
+    except ValueError:
+        fail("RunningHub 返回的不是 JSON", raw)
+
+
 def post(path, payload, key=None, bearer=False):
     headers = {"Content-Type": "application/json"}
     if bearer:
         headers["Authorization"] = "Bearer %s" % key
     req = urllib.request.Request(BASE + path, data=json.dumps(payload).encode(), headers=headers)
-    return json.load(urllib.request.urlopen(req, timeout=60))
+    return read_json(req)
+
+
+def explain_business_error(resp, what="请求"):
+    """把常见业务错误翻译成可执行的下一步；不猜具体错误码含义。"""
+    code = resp.get("code") if isinstance(resp, dict) else None
+    msg = (resp.get("msg") or resp.get("message") or "") if isinstance(resp, dict) else ""
+    tips = []
+    text = ("%s %s" % (code, msg)).lower()
+    if any(k in text for k in ("332", "user_does_not_exist", "user does not exist", "401", "unauthorized")):
+        tips.append("Key 可能无效、过期或不属于当前账号；运行 mvwb keys set runninghub 重新配置")
+    if any(k in text for k in ("805", "901", "not found", "not_exists", "no permission", "forbidden", "403")):
+        tips.append("应用/工作流 ID 可能不对，或当前账号没有权限；确认 --app 是 AI 应用 ID（不是 workflow ID）")
+    if any(k in text for k in ("insufficient", "balance", "coin", "余额", "币")):
+        tips.append("余额不足；运行 mvwb keys balance 查余额后充值")
+    if not tips:
+        tips.append("检查 Key、应用/工作流 ID、账号权限；完整返回见上")
+    return "%s失败：%s" % (what, "；".join(tips))
 
 
 def upload(path, key):
@@ -55,14 +100,22 @@ def upload(path, key):
                  % (boundary, k, v)).encode()
     body += ('--%s\r\nContent-Disposition: form-data; name="file"; filename="%s"\r\n'
              'Content-Type: application/octet-stream\r\n\r\n' % (boundary, fn)).encode()
-    body += open(path, "rb").read() + ("\r\n--%s--\r\n" % boundary).encode()
+    try:
+        with open(path, "rb") as fh:
+            file_bytes = fh.read()
+    except OSError as exc:
+        fail("读不到要上传的文件：%s" % path, exc)
+    body += file_bytes + ("\r\n--%s--\r\n" % boundary).encode()
     req = urllib.request.Request(BASE + "/task/openapi/upload", data=body,
                                  headers={"Content-Type": "multipart/form-data; boundary=%s" % boundary})
-    r = json.load(urllib.request.urlopen(req, timeout=120))
+    r = read_json(req, timeout=120)
     if r.get("code") != 0:
-        sys.exit("[!] 上传失败: %s" % json.dumps(r, ensure_ascii=False)[:300])
-    print("[upload] %s -> %s" % (path, r["data"]))
-    return r["data"]
+        fail(explain_business_error(r, "上传"), json.dumps(r, ensure_ascii=False))
+    data = r.get("data")
+    if not isinstance(data, str) or not data:
+        fail("上传接口没有返回文件路径", json.dumps(r, ensure_ascii=False))
+    print("[upload] %s -> %s" % (path, data))
+    return data
 
 
 def apply_overrides(nodes, ov):
@@ -100,33 +153,51 @@ def main():
     os.makedirs(args.out, exist_ok=True)
     if args.app:
         demo_url = "%s/api/webapp/apiCallDemo?apiKey=%s&webappId=%s" % (BASE, key, args.app)
-        demo = json.load(urllib.request.urlopen(demo_url, timeout=60))["data"]
-        nodes = demo["nodeInfoList"]
+        demo = read_json(urllib.request.Request(demo_url), timeout=60)
+        data = demo.get("data") if isinstance(demo, dict) else None
+        if not isinstance(data, dict) or not isinstance(data.get("nodeInfoList"), list):
+            fail(explain_business_error(demo, "读取 AI 应用参数"),
+                 "没有返回 nodeInfoList；" + json.dumps(demo, ensure_ascii=False))
+        nodes = data["nodeInfoList"]
         if args.overrides:
-            ov = {tuple(k.split(":", 1)): v for k, v in json.load(open(args.overrides)).items()}
+            try:
+                with open(args.overrides, encoding="utf-8") as fh:
+                    ov = {tuple(k.split(":", 1)): v for k, v in json.load(fh).items()}
+            except (OSError, ValueError) as exc:
+                fail("overrides 文件读取失败：%s" % args.overrides, exc)
             apply_overrides(nodes, ov)
         r = post("/openapi/v2/run/ai-app/%s" % args.app,
                  {"nodeInfoList": nodes, "instanceType": "default", "usePersonalQueue": "false"},
                  key=key, bearer=True)
         tid = r.get("taskId") or (r.get("data") or {}).get("taskId")
         if not tid:
-            sys.exit("[!] 提交失败: %s" % json.dumps(r, ensure_ascii=False)[:400])
+            fail(explain_business_error(r, "提交任务"), json.dumps(r, ensure_ascii=False))
     else:
-        nodes = json.load(open(args.nodes))
+        try:
+            with open(args.nodes, encoding="utf-8") as fh:
+                nodes = json.load(fh)
+        except (OSError, ValueError) as exc:
+            fail("nodes 文件读取失败：%s" % args.nodes, exc)
         if isinstance(nodes, dict) and "nodeInfoList" in nodes:
             nodes = nodes["nodeInfoList"]
+        if not isinstance(nodes, list):
+            fail("nodes 文件格式不对：应为节点数组，或 {nodeInfoList: [...]}", args.nodes)
         r = post("/task/openapi/create",
                  {"apiKey": key, "workflowId": args.wf, "nodeInfoList": nodes,
                   "instanceType": "default"})
         if r.get("code") != 0:
-            sys.exit("[!] 提交失败: %s" % json.dumps(r, ensure_ascii=False)[:400])
-        tid = r["data"]["taskId"]
+            fail(explain_business_error(r, "提交任务"), json.dumps(r, ensure_ascii=False))
+        tid = (r.get("data") or {}).get("taskId")
+        if not tid:
+            fail("提交成功但接口没有返回 taskId", json.dumps(r, ensure_ascii=False))
     print("[%s] taskId=%s" % (args.name, tid))
 
     t0 = time.time()
     while True:
         time.sleep(args.interval)
         s = post("/task/openapi/status", {"apiKey": key, "taskId": tid})
+        if s.get("code") != 0:
+            fail(explain_business_error(s, "查询任务状态"), json.dumps(s, ensure_ascii=False))
         d = s.get("data")
         stt = d.get("taskStatus") if isinstance(d, dict) else d
         print("[%s] %ds %s" % (args.name, int(time.time() - t0), stt), flush=True)
@@ -137,10 +208,16 @@ def main():
             return
 
     o = post("/task/openapi/outputs", {"apiKey": key, "taskId": tid})
+    if o.get("code") != 0:
+        fail(explain_business_error(o, "获取产物"), json.dumps(o, ensure_ascii=False))
     print("[%s] outputs code=%s" % (args.name, o.get("code")))
     coins, saved = 0, []
     files = o.get("data") or []
+    if not isinstance(files, list):
+        fail("产物格式不对：data 应为文件数组", json.dumps(o, ensure_ascii=False))
     for i, f in enumerate(files):
+        if not isinstance(f, dict):
+            continue
         c = f.get("consumeCoins") or 0
         coins += c
         u = f.get("fileUrl") or ""
@@ -149,7 +226,11 @@ def main():
             ext = os.path.splitext(urllib.parse.urlparse(u).path)[1] or ".bin"
             fn = os.path.join(args.out, "%s_%d%s" % (args.name, i, ext) if len(files) > 1
                               else "%s%s" % (args.name, ext))
-            urllib.request.urlretrieve(u, fn)
+            try:
+                urllib.request.urlretrieve(u, fn)
+            except (urllib.error.URLError, OSError) as exc:
+                print("[warn] 下载失败 %s：%s" % (u[:100], exc), file=sys.stderr)
+                continue
             saved.append(fn)
             print("    saved -> %s" % fn)
     json.dump(o, open(os.path.join(args.out, "%s_result.json" % args.name), "w"),

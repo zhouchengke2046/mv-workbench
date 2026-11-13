@@ -1,6 +1,4 @@
-import os
-import socket
-import subprocess
+import json
 import sys
 from pathlib import Path
 
@@ -9,29 +7,49 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import mvwb  # noqa: E402
 
 
-def free_port():
-    sock = socket.socket()
-    sock.bind(("127.0.0.1", 0))
-    port = sock.getsockname()[1]
-    sock.close()
-    return port
+def test_workbench_path_defaults_to_demo():
+    args = type("A", (), {"workspace": None, "workbench": None})()
+    assert mvwb._workbench_path(args) == (ROOT / "demo" / "workbench.html").resolve()
 
 
-def test_port_free():
-    port = free_port()
-    assert mvwb._port_free(port) is True
+def test_open_uses_file_uri(monkeypatch, tmp_path, capsys):
+    page = tmp_path / "workbench.html"
+    page.write_text("<html></html>", encoding="utf-8")
+    seen = {}
+    monkeypatch.setattr(mvwb.webbrowser, "open", lambda uri: seen.setdefault("uri", uri))
+    args = type("A", (), {"workspace": None, "workbench": str(page), "open": True})()
+    assert mvwb.cmd_open(args) == 0
+    assert seen["uri"] == page.resolve().as_uri()
+    assert "静态文件" in capsys.readouterr().out
 
 
-def test_service_info_none():
-    port = free_port()
-    assert mvwb._service_info(port) is None
+def test_passthrough_keeps_option_values(monkeypatch):
+    seen = {}
+
+    def fake_muse(args):
+        seen["args"] = list(args.args)
+        return 0
+
+    monkeypatch.setattr(mvwb, "cmd_muse", fake_muse)
+    monkeypatch.setattr(sys, "argv", [
+        "mvwb", "muse", "--prompt", "test shot", "--seconds", "2", "--out", "x.mp4",
+    ])
+    assert mvwb.main() == 0
+    assert seen["args"] == ["--prompt", "test shot", "--seconds", "2", "--out", "x.mp4"]
 
 
-def test_status_reports_not_running():
-    port = free_port()
-    proc = subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "mvwb.py"), "status", "--port", str(port)],
-        capture_output=True, text=True, encoding="utf-8", errors="replace", env=os.environ.copy(), timeout=10,
-    )
-    assert proc.returncode == 1
-    assert '"running": false' in proc.stdout
+def test_check_reports_missing_refs(tmp_path, capsys):
+    (tmp_path / "ok.png").write_bytes(b"x")
+    data = {
+        "mvs": [{"detail": {
+            "assets": [{"url": "ok.png"}, {"url": "missing.png"}],
+            "music": [{"audio": "ok.mp3"}],
+        }}],
+    }
+    data_path = tmp_path / "data.json"
+    data_path.write_text(json.dumps(data), encoding="utf-8")
+    args = type("A", (), {"data": str(data_path), "workbench": None})()
+    assert mvwb.cmd_check(args) == 1
+    out = capsys.readouterr().out
+    assert "missing.png" in out
+    assert "缺失/空文件：2" in out

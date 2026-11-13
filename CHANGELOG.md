@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0 — 2026-11-13
+
+- Removed the local config service. `workbench.html` is a plain static file again: open it by double-click or `file://`; no port, no server, no background process.
+- `mvwb open` now only opens the local HTML; `mvwb server` / `mvwb status` / `mv_keys_server.py` / `mv_keys_ui.js` removed.
+- Key config moved to CLI: `mvwb keys set runninghub|router` (hidden input). Balance snapshot: `mvwb keys balance --data data.json` + `mvwb build`.
+- Workbench top bar no longer has a Key config button; it shows a read-only masked snapshot.
+- Added `references/step-contract.md`: fixed input questions, output shape, self-check and gate for every step.
+- Added `mvwb check` to verify all local asset/video/music references; completion now requires 0 missing.
+- Fixed `mvwb rh/muse/timeline` passthrough argument swallowing (v0.2.7 regression).
+- Fixed RunningHub raw traceback on business errors (fake key / wrong app id).
+- Added `START_HERE.md` beginner guide.
+
 ## 0.2.7 — 2026-11-13
 
 - Renamed the skill to `zz-mv-gongzuotai`; installer target and runtime zip follow the new name.

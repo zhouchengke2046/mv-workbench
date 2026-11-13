@@ -4,6 +4,8 @@
 
 > 面向能运行本地命令的 agent（ZCode / Claude Code / 同类 skill 宿主）。最终产物到**视频段**结束，不做粗剪、不拼成片。
 
+**第一次用、不知道解压后点哪个、Key/余额/比例是什么？** 先看 [START_HERE.md](START_HERE.md)（新手一页纸）。
+
 ![demo](docs/workbench.png)
 
 ## 这是什么
@@ -12,13 +14,13 @@
 - **每个 MV 一个目录**：音乐、资产图、视频段都放在 `MVxxx/` 下。
 - **流程到视频段结束**：不粗剪、不做字幕/混音/成片；视频段 + `handoff` 交给剪辑。
 - **审核重跑**：每次生成可提修改意见，只重跑点名项，新版本保留历史。
-- **Key 配置**：服务版右上角“配置 Key”，只写本地 `keys.json`；原始 Key 不进 HTML/DATA。
+- **Key 配置**：`mvwb keys set runninghub` / `router`（终端隐藏输入，只写本地 `keys.json`）；原始 Key 不进 HTML/DATA。
 
 ## 依赖
 
 | 依赖 | 说明 |
 |---|---|
-| Python 3.9+ | 只用标准库；`mvwb` / Key 服务 / 构建器 |
+| Python 3.9+ | 只用标准库；`mvwb` / Key 管理 / 构建器 |
 | ffmpeg + ffprobe | 读取音乐时长/时间轴、检查视频时长；macOS `brew install ffmpeg`，Windows `winget install Gyan.FFmpeg`，Ubuntu `sudo apt install ffmpeg` |
 | 一个 agent | 能读 skill、运行本地命令、读写文件 |
 | RunningHub API Key | ACE/MOSS/H3/S2V |
@@ -62,12 +64,12 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 
 ## 压缩包 / 离线使用
 
-Release 里提供 `zz-mv-gongzuotai-v0.2.7-runtime.zip`（运行时精简包，不含 tests/.github/dev 配置），解压后目录是 `zz-mv-gongzuotai/`。
+Release 里提供 `zz-mv-gongzuotai-v0.3.0-runtime.zip`（运行时精简包，不含 tests/.github/dev 配置），解压后目录是 `zz-mv-gongzuotai/`。
 
 ### 方式 A：直接放进 skills（agent 立即识别）
 
 ```bash
-unzip zz-mv-gongzuotai-v0.2.7-runtime.zip -d ~/.agents/skills/
+unzip zz-mv-gongzuotai-v0.3.0-runtime.zip -d ~/.agents/skills/
 cd ~/.agents/skills/zz-mv-gongzuotai
 ./mvwb doctor
 ./mvwb open
@@ -79,7 +81,7 @@ cd ~/.agents/skills/zz-mv-gongzuotai
 ### 方式 B：解压后安装（推荐，生成全局 mvwb）
 
 ```bash
-unzip zz-mv-gongzuotai-v0.2.7-runtime.zip -d ~/Downloads
+unzip zz-mv-gongzuotai-v0.3.0-runtime.zip -d ~/Downloads
 cd ~/Downloads/zz-mv-gongzuotai
 ./install.sh
 mvwb doctor
@@ -88,7 +90,7 @@ mvwb doctor
 Windows：
 
 ```powershell
-Expand-Archive zz-mv-gongzuotai-v0.2.7-runtime.zip -DestinationPath "$HOME\Downloads"
+Expand-Archive zz-mv-gongzuotai-v0.3.0-runtime.zip -DestinationPath "$HOME\Downloads"
 cd "$HOME\Downloads\zz-mv-gongzuotai"
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 .\mvwb.cmd doctor
@@ -102,15 +104,9 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 ./mvwb open
 ```
 
-`mvwb open` 会自动启动/复用服务版并打开 `http://127.0.0.1:8776/go`。Demo 使用原创虚构歌词/脚本和 SVG 占位资产，不含客户内容。
+`mvwb open` 只做一件事：用浏览器打开项目里的静态 `workbench.html`，**不启动后台服务**。Demo 使用原创虚构歌词/脚本和 SVG 占位资产，不含客户内容。
 
-静态只读分享（不要用来配 Key）：
-
-```bash
-open demo/workbench.html
-```
-
-> 静态 `file://` 没有“配置 Key”按钮；要配 Key / 刷余额，用 `./mvwb open` 的服务版。
+也可以直接双击 `demo/workbench.html`，效果一样。Key/余额由 agent 用 `mvwb keys` 更新后再 `mvwb build` 刷新，页面本身不联网。
 
 ## 每个 MV 的产物
 
@@ -210,7 +206,7 @@ Agent 生成 `MV001…MV00N`：音乐计划、资产清单、标准分镜、视�
 
 ```bash
 ./mvwb keys status
-./mvwb keys balance
+./mvwb keys balance --data workspaces/my_project/data.json
 ./mvwb quote --model muse-video-ext --seconds 2
 
 # 音乐
@@ -231,6 +227,14 @@ Agent 生成 `MV001…MV00N`：音乐计划、资产清单、标准分镜、视�
 
 - 音乐先锁定；资产按参考包；视频段逐段生成。
 - 每次审核修改只重跑点名项，写 `v2`，旧版保留。
+- **每次生成后**更新 `data.json`、重建页面并自检：
+
+```bash
+./mvwb build --data workspaces/my_project/data.json --out workspaces/my_project/workbench.html
+./mvwb check --data workspaces/my_project/data.json
+```
+
+`check` 输出 `缺失/空文件：0` 才算工作台能显示；有 `[missing]` 先修路径或重新下载。
 - 所有段 `locked` 后写 `handoff_v1.json`，项目结束。
 
 ## 时长：用户目标 vs 音乐实际
@@ -263,11 +267,12 @@ Agent 生成 `MV001…MV00N`：音乐计划、资产清单、标准分镜、视�
 ```text
 mv-workbench/                ← 一个 skill
 ├─ SKILL.md                  唯一入口
+├─ START_HERE.md             新手一页纸
 ├─ mvwb / mvwb.cmd
 ├─ install.sh / install.ps1
 ├─ scripts/
 │  ├─ mvwb.py
-│  ├─ mv_keys.py / mv_keys_server.py / mv_keys_ui.js
+│  ├─ mv_keys.py
 │  ├─ build_workbench.py
 │  ├─ timeline.py
 │  └─ providers/
@@ -275,6 +280,7 @@ mv-workbench/                ← 一个 skill
 │     └─ tokentech_video.py
 ├─ references/
 │  ├─ workbench-contract.md
+│  ├─ step-contract.md
 │  ├─ review-and-versions.md
 │  ├─ handoff.md
 │  ├─ lyrics.md
@@ -291,21 +297,30 @@ mv-workbench/                ← 一个 skill
 ## Key
 
 - 唯一真源：`~/.config/mv-workbench/keys.json`（0600）。
-- 页面配置：`./mvwb open` → 右上角“配置 Key” → RunningHub / Router。
-- 命令行：`./mvwb keys set runninghub`、`./mvwb keys set router`。
-- 原始 Key 不进 HTML/DATA/日志/截图。
+- 配置（终端隐藏输入）：`./mvwb keys set runninghub`、`./mvwb keys set router`。
+- 余额：`./mvwb keys balance --data workspaces/my_project/data.json`，再 `./mvwb build` 刷新页面快照。
+- 原始 Key 不进 HTML/DATA/日志/截图；页面只显示掩码和查询时间。
 - 生成命令统一经 `mv_keys.py exec` 注入；不要依赖 shell 残留 Key。
 
 ## 安全
 
-- Key 配置服务只绑 `127.0.0.1`；POST 校验 Origin/Content-Type；静态版不加载接口。
+- 工作台是纯静态 HTML，不启动服务、不开端口、不监听请求。
 - 无遥测、无云端同步；工作台和产物都在本地。
 - **不要把客户歌词/脚本/素材提交到公开仓库**；本仓库 demo 是原创虚构内容。
 
 ## 常见问题
 
-**页面没有“配置 Key”按钮 / 点不动？**  
-先 `./mvwb status`，再 `./mvwb open`。只认它打印的 `http://127.0.0.1:8776/go`；`file://` 静态版没有按钮。Console 里 `document.documentElement.dataset.mvMode` 应为 `service`。
+**工作台怎么打开？需要启动服务吗？**  
+不需要。直接双击 `workbench.html`，或 `./mvwb open [--workspace NAME]`；它只是用浏览器打开一个本地文件，不开端口。
+
+**资产图/视频是空白框？**  
+先 `./mvwb check --data workspaces/my_project/data.json`：有 `[missing]` 就是文件路径不对或没下载；全 0 但仍空白，执行 `./mvwb build ...` 后强制刷新（Cmd/Ctrl+Shift+R）。
+
+**`mvwb rh/muse/timeline` 报 `expected one argument`？**  
+v0.3.0 之前的透传参数 bug，升级到 v0.3.0 或更高版本。
+
+**Key 可以发到对话里让 agent 配吗？**  
+不可以。让用户在自己的终端运行 `mvwb keys set runninghub` / `router`，输入不回显；已经发过的 Key 建议作废重发。
 
 **Router 域名打不开？**  
 用 `https://router.kcacher.top`，不要用 `router.kbtech.app`。
@@ -340,7 +355,7 @@ Router 2s 实测 ¥1；RunningHub 扣 RH 币，和钱包分开；以账单为准
 python3 -m pip install -r requirements-dev.txt
 python3 -m pytest
 python3 scripts/build_workbench.py --data demo/data.json --out demo/workbench.html
-node --check scripts/mv_keys_ui.js
+python3 scripts/mvwb.py check --data demo/data.json
 python3 scripts/check_secrets.py
 ```
 

@@ -9,7 +9,7 @@
   init [--force] [--from-env]
   status
   set <runninghub|router> [--stdin] [--label X] [--account X] [--base-url X] [--proxy X]
-  balance [--write workbench.html] [--no-backup] [--timeout 12]
+  balance [--data DATA_JSON] [--write WORKBENCH_HTML] [--no-backup] [--timeout 12]
   exec -- <命令...>
 
 安全约束：
@@ -404,6 +404,28 @@ def to_data_keys(payload):
     return output
 
 
+def update_data_keys(path, keys_data):
+    target = Path(path).expanduser()
+    if not target.is_file():
+        die("找不到 DATA：%s" % target)
+    try:
+        data = json.loads(target.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        die("DATA 读取失败：%s（%s）" % (target, exc))
+    if not isinstance(data, dict):
+        die("DATA 顶层必须是 JSON 对象")
+    data["keys"] = keys_data
+    serialized = json.dumps(data, ensure_ascii=False)
+    for section in ("runninghub", "router"):
+        raw = (keys_data.get(section) or {}).get("_raw")
+        if raw and raw in serialized:
+            die("拒绝写入：DATA 中出现原始 key")
+    tmp = target.with_name(target.name + ".tmp")
+    tmp.write_text(serialized + "\n", encoding="utf-8")
+    tmp.replace(target)
+    print(json.dumps({"ok": True, "written": str(target), "hint": "再运行 mvwb build 刷新页面"}, ensure_ascii=False))
+
+
 def update_workbench(path, keys_data, backup=True):
     page = Path(path).expanduser()
     if not page.exists():
@@ -610,7 +632,15 @@ def cmd_balance(args):
         "router": balance_router(cfg, args.timeout),
     }
     print(json.dumps(payload, ensure_ascii=False, indent=2))
-    if args.write:
+    if args.data:
+        keys_data = to_data_keys(payload)
+        serialized = json.dumps(keys_data, ensure_ascii=False)
+        for section in ("runninghub", "router"):
+            raw = ((cfg.get(section) or {}).get("api_key") or "").strip()
+            if raw and raw in serialized:
+                die("拒绝写入：DATA 中出现原始 key")
+        update_data_keys(args.data, keys_data)
+    elif args.write:
         keys_data = to_data_keys(payload)
         serialized = json.dumps(keys_data, ensure_ascii=False)
         for section in ("runninghub", "router"):
@@ -693,8 +723,9 @@ def build_parser():
     config.add_argument("--provider")
     config.add_argument("--proxy")
 
-    balance = subparsers.add_parser("balance", help="查询余额；可写回 workbench.html")
-    balance.add_argument("--write", metavar="WORKBENCH_HTML", help="把掩码+余额写进 DATA.keys")
+    balance = subparsers.add_parser("balance", help="查询余额；可写回 data.json")
+    balance.add_argument("--data", metavar="DATA_JSON", help="把掩码+余额写进 data.json 的 keys，再 mvwb build")
+    balance.add_argument("--write", metavar="WORKBENCH_HTML", help="旧版：把掩码+余额写进 HTML 的 DATA.keys")
     balance.add_argument("--no-backup", action="store_true", help="写回时不生成 .bak")
     balance.add_argument("--timeout", type=int, default=12, help="单次查询超时秒数")
 

@@ -39,7 +39,7 @@ fi
 rm -rf "$TARGET"
 mkdir -p "$TARGET" "$BIN"
 
-for item in SKILL.md references scripts templates contracts demo config README.md LICENSE NOTICE.md; do
+for item in SKILL.md START_HERE.md references scripts templates contracts demo config README.md LICENSE NOTICE.md; do
   cp -R "$REPO/$item" "$TARGET/"
 done
 echo "installed skill: $TARGET"

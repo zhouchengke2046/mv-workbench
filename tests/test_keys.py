@@ -75,6 +75,21 @@ def test_newapi_balance(tmp_path, monkeypatch):
         server.shutdown()
 
 
+def test_update_data_keys(tmp_path):
+    data_path = tmp_path / "data.json"
+    data_path.write_text(json.dumps({"meta": {"id": "D01"}, "mvs": []}), encoding="utf-8")
+    keys_data = {
+        "runninghub": {"configured": True, "masked": "••••1234", "balance": 100, "unit": "币"},
+        "router": {"configured": True, "masked": "••••5678", "balance": 20.0, "unit": "CNY"},
+    }
+    mv_keys.update_data_keys(str(data_path), keys_data)
+    data = json.loads(data_path.read_text(encoding="utf-8"))
+    assert data["meta"]["id"] == "D01"
+    assert data["keys"]["runninghub"]["balance"] == 100
+    raw = data_path.read_text(encoding="utf-8")
+    assert "sk-test" not in raw and "rh-test" not in raw
+
+
 def test_exec_clears_stale_env(tmp_path, monkeypatch):
     path = tmp_path / "keys.json"
     monkeypatch.setenv("MV_KEYS_PATH", str(path))

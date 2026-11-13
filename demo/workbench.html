@@ -62,9 +62,6 @@ h1,h2,h3{font-weight:600;color:var(--fg)}
 .key-name{font-weight:600;color:var(--fg);max-width:76px;overflow:hidden;text-overflow:ellipsis}
 .key-mask{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--dim)}
 .key-bal{font-weight:600;color:var(--fg);overflow:hidden;text-overflow:ellipsis}
-.key-item.editable{cursor:pointer}
-.key-item.editable:hover{border-color:#c9cdd4;background:#f7f8fa}
-.key-config-btn{height:30px;padding:0 12px;font-size:11px;flex:none}
 
 /* ---------- buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;
@@ -552,7 +549,6 @@ function zoom(url) {
 }
 
 function render() {
-  document.documentElement.dataset.mvMode = window.MV_SERVER_MODE ? "service" : "static";
   renderTop();
   renderSidebar();
   renderMain();
@@ -601,10 +597,8 @@ function keyChip(k, fallback, section) {
   const masked = k && k.masked ? `<span class="key-mask">${esc(k.masked)}</span>` : "";
   const account = k && k.account ? " · " + k.account : "";
   const when = k && k.checked_at ? " · " + String(k.checked_at).replace("T", " ").slice(0, 16) : "";
-  const title = `${name}${account}${when}\n${note}\nKey 文件：~/.config/mv-workbench/keys.json\n${window.MV_SERVER_MODE ? "点击此胶囊配置 Key" : "静态版不能配置 Key；用 mvwb open 打开服务版"}\n刷新：mv_keys.py balance --write <workbench.html>`;
-  const editable = window.MV_SERVER_MODE ? " editable" : "";
-  const click = window.MV_SERVER_MODE ? ` onclick="window.openKeyConfig && window.openKeyConfig()"` : "";
-  return `<span class="key-item ${cls}${editable}"${click} title="${esc(title)}"><span class="key-dot"></span><span class="key-name">${esc(name)}</span>${masked}<span class="key-bal">${esc(text)}</span></span>`;
+  const title = `${name}${account}${when}\n${note}\nKey 文件：~/.config/mv-workbench/keys.json\nKey/余额由 agent 用 mvwb keys 配置和刷新；本页只读`;
+  return `<span class="key-item ${cls}" title="${esc(title)}"><span class="key-dot"></span><span class="key-name">${esc(name)}</span>${masked}<span class="key-bal">${esc(text)}</span></span>`;
 }
 function renderTop() {
   document.title = DATA.meta.title + " · MV 批量工作台";
@@ -622,9 +616,8 @@ function renderTop() {
         ${keyChip(keys.runninghub, "RunningHub", "runninghub")}
         ${keyChip(keys.router, "Router", "router")}
       </div>
-      ${window.MV_SERVER_MODE ? `<button class="btn primary key-config-btn" onclick="openKeyConfig()">配置 Key</button>` : ""}
       <span class="hint">生成于 ${esc(DATA.meta.generated_at || "")}</span>
-      <span class="readonly-badge">${window.MV_SERVER_MODE ? "只读 · Key 可配" : "只读 · Key 需服务版"}</span>
+      <span class="readonly-badge">只读 · 静态文件</span>
     </div>`;
 }
 

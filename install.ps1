@@ -33,7 +33,7 @@ if (Test-Path $Target) { Remove-Item -Recurse -Force $Target }
 New-Item -ItemType Directory -Force -Path $Target | Out-Null
 New-Item -ItemType Directory -Force -Path $Bin | Out-Null
 
-$items = @("SKILL.md","references","scripts","templates","contracts","demo","config","README.md","LICENSE","NOTICE.md")
+$items = @("SKILL.md","START_HERE.md","references","scripts","templates","contracts","demo","config","README.md","LICENSE","NOTICE.md")
 foreach ($item in $items) {
   $src = Join-Path $Repo $item
   if (-not (Test-Path $src)) { Write-Host "missing: $src"; exit 1 }
