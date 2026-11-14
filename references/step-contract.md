@@ -11,7 +11,7 @@
 5. **提醒格式统一**：失败/阻塞/警告一律用 `scripts/alerts.py` 的代码表（见 `references/alerts.md`）；学生整块转发给老师，禁止裸报错、禁止直接“找老师要 Key”。
 6. **状态词固定**：`not_started | planning | generating | draft | review | locked | stale | failed`。
 7. **版本不覆盖**：新版本 `v2/v3`，旧版保留；音乐锁定后不换歌。
-8. **成本分账**：`cost` 是计划，`spent` 是实际；RunningHub 用「币」，Router 用「CNY」，不混算。
+8. **成本分账**：`cost` 是计划，`spent` 是实际；Router 一律「CNY」且按**账单实扣**写数（生成后用 `keys balance` 的 usage delta 回填），报价（quote/fx）只作预算参考；不混算。
 
 ## 统一输出模板
 
@@ -168,14 +168,25 @@ MV001/
 
 **输入**：框架里的音乐计划（风格/BPM/时长）。
 
+**生成（Router 主链，详见 `references/router-playbook.md`）**
+
+```bash
+python3 scripts/providers/tokentech_task.py music \
+  --lyrics "<原文结构化歌词，不改写>" --style "<风格包>" \
+  --seconds <目标时长> --bpm <BPM> --language zh \
+  --out MV001/01_music/song_v1.mp3
+```
+
 **产物**：`01_music/song_v1.mp3` + `timeline_v1.json`。
 
 **自检**
 
 ```bash
 ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 MV001/01_music/song_v1.mp3
-mvwb timeline 原文/lyric.json MV001/01_music/song_v1.mp3 --out MV001/01_music
+mvwb timeline 原文/lyric.json MV001/01_music/song_v1.mp3 --out MV001/01_music/timeline_v1.json
 ```
+
+- 时间轴 json 行数与 `lyric.json` 一致；音乐快照（ID3 TXXX）里风格/歌词/时长应为本次任务值。
 
 - 实际时长与目标差 >1s 或 >2%：暂停，让用户选接受/重生成/后期裁。
 - 时间轴行数与 `lyric.json` 一致。
@@ -184,6 +195,15 @@ mvwb timeline 原文/lyric.json MV001/01_music/song_v1.mp3 --out MV001/01_music
 ### 4.2 资产
 
 **输入**：资产清单 + 参考图。
+
+**生成（Router 主链）**
+
+```bash
+python3 scripts/providers/tokentech_task.py image \
+  --prompt "<清单项完整提示词（三视图用 casting-style.md §3 模板）>" \
+  --negative "blurry, deformed hands, watermark, garbled text" \
+  --seed <固定> --out MV001/02_assets/<name>_v1.png
+```
 
 **产物**：`02_assets/*.png` + `assets_v1.json`。
 
@@ -200,6 +220,18 @@ mvwb timeline 原文/lyric.json MV001/01_music/song_v1.mp3 --out MV001/01_music
 
 **输入**：已锁定音乐 + 时间轴 + 资产 + 段计划。
 
+**生成（Router 主链 · R2V 是默认：人物镜头必须带参考图，禁止纯文生）**
+
+```bash
+python3 scripts/providers/tokentech_video.py \
+  --prompt "<按画面脚本的多镜头时间线提示词>" \
+  --seconds <段时长> --size 720x1280 --resolution 720p \
+  --image-urls "<角色三视图URL>" "<主场景URL>" --image-field image_urls \
+  --out MV001/03_segments/G1_v1.mp4
+```
+
+图源用中转站产物签名 URL（`*_meta/meta.json` 的 `artifact_url`）；空镜/氛围镜头可只带场景图或不带图。
+
 **产物**：`03_segments/G1_v1.mp4`，历史 `G1_v2.mp4`。
 
 **自检**
@@ -207,6 +239,8 @@ mvwb timeline 原文/lyric.json MV001/01_music/song_v1.mp3 --out MV001/01_music
 ```bash
 ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 MV001/03_segments/G1_v1.mp4
 ```
+
+- 抽帧比对角色与三视图（发型/服装/体型）：明显不符 → 提示词补角色细节或换 seed 重跑 v2。
 
 - 每段 ≤10s；实际时长与 segment `duration` 差 ≤0.5s。
 - 画面比例 9:16；能播放；无黑屏/花屏。

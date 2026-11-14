@@ -203,7 +203,7 @@ mvwb quote --model muse-video-ext --seconds 2
 | 时间轴 | `mvwb timeline ...` | `01_music/timeline_v1.json` |
 | 资产 | `mvwb rh --app 2116462203997081601 ...` | `02_assets/*` + `assets_v1.json` |
 | H3 视频 | `mvwb rh --wf 2110943749894402050 ...` | `03_segments/G*_v1.mp4` |
-| Muse 视频 | `mvwb muse --prompt ... --seconds N --size 720x1280 --out ...` | `03_segments/G*_v1.mp4` |
+| Muse 视频（R2V 默认） | `tokentech_video.py --prompt ... --image-urls <角色图> <场景图> --image-field image_urls` | `03_segments/G*_v1.mp4` |
 | 音乐/资产（Router） | `tokentech_task.py music|image ...`（协议见 references/providers/router.md） | `01_music/`、`02_assets/` |
 | 交付 | 写 `handoff_v1.json` | 给剪辑 |
 
@@ -263,6 +263,7 @@ mvwb quote --model muse-video-ext --seconds 2
 | H3 多参视频 | `2110943749894402050` | `references/prompts/h3.md` |
 | Muse 视频（Router） | `muse-video-ext` | `references/prompts/muse.md` |
 | S2V 口型 | `1979183169033375745` | `references/prompts/h3.md` |
+| **Router 主链正确路径** | — | `references/router-playbook.md` |
 | RunningHub API | — | `references/providers/runninghub.md` |
 | Router API/余额 | — | `references/providers/router.md` |
 | 工作台 DATA 契约 | — | `references/workbench-contract.md` |
@@ -327,6 +328,7 @@ workspaces/       学生项目（每个项目一个目录）
 
 ## 版本
 
+- v0.4.8（2026-11-14）：固化主链正确路径——新增 `references/router-playbook.md`（音乐/资产/视频/时间轴/对账/鉴定技巧/备用链一览）；step-contract Step4 三节改为实测命令（音乐/资产 tokentech_task、视频 R2V 双图默认、抽帧一致性自检）；成本口径改为实扣优先。
 - v0.4.7（2026-11-14）：Muse R2V 参考图通道实测生效（image/image_urls；角色三视图+场景双图可同时锚定人物与品牌场景）；tokentech_video/models.json/router.md 同步。
 - v0.4.6（2026-11-14）：修复 mvwb timeline 契约——输入支持 lyric.json（文档口径），--out 以 .json 结尾输出真 JSON（对齐 demo schema）；E2E 系统测试发现。
 - v0.4.5（2026-11-14）：参考脚本 + 画面脚本体系——「脚本」改名「参考脚本」（甲方原文，原样展示，供改编）；每 MV 新增「脚本」块（`detail.script.body` / `00_script.md` 画面脚本，据参考脚本改编，分镜由它拆出），三大项改四大项（脚本→音乐→资产图→分镜表）；改编逻辑写入 Step 3 硬规则（骨架保留、歌词固定不变、画面逐句匹配歌词）。工作台 UI 二轮——分镜表删「对应句」列（7 列）；修音乐「费用」气泡误用徽标样式（删死代码 `.mv-cost`，费用列 1fr 全文显示）；补侧栏「原文」区基础 CSS；demo 补三条原创画面脚本与 00_script.md。

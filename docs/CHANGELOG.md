@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.8 — 2026-11-14
+
+- Codified the verified main-chain paths (from the 半糖晚风 E2E run) into the skill:
+  - New `references/router-playbook.md`: the authoritative path for music / assets / video / timeline / billing reconciliation, snapshot-based verification trick (PNG tEXt / MP3 ID3 TXXX), and the fallback ladder (B001 → RunningHub/APIMart → keyframe method → H3 multi-ref → face-fix).
+  - `references/step-contract.md` Step 4 now carries the tested commands: `tokentech_task.py music/image`, `tokentech_video.py` with R2V dual reference images as the DEFAULT (character shots must not be pure text-to-video), plus frame-grab consistency self-check.
+  - Billing wording: always write actual billed amounts (usage delta) into cost/spent; quote/fx is budget-only.
+
 ## 0.4.7 — 2026-11-14
 
 - Muse R2V reference-image channel verified on `/v1/videos`: `image` (single URL) and `image_urls` (array) are honored as reference images. Tested recipe — character turnaround sheet + storefront image → the same person across shots and correct brand signage in generated video. Documented in `references/providers/router.md`, `config/models.json` (muse router verified) and `scripts/providers/tokentech_video.py`.
