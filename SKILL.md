@@ -19,6 +19,7 @@ description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 wo
 - **禁止** `mvwb server`、`python -m http.server`、端口、服务版、旧 Key 页面。工作台右上角“配置 Key”只下载导入文件，不联网、不写页面；没有服务。
 - 用户说“打开工作台”：运行 `mvwb open [--workspace NAME]`，它只打开本地 HTML。
 - **Key 由用户在本地工作台填写**：打开 `workbench.html` → 右上角“配置 Key” → 填两个 Key → 下载 `mv-keys-import.json`；用户对 agent 说“导入下载目录的 mv-keys-import.json”，agent 运行 `mvwb keys import --file <path> --delete-source`。也可双击 `setup-keys.command` / `setup-keys.cmd`，或终端 `mvwb keys set`。agent 只引导，不索要 Key；非交互环境不要调用 `keys set`。
+- **免二次对话**：agent 可先运行 `mvwb keys watch --timeout 600 [--data <data.json>]`；用户在工作台填完并下载后，watcher 自动导入、删除下载文件；带 `--data` 时顺便刷新余额并重建工作台。
 - Key 不写进 DATA、HTML、脚本、日志或截图；下载的导入文件导入后必须删除。用户已经把 Key 发到对话里时，提醒他作废重发。
 - **余额由 agent 刷新**：`mvwb keys balance --data <data.json>` → `mvwb build`；页面只显示掩码和快照时间，不联网。
 - **每次生成/替换文件后**：更新 `data.json` → `mvwb build` → `mvwb check --data ...`。`check` 报缺失就是工作台不会显示，不能算完成。
@@ -183,6 +184,7 @@ mvwb open --workspace my_project
 ```bash
 mvwb keys status
 mvwb keys import --file ~/Downloads/mv-keys-import.json --delete-source
+mvwb keys watch --timeout 600 --data workspaces/my_project/data.json
 mvwb keys balance --data workspaces/my_project/data.json
 mvwb quote --model muse-video-ext --seconds 2
 ```
@@ -284,6 +286,7 @@ mvwb open --workspace my_project
 mvwb init my_project
 mvwb keys status
 mvwb keys import --file ~/Downloads/mv-keys-import.json --delete-source
+mvwb keys watch --timeout 600 --data workspaces/my_project/data.json
 mvwb keys balance --data workspaces/my_project/data.json
 mvwb quote --model muse-video-ext --seconds 2
 mvwb build --data workspaces/my_project/data.json --out workspaces/my_project/workbench.html
@@ -313,6 +316,7 @@ config/           模型价格 / provider / keys 示例
 
 ## 版本
 
+- v0.3.6（2026-11-14）：新增 `mvwb keys watch`；agent 先监听下载目录，用户在工作台填 Key 并下载后自动导入/删除，可选刷新余额并重建工作台。
 - v0.3.5（2026-11-14）：工作台右上角“配置 Key”本地填 Key → 下载 `mv-keys-import.json` → agent `keys import --delete-source`；无服务、无网络。
 - v0.3.4（2026-11-14）：一键 `setup-keys`（Mac/Win）；`keys set` 非交互环境拒绝而不是 traceback；工作台视频缩略图显示首帧；`keys init` 提示改 `--data`。
 - v0.3.3（2026-11-13）：新增变体/差异化规则与角色风格提示词包（小红书穿搭/日系甜妹/韩系欧巴/治愈系电影/帅哥美女）；Step 3 要求 genome 与差异化表。

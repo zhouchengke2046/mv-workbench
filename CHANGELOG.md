@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.6 — 2026-11-14
+
+- Added `mvwb keys watch`: a short-lived watcher for `~/Downloads` / `~/Desktop` / `~/下载`.
+- Agent can start it before the user configures keys; when the workbench downloads `mv-keys-import.json`, the watcher imports it, deletes the file, and (with `--data`) refreshes balances and rebuilds the workbench.
+- Avoids a second chat message after the user downloads the key file; no HTTP service, no port.
+
 ## 0.3.5 — 2026-11-14
 
 - Added a local Key panel in the static workbench: fill RunningHub/Router keys, download `mv-keys-import.json`; no service, no network, keys are not written into the HTML.

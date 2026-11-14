@@ -10,6 +10,7 @@
   status
   set <runninghub|router> [--stdin] [--label X] [--account X] [--base-url X] [--proxy X]
   import --file mv-keys-import.json [--delete-source]
+  watch [--dir DIR] [--timeout 300] [--data DATA_JSON]
   balance [--data DATA_JSON] [--write WORKBENCH_HTML] [--no-backup] [--timeout 12]
   exec -- <命令...>
 
@@ -28,6 +29,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -646,6 +648,80 @@ def cmd_import(args):
     }, ensure_ascii=False, indent=2))
 
 
+def _download_dirs():
+    home = Path.home()
+    dirs = []
+    for name in ("Downloads", "Desktop", "下载"):
+        path = home / name
+        if path.is_dir():
+            dirs.append(path)
+    return dirs
+
+
+def cmd_watch(args):
+    """短时监听下载目录：工作台下载 mv-keys-import.json 后自动导入并删除。"""
+    dirs = [Path(d).expanduser() for d in (args.dir or _download_dirs())]
+    if not dirs:
+        die("找不到下载目录；用 --dir 指定")
+    print(json.dumps({
+        "ok": True,
+        "watching": [str(d) for d in dirs],
+        "timeout": args.timeout,
+        "hint": "现在去工作台点“配置 Key”并下载 mv-keys-import.json；不要关这个进程",
+    }, ensure_ascii=False), flush=True)
+
+    started = time.time()
+    seen = set()
+    while time.time() - started < args.timeout:
+        for directory in dirs:
+            for path in sorted(directory.glob("mv-keys-import*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
+                try:
+                    stat1 = path.stat()
+                except OSError:
+                    continue
+                key = (str(path), int(stat1.st_mtime), stat1.st_size)
+                if key in seen or stat1.st_mtime < started - 2:
+                    continue
+                seen.add(key)
+                time.sleep(0.5)
+                try:
+                    stat2 = path.stat()
+                except OSError:
+                    continue
+                if stat2.st_size != stat1.st_size or stat2.st_size < 20:
+                    continue
+                try:
+                    payload = json.loads(path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    continue
+                if not isinstance(payload, dict) or payload.get("mv_keys_import") != 1:
+                    continue
+                try:
+                    cmd_import(argparse.Namespace(file=str(path), delete_source=True))
+                except SystemExit:
+                    print(json.dumps({"ok": False, "warning": "文件格式不对，已跳过：%s" % path}, ensure_ascii=False))
+                    continue
+                if args.data:
+                    data = Path(args.data).expanduser()
+                    if data.is_file():
+                        try:
+                            cmd_balance(argparse.Namespace(
+                                data=str(data), write=None, no_backup=True, timeout=args.balance_timeout,
+                            ))
+                        except SystemExit:
+                            print(json.dumps({"ok": False, "warning": "Key 已导入，但余额查询失败"}, ensure_ascii=False))
+                        build = Path(__file__).resolve().parent / "build_workbench.py"
+                        template = Path(__file__).resolve().parent.parent / "templates" / "workbench.html"
+                        if build.is_file():
+                            subprocess.call([
+                                sys.executable, str(build), "--template", str(template),
+                                "--data", str(data), "--out", str(data.parent / "workbench.html"),
+                            ])
+                return 0
+        time.sleep(args.interval)
+    die("等待超时：没有在 %s 找到新的 mv-keys-import*.json" % ", ".join(str(d) for d in dirs))
+
+
 def cmd_config(args):
     cfg, _ = load_cfg()
     section = args.section
@@ -789,6 +865,13 @@ def build_parser():
     import_parser.add_argument("--file", required=True, help="mv-keys-import.json 路径")
     import_parser.add_argument("--delete-source", action="store_true", help="导入成功后删除源文件")
 
+    watch_parser = subparsers.add_parser("watch", help="监听下载目录，自动导入工作台下载的 Key 文件")
+    watch_parser.add_argument("--dir", action="append", help="监听目录；可多次；默认 ~/Downloads、~/Desktop、~/下载")
+    watch_parser.add_argument("--timeout", type=int, default=300, help="等待秒数，默认 300")
+    watch_parser.add_argument("--interval", type=float, default=1.0, help="轮询间隔秒")
+    watch_parser.add_argument("--data", help="导入后顺便刷新余额并重建这个 data.json 对应的工作台")
+    watch_parser.add_argument("--balance-timeout", type=int, default=10, help="余额查询超时秒")
+
     config = subparsers.add_parser("config", help="只改元数据，不动 api_key")
     config.add_argument("section", choices=["runninghub", "router"])
     config.add_argument("--label")
@@ -830,6 +913,8 @@ def main():
         cmd_set(args)
     elif args.cmd == "import":
         cmd_import(args)
+    elif args.cmd == "watch":
+        cmd_watch(args)
     elif args.cmd == "config":
         cmd_config(args)
     elif args.cmd == "balance":

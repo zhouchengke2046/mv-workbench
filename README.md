@@ -73,6 +73,7 @@ mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
   ```bash
   mvwb keys import --file ~/Downloads/mv-keys-import.json --delete-source
   ```
+- **免二次对话**：agent 先运行 `mvwb keys watch --timeout 600 --data <data.json>`；你在工作台填完下载后，它自动导入、删除文件、刷新余额并重建工作台。
 - **或双击** `setup-keys.command`（macOS）/ `setup-keys.cmd`（Windows），按提示粘贴两个 Key。
 - 或终端：`mvwb keys set runninghub`、`mvwb keys set router`。
 - 余额：`mvwb keys balance --data <data.json>`，再 `mvwb build` 刷新页面快照。
