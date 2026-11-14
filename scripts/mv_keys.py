@@ -56,6 +56,15 @@ TEMPLATE = {
         "balance_mode": "newapi",
         "proxy": "",
     },
+    "apimart": {
+        "api_key": "",
+        "label": "APIMart",
+        "provider": "new-api",
+        "base_url": "https://api.apimart.ai",
+        "balance_path": "/v1/dashboard/billing/subscription",
+        "balance_mode": "newapi",
+        "proxy": "",
+    },
 }
 
 RH_ACCOUNT_URL = "https://www.runninghub.cn/uc/openapi/accountStatus"
@@ -106,11 +115,12 @@ def redact(text, key):
 def _normalize(cfg):
     if not isinstance(cfg, dict):
         die("keys.json 顶层必须是 JSON 对象")
-    for name in ("runninghub", "router"):
+    for name in ("runninghub", "router", "apimart"):
         if not isinstance(cfg.get(name), dict):
             cfg[name] = copy.deepcopy(TEMPLATE[name])
-    if not cfg["router"].get("balance_mode"):
-        cfg["router"]["balance_mode"] = "newapi"
+    for name in ("router", "apimart"):
+        if not cfg[name].get("balance_mode"):
+            cfg[name]["balance_mode"] = "newapi"
     return cfg
 
 
@@ -230,11 +240,11 @@ def balance_runninghub(cfg, timeout):
     return result
 
 
-def balance_newapi(section, key, base_url, timeout):
+def balance_newapi(section, key, base_url, timeout, default_label="Router"):
     proxy = (section.get("proxy") or "").strip()
     headers = {"Authorization": "Bearer " + key, "Accept": "application/json"}
     result = {
-        "label": section.get("label") or "Router",
+        "label": section.get("label") or default_label,
         "provider": section.get("provider") or "new-api",
         "base_url": base_url,
         "balance_mode": "newapi",
@@ -318,15 +328,14 @@ def balance_newapi(section, key, base_url, timeout):
     return result
 
 
-def balance_router(cfg, timeout):
-    section = cfg.get("router") or {}
+def _balance_openai_like(section, timeout, name, default_base, default_label):
     key = (section.get("api_key") or "").strip()
-    base_url = (section.get("base_url") or "https://router.kcacher.top").rstrip("/")
+    base_url = (section.get("base_url") or default_base).rstrip("/")
     path = section.get("balance_path") or "/v1/balance"
     if not path.startswith("/"):
         path = "/" + path
     result = {
-        "label": section.get("label") or "Router",
+        "label": section.get("label") or default_label,
         "provider": section.get("provider") or "",
         "base_url": base_url,
         "configured": bool(key),
@@ -338,12 +347,12 @@ def balance_router(cfg, timeout):
         "error": None,
     }
     if not key:
-        result["error"] = "未配置 router.api_key"
+        result["error"] = "未配置 %s.api_key" % name
         return result
 
     mode = (section.get("balance_mode") or "newapi").strip().lower()
     if mode in ("newapi", "new-api"):
-        return balance_newapi(section, key, base_url, timeout)
+        return balance_newapi(section, key, base_url, timeout, default_label=default_label)
 
     response, error = http_json(
         base_url + path,
@@ -386,9 +395,17 @@ def balance_router(cfg, timeout):
     return result
 
 
+def balance_router(cfg, timeout):
+    return _balance_openai_like(cfg.get("router") or {}, timeout, "router", "https://router.kcacher.top", "Router")
+
+
+def balance_apimart(cfg, timeout):
+    return _balance_openai_like(cfg.get("apimart") or {}, timeout, "apimart", "https://api.apimart.ai", "APIMart")
+
+
 def to_data_keys(payload):
     output = {}
-    for name, fallback in (("runninghub", "RunningHub"), ("router", "Router")):
+    for name, fallback in (("runninghub", "RunningHub"), ("router", "Router"), ("apimart", "APIMart")):
         item = payload.get(name) or {}
         output[name] = {
             "label": item.get("label") or fallback,
@@ -419,7 +436,7 @@ def update_data_keys(path, keys_data):
         die("DATA 顶层必须是 JSON 对象")
     data["keys"] = keys_data
     serialized = json.dumps(data, ensure_ascii=False)
-    for section in ("runninghub", "router"):
+    for section in ("runninghub", "router", "apimart"):
         raw = (keys_data.get(section) or {}).get("_raw")
         if raw and raw in serialized:
             die("拒绝写入：DATA 中出现原始 key")
@@ -508,6 +525,7 @@ def cmd_status(args):
     mode = oct(stat.st_mode & 0o777) if stat else None
     rh = cfg.get("runninghub") or {}
     rt = cfg.get("router") or {}
+    am = cfg.get("apimart") or {}
     print(
         json.dumps(
             {
@@ -530,6 +548,14 @@ def cmd_status(args):
                     "base_url": rt.get("base_url") or "",
                     "balance_mode": rt.get("balance_mode") or "newapi",
                 },
+                "apimart": {
+                    "configured": bool((am.get("api_key") or "").strip()),
+                    "masked": mask(am.get("api_key")),
+                    "label": am.get("label") or "APIMart",
+                    "provider": am.get("provider") or "",
+                    "base_url": am.get("base_url") or "",
+                    "balance_mode": am.get("balance_mode") or "newapi",
+                },
                 "env": {
                     "RUNNINGHUB_API_KEY": bool(os.environ.get("RUNNINGHUB_API_KEY")),
                     "APIMART_KEY": bool(os.environ.get("APIMART_KEY")),
@@ -546,7 +572,7 @@ def cmd_set(args):
     cfg, _ = load_cfg()
     name = args.name
     if name not in ("runninghub", "router"):
-        die("只支持 runninghub 或 router", 2)
+        die("只支持 runninghub / router / apimart", 2)
     if args.stdin:
         key = sys.stdin.readline().strip()
     else:
@@ -560,15 +586,15 @@ def cmd_set(args):
         cfg[name]["label"] = args.label
     if args.account and name == "runninghub":
         cfg[name]["account"] = args.account
-    if args.base_url and name == "router":
+    if args.base_url and name in ("router", "apimart"):
         cfg[name]["base_url"] = args.base_url.rstrip("/")
-    if args.balance_path and name == "router":
+    if args.balance_path and name in ("router", "apimart"):
         cfg[name]["balance_path"] = args.balance_path
-    if args.balance_mode and name == "router":
+    if args.balance_mode and name in ("router", "apimart"):
         cfg[name]["balance_mode"] = args.balance_mode
-    if args.provider and name == "router":
+    if args.provider and name in ("router", "apimart"):
         cfg[name]["provider"] = args.provider
-    if args.proxy is not None and name == "router":
+    if args.proxy is not None and name in ("router", "apimart"):
         cfg[name]["proxy"] = args.proxy
     save_cfg(cfg)
     print(
@@ -606,9 +632,10 @@ def cmd_import(args):
 
     rh_key = _read_import_key(payload, "runninghub", "runninghub_key")
     rt_key = _read_import_key(payload, "router", "router_key")
-    if not rh_key and not rt_key:
-        die("文件里没有 runninghub / router key")
-    for label, value in (("RunningHub", rh_key), ("Router", rt_key)):
+    am_key = _read_import_key(payload, "apimart", "apimart_key")
+    if not rh_key and not rt_key and not am_key:
+        die("文件里没有 runninghub / router / apimart key")
+    for label, value in (("RunningHub", rh_key), ("Router", rt_key), ("APIMart", am_key)):
         if not value:
             continue
         if value.startswith("••••") or value.startswith("****"):
@@ -624,6 +651,9 @@ def cmd_import(args):
     if rt_key:
         cfg["router"]["api_key"] = rt_key
         imported.append("router")
+    if am_key:
+        cfg["apimart"]["api_key"] = am_key
+        imported.append("apimart")
     save_cfg(cfg)
 
     deleted = False
@@ -640,6 +670,7 @@ def cmd_import(args):
         "imported": imported,
         "runninghub": mask(cfg["runninghub"].get("api_key")),
         "router": mask(cfg["router"].get("api_key")),
+        "apimart": mask(cfg["apimart"].get("api_key")),
         "path": str(keys_path()),
         "source": str(src),
         "deleted_source": deleted,
@@ -731,8 +762,8 @@ def cmd_watch(args):
 def cmd_config(args):
     cfg, _ = load_cfg()
     section = args.section
-    if section not in ("runninghub", "router"):
-        die("只支持 runninghub 或 router", 2)
+    if section not in ("runninghub", "router", "apimart"):
+        die("只支持 runninghub / router / apimart", 2)
     changed = False
     if args.label:
         cfg[section]["label"] = args.label
@@ -740,7 +771,7 @@ def cmd_config(args):
     if args.account and section == "runninghub":
         cfg[section]["account"] = args.account
         changed = True
-    if section == "router":
+    if section in ("router", "apimart"):
         if args.base_url:
             cfg[section]["base_url"] = args.base_url.rstrip("/")
             changed = True
@@ -784,12 +815,13 @@ def cmd_balance(args):
         "keys_path": str(keys_path()),
         "runninghub": balance_runninghub(cfg, args.timeout),
         "router": balance_router(cfg, args.timeout),
+        "apimart": balance_apimart(cfg, args.timeout),
     }
     print(json.dumps(payload, ensure_ascii=False, indent=2))
     if args.data:
         keys_data = to_data_keys(payload)
         serialized = json.dumps(keys_data, ensure_ascii=False)
-        for section in ("runninghub", "router"):
+        for section in ("runninghub", "router", "apimart"):
             raw = ((cfg.get(section) or {}).get("api_key") or "").strip()
             if raw and raw in serialized:
                 die("拒绝写入：DATA 中出现原始 key")
@@ -797,7 +829,7 @@ def cmd_balance(args):
     elif args.write:
         keys_data = to_data_keys(payload)
         serialized = json.dumps(keys_data, ensure_ascii=False)
-        for section in ("runninghub", "router"):
+        for section in ("runninghub", "router", "apimart"):
             raw = ((cfg.get(section) or {}).get("api_key") or "").strip()
             if raw and raw in serialized:
                 die("拒绝写入：DATA 中出现原始 key")
@@ -810,12 +842,15 @@ def cmd_exec(command, need="any"):
         die("未找到 %s；先运行 mv_keys.py init" % keys_path())
     runninghub = ((cfg.get("runninghub") or {}).get("api_key") or "").strip()
     router = ((cfg.get("router") or {}).get("api_key") or "").strip()
+    apimart = ((cfg.get("apimart") or {}).get("api_key") or "").strip()
 
     if need in ("runninghub", "both") and not runninghub:
         die("这条命令需要 runninghub key，但 keys.json 未配置")
     if need in ("router", "both") and not router:
         die("这条命令需要 router key，但 keys.json 未配置")
-    if need == "any" and not runninghub and not router:
+    if need == "apimart" and not apimart:
+        die("这条命令需要 apimart key，但 keys.json 未配置")
+    if need == "any" and not runninghub and not router and not apimart:
         die("keys.json 里没有配置任何 key；先运行 mv_keys.py set ...")
 
     env = os.environ.copy()
@@ -825,12 +860,23 @@ def cmd_exec(command, need="any"):
     if runninghub:
         env["RUNNINGHUB_API_KEY"] = runninghub
     if router:
-        env["APIMART_KEY"] = router
         env["ROUTER_API_KEY"] = router
+        env["APIMART_KEY"] = router
         base_url = ((cfg.get("router") or {}).get("base_url") or "").strip()
         if base_url:
             env["APIMART_BASE_URL"] = base_url.rstrip("/")
         proxy = ((cfg.get("router") or {}).get("proxy") or "").strip()
+        if proxy:
+            env["https_proxy"] = proxy
+            env["http_proxy"] = proxy
+            env["HTTPS_PROXY"] = proxy
+            env["HTTP_PROXY"] = proxy
+    if apimart:
+        env["APIMART_KEY"] = apimart
+        base_url = ((cfg.get("apimart") or {}).get("base_url") or "").strip()
+        if base_url:
+            env["APIMART_BASE_URL"] = base_url.rstrip("/")
+        proxy = ((cfg.get("apimart") or {}).get("proxy") or "").strip()
         if proxy:
             env["https_proxy"] = proxy
             env["http_proxy"] = proxy
@@ -897,7 +943,7 @@ def build_parser():
     execute = subparsers.add_parser("exec", help="带 keys.json 环境变量执行命令")
     execute.add_argument(
         "--need",
-        choices=["any", "runninghub", "router", "both"],
+        choices=["any", "runninghub", "router", "apimart", "both"],
         default="any",
         help="要求哪份 key 已配置；放在 -- 之前",
     )

@@ -1,683 +1,683 @@
 {
-  "meta": {
-    "id": "D01",
-    "title": "末班地铁",
-    "generated_at": "2026-11-13 01:00",
-    "batch": {
-      "count": 3,
-      "target_duration": 20,
-      "style": "city_pop"
-    }
+ "meta": {
+  "id": "D01",
+  "title": "末班地铁",
+  "generated_at": "2026-11-13 01:00",
+  "batch": {
+   "count": 3,
+   "target_duration": 20,
+   "style": "city_pop"
+  }
+ },
+ "keys": {
+  "runninghub": {
+   "label": "RunningHub",
+   "account": "",
+   "configured": false,
+   "masked": "",
+   "ok": false,
+   "balance": null,
+   "unit": "币",
+   "wallet": null,
+   "wallet_unit": null,
+   "unlimited": false,
+   "checked_at": null,
+   "error": "未配置"
   },
-  "keys": {
-    "runninghub": {
-      "label": "RunningHub",
-      "account": "",
-      "configured": false,
-      "masked": "",
-      "ok": false,
-      "balance": null,
-      "unit": "币",
-      "wallet": null,
-      "wallet_unit": null,
-      "unlimited": false,
-      "checked_at": null,
-      "error": "未配置"
+  "router": {
+   "label": "Router",
+   "account": "",
+   "configured": false,
+   "masked": "",
+   "ok": false,
+   "balance": null,
+   "unit": "CNY",
+   "wallet": null,
+   "wallet_unit": null,
+   "unlimited": false,
+   "checked_at": null,
+   "error": "未配置"
+  }
+ },
+ "lyric": {
+  "title": "末班地铁",
+  "body": "[主歌 1]\n末班地铁关上门\n站台只剩一盏灯\n耳机里下起小雨\n把整座城市调成静音\n\n[副歌]\n走过天桥和路灯\n走过没写完的梦\n如果世界太吵\n就把音量调到刚刚好\n\n[主歌 2]\n便利店的灯还亮\n店员打了一个哈欠\n我把今天折进口袋\n明天再慢慢拆开\n\n[尾声]\n雨停在耳机外面\n我走进自己的夜"
+ },
+ "script": {
+  "title": "末班地铁 · 故事脚本",
+  "body": "人物\n林晚：27岁，夜班编辑，习惯戴耳机走路。\n城市：凌晨一点的南方城市，雨刚停。\n\n第一场 夜 / 地铁站台\n末班车关门。林晚站在空站台上，耳机里放着没有歌词的雨声。\n她抬头看线路图，决定不追下一班，刷卡出站。\n\n第二场 夜 / 天桥与街道\n她走过天桥，路灯把水洼照成一块块暖色。\n耳机里的雨声和城市的真实声音叠在一起。\n便利店的灯还亮着，她买了一杯热豆浆。\n\n第三场 夜 / 小区门口\n她摘下一边耳机，听见远处的车流。\n雨停了。她把耳机重新戴好，走进小区。\n\n（本故事为演示文本，人物与情节均为虚构。）"
+ },
+ "mvs": [
+  {
+   "id": "MV001",
+   "no": 1,
+   "batch_id": "B01",
+   "model": "muse_router",
+   "model_display": "Muse",
+   "pack": "P01_夜雨城市",
+   "status": "ready",
+   "genome": {
+    "music": {
+     "genre": "city_pop",
+     "bpm": 88,
+     "key": "A minor",
+     "vocal": "female_soft",
+     "variant": 1
     },
-    "router": {
-      "label": "Router",
-      "account": "",
-      "configured": false,
-      "masked": "",
-      "ok": false,
-      "balance": null,
-      "unit": "CNY",
-      "wallet": null,
-      "wallet_unit": null,
-      "unlimited": false,
-      "checked_at": null,
-      "error": "未配置"
-    }
-  },
-  "lyric": {
-    "title": "末班地铁",
-    "body": "[主歌 1]\n末班地铁关上门\n站台只剩一盏灯\n耳机里下起小雨\n把整座城市调成静音\n\n[副歌]\n走过天桥和路灯\n走过没写完的梦\n如果世界太吵\n就把音量调到刚刚好\n\n[主歌 2]\n便利店的灯还亮\n店员打了一个哈欠\n我把今天折进口袋\n明天再慢慢拆开\n\n[尾声]\n雨停在耳机外面\n我走进自己的夜"
-  },
-  "script": {
-    "title": "末班地铁 · 故事脚本",
-    "body": "人物\n林晚：27岁，夜班编辑，习惯戴耳机走路。\n城市：凌晨一点的南方城市，雨刚停。\n\n第一场 夜 / 地铁站台\n末班车关门。林晚站在空站台上，耳机里放着没有歌词的雨声。\n她抬头看线路图，决定不追下一班，刷卡出站。\n\n第二场 夜 / 天桥与街道\n她走过天桥，路灯把水洼照成一块块暖色。\n耳机里的雨声和城市的真实声音叠在一起。\n便利店的灯还亮着，她买了一杯热豆浆。\n\n第三场 夜 / 小区门口\n她摘下一边耳机，听见远处的车流。\n雨停了。她把耳机重新戴好，走进小区。\n\n（本故事为演示文本，人物与情节均为虚构。）"
-  },
-  "mvs": [
-    {
-      "id": "MV001",
-      "no": 1,
-      "batch_id": "B01",
-      "model": "muse_router",
-      "model_display": "Muse",
-      "pack": "P01_夜雨城市",
-      "status": "ready",
-      "genome": {
-        "music": {
-          "genre": "city_pop",
-          "bpm": 88,
-          "key": "A minor",
-          "vocal": "female_soft",
-          "variant": 1
-        },
-        "visual": {
-          "pack": "P01_夜雨城市",
-          "palette": "teal_amber"
-        },
-        "edit": {
-          "style": "soft_cut/karaoke_white"
-        },
-        "candidate_count": 1
-      },
-      "stages": {
-        "music": {
-          "status": "locked",
-          "version": 1,
-          "artifact": "MV001/01_music/timeline_v1.json",
-          "updated_at": "2026-11-13T00:40:00"
-        },
-        "assets": {
-          "status": "locked",
-          "version": 1,
-          "artifact": "MV001/02_assets/assets_v1.json",
-          "updated_at": "2026-11-13T00:40:00"
-        },
-        "video": {
-          "status": "draft",
-          "version": 1,
-          "artifact": "MV001/03_segments/segments_v1.json",
-          "updated_at": "2026-11-13T00:40:00"
-        }
-      },
-      "cost": 143,
-      "spent": 143,
-      "detail": {
-        "music": [
-          {
-            "version": 1,
-            "audio": "MV001/01_music/song_v1.mp3",
-            "model": "ACE-Step 1.5",
-            "cost": "39 币",
-            "generated_at": "2026-11-13 00:40",
-            "duration": 20.0,
-            "status": "locked",
-            "current": true,
-            "requested_duration": 20
-          }
-        ],
-        "assets": [
-          {
-            "name": "女主三视图",
-            "type": "角色",
-            "url": "MV001/02_assets/role_female.svg",
-            "resolution": "1024×1536",
-            "model": "MOSS",
-            "cost": "26 币",
-            "generated_at": "2026-11-13 00:40"
-          },
-          {
-            "name": "夜班站台",
-            "type": "场景",
-            "url": "MV001/02_assets/scene_subway.svg",
-            "resolution": "1440×2560",
-            "model": "MOSS",
-            "cost": "26 币",
-            "generated_at": "2026-11-13 00:40"
-          },
-          {
-            "name": "雨夜街道",
-            "type": "场景",
-            "url": "MV001/02_assets/scene_street.svg",
-            "resolution": "1440×2560",
-            "model": "MOSS",
-            "cost": "26 币",
-            "generated_at": "2026-11-13 00:40"
-          },
-          {
-            "name": "耳机",
-            "type": "道具",
-            "url": "MV001/02_assets/product_headphone.svg",
-            "resolution": "1200×1200",
-            "model": "MOSS",
-            "cost": "26 币",
-            "generated_at": "2026-11-13 00:40"
-          }
-        ],
-        "storyboard": {
-          "shots": [
-            {
-              "shot_id": "S01",
-              "line_ids": [
-                "L01",
-                "L02"
-              ],
-              "shot_size": "中景",
-              "camera": "固定机位",
-              "visual": "末班地铁关上门，林晚站在空站台上，耳机线垂在肩前",
-              "duration": 3.0,
-              "characters": [
-                "林晚"
-              ],
-              "scene": "地铁站台",
-              "props": [
-                "耳机"
-              ],
-              "candidates": 1,
-              "notes": "冷白站台灯"
-            },
-            {
-              "shot_id": "S02",
-              "line_ids": [
-                "L03",
-                "L04"
-              ],
-              "shot_size": "近景",
-              "camera": "缓慢推近",
-              "visual": "她把耳机戴上，站台灯在耳机壳上留下一条暖色反光",
-              "duration": 3.0,
-              "characters": [
-                "林晚"
-              ],
-              "scene": "地铁站台",
-              "props": [
-                "耳机"
-              ],
-              "candidates": 1,
-              "notes": "浅景深"
-            },
-            {
-              "shot_id": "S03",
-              "line_ids": [
-                "L05",
-                "L06"
-              ],
-              "shot_size": "全景",
-              "camera": "跟随",
-              "visual": "她走过天桥，路灯把水洼照成一块块暖色",
-              "duration": 3.5,
-              "characters": [
-                "林晚"
-              ],
-              "scene": "天桥",
-              "props": [
-                "耳机"
-              ],
-              "candidates": 1,
-              "notes": "雨后反光"
-            },
-            {
-              "shot_id": "S04",
-              "line_ids": [
-                "L07",
-                "L08"
-              ],
-              "shot_size": "中景",
-              "camera": "固定机位",
-              "visual": "她停在栏杆边，看城市的灯，耳机里只有雨声",
-              "duration": 3.5,
-              "characters": [
-                "林晚"
-              ],
-              "scene": "天桥",
-              "props": [
-                "耳机"
-              ],
-              "candidates": 1,
-              "notes": "城市远景"
-            },
-            {
-              "shot_id": "S05",
-              "line_ids": [
-                "L09",
-                "L10"
-              ],
-              "shot_size": "中景",
-              "camera": "固定机位",
-              "visual": "便利店门口，她接过一杯热豆浆，店员打了个哈欠",
-              "duration": 3.0,
-              "characters": [
-                "林晚"
-              ],
-              "scene": "便利店",
-              "props": [
-                "热豆浆",
-                "耳机"
-              ],
-              "candidates": 1,
-              "notes": "暖色店内光"
-            },
-            {
-              "shot_id": "S06",
-              "line_ids": [
-                "L11",
-                "L12"
-              ],
-              "shot_size": "近景",
-              "camera": "固定机位",
-              "visual": "她把今天折进口袋，低头看了一眼手机上的时间",
-              "duration": 3.0,
-              "characters": [
-                "林晚"
-              ],
-              "scene": "便利店门口",
-              "props": [
-                "手机",
-                "耳机"
-              ],
-              "candidates": 1,
-              "notes": "低饱和"
-            },
-            {
-              "shot_id": "S07",
-              "line_ids": [
-                "L13",
-                "L14"
-              ],
-              "shot_size": "全景",
-              "camera": "缓慢拉远",
-              "visual": "小区门口，她重新戴好耳机，走进没有雨的夜色",
-              "duration": 3.0,
-              "characters": [
-                "林晚"
-              ],
-              "scene": "小区门口",
-              "props": [
-                "耳机"
-              ],
-              "candidates": 1,
-              "notes": "尾镜头"
-            }
-          ],
-          "segments": [
-            {
-              "id": "G1",
-              "shot_ids": [
-                "S01",
-                "S02"
-              ],
-              "line_ids": [
-                "L01",
-                "L02",
-                "L03",
-                "L04"
-              ],
-              "duration": 6.0,
-              "videos": []
-            },
-            {
-              "id": "G2",
-              "shot_ids": [
-                "S03",
-                "S04"
-              ],
-              "line_ids": [
-                "L05",
-                "L06",
-                "L07",
-                "L08"
-              ],
-              "duration": 7.0,
-              "videos": []
-            },
-            {
-              "id": "G3",
-              "shot_ids": [
-                "S05",
-                "S06",
-                "S07"
-              ],
-              "line_ids": [
-                "L09",
-                "L10",
-                "L11",
-                "L12",
-                "L13",
-                "L14"
-              ],
-              "duration": 9.0,
-              "videos": []
-            }
-          ]
-        }
-      },
-      "target_duration": 20
+    "visual": {
+     "pack": "P01_夜雨城市",
+     "palette": "teal_amber"
     },
-    {
-      "id": "MV002",
-      "no": 2,
-      "batch_id": "B01",
-      "model": "muse_router",
-      "model_display": "Muse",
-      "pack": "P01_夜雨城市",
-      "status": "draft",
-      "genome": {
-        "music": {
-          "genre": "city_pop",
-          "bpm": 88,
-          "key": "A minor",
-          "vocal": "female_soft",
-          "variant": 2
-        },
-        "visual": {
-          "pack": "P01_夜雨城市",
-          "palette": "teal_amber"
-        },
-        "edit": {
-          "style": "soft_cut/karaoke_white"
-        },
-        "candidate_count": 1
-      },
-      "stages": {
-        "music": {
-          "status": "not_started",
-          "version": 0,
-          "artifact": "",
-          "updated_at": "2026-11-13T00:40:00"
-        },
-        "assets": {
-          "status": "not_started",
-          "version": 0,
-          "artifact": "",
-          "updated_at": "2026-11-13T00:40:00"
-        },
-        "video": {
-          "status": "not_started",
-          "version": 0,
-          "artifact": "",
-          "updated_at": ""
-        }
-      },
-      "cost": 0,
-      "spent": 0,
-      "detail": {
-        "music": [],
-        "assets": [],
-        "storyboard": {
-          "shots": [
-            {
-              "shot_id": "S01",
-              "line_ids": [
-                "L01",
-                "L02",
-                "L03",
-                "L04"
-              ],
-              "shot_size": "中景",
-              "camera": "固定机位",
-              "visual": "末班地铁关门，站台只剩一盏灯",
-              "duration": 4.0,
-              "characters": [
-                "林晚"
-              ],
-              "scene": "地铁站台",
-              "props": [
-                "耳机"
-              ],
-              "candidates": 1,
-              "notes": "冷白"
-            },
-            {
-              "shot_id": "S02",
-              "line_ids": [
-                "L05",
-                "L06",
-                "L07",
-                "L08"
-              ],
-              "shot_size": "全景",
-              "camera": "跟随",
-              "visual": "她走上天桥，城市在雨里发光",
-              "duration": 4.0,
-              "characters": [
-                "林晚"
-              ],
-              "scene": "天桥",
-              "props": [
-                "耳机"
-              ],
-              "candidates": 1,
-              "notes": "雨夜"
-            },
-            {
-              "shot_id": "S03",
-              "line_ids": [
-                "L09",
-                "L10",
-                "L11",
-                "L12",
-                "L13",
-                "L14"
-              ],
-              "shot_size": "中景",
-              "camera": "固定机位",
-              "visual": "便利店和小区门口，她走进夜色",
-              "duration": 6.0,
-              "characters": [
-                "林晚"
-              ],
-              "scene": "街道",
-              "props": [
-                "耳机"
-              ],
-              "candidates": 1,
-              "notes": "暖色路灯"
-            }
-          ],
-          "segments": [
-            {
-              "id": "G1",
-              "shot_ids": [
-                "S01",
-                "S02"
-              ],
-              "line_ids": [
-                "L01",
-                "L02",
-                "L03",
-                "L04",
-                "L05",
-                "L06",
-                "L07",
-                "L08"
-              ],
-              "duration": 8.0,
-              "videos": []
-            },
-            {
-              "id": "G2",
-              "shot_ids": [
-                "S03"
-              ],
-              "line_ids": [
-                "L09",
-                "L10",
-                "L11",
-                "L12",
-                "L13",
-                "L14"
-              ],
-              "duration": 6.0,
-              "videos": []
-            }
-          ]
-        }
-      },
-      "target_duration": 20
+    "edit": {
+     "style": "soft_cut/karaoke_white"
     },
-    {
-      "id": "MV003",
-      "no": 3,
-      "batch_id": "B01",
-      "model": "muse_router",
-      "model_display": "Muse",
-      "pack": "P01_夜雨城市",
-      "status": "not_started",
-      "genome": {
-        "music": {
-          "genre": "city_pop",
-          "bpm": 88,
-          "key": "A minor",
-          "vocal": "female_soft",
-          "variant": 3
-        },
-        "visual": {
-          "pack": "P01_夜雨城市",
-          "palette": "teal_amber"
-        },
-        "edit": {
-          "style": "soft_cut/karaoke_white"
-        },
-        "candidate_count": 1
-      },
-      "stages": {
-        "music": {
-          "status": "not_started",
-          "version": 0,
-          "artifact": "",
-          "updated_at": ""
-        },
-        "assets": {
-          "status": "not_started",
-          "version": 0,
-          "artifact": "",
-          "updated_at": ""
-        },
-        "video": {
-          "status": "not_started",
-          "version": 0,
-          "artifact": "",
-          "updated_at": ""
-        }
-      },
-      "cost": 0,
-      "spent": 0,
-      "detail": {
-        "music": [],
-        "assets": [],
-        "storyboard": {
-          "shots": [
-            {
-              "shot_id": "S01",
-              "line_ids": [
-                "L01",
-                "L02",
-                "L03",
-                "L04"
-              ],
-              "shot_size": "中景",
-              "camera": "固定机位",
-              "visual": "末班地铁，空站台，林晚戴上耳机",
-              "duration": 4.0,
-              "characters": [
-                "林晚"
-              ],
-              "scene": "地铁站台",
-              "props": [
-                "耳机"
-              ],
-              "candidates": 1,
-              "notes": "计划"
-            },
-            {
-              "shot_id": "S02",
-              "line_ids": [
-                "L05",
-                "L06",
-                "L07",
-                "L08"
-              ],
-              "shot_size": "全景",
-              "camera": "跟随",
-              "visual": "天桥、路灯、水洼，城市被调成静音",
-              "duration": 4.0,
-              "characters": [
-                "林晚"
-              ],
-              "scene": "天桥",
-              "props": [
-                "耳机"
-              ],
-              "candidates": 1,
-              "notes": "计划"
-            },
-            {
-              "shot_id": "S03",
-              "line_ids": [
-                "L09",
-                "L10",
-                "L11",
-                "L12",
-                "L13",
-                "L14"
-              ],
-              "shot_size": "全景",
-              "camera": "缓慢拉远",
-              "visual": "便利店与小区门口，她走进自己的夜",
-              "duration": 6.0,
-              "characters": [
-                "林晚"
-              ],
-              "scene": "街道",
-              "props": [
-                "耳机"
-              ],
-              "candidates": 1,
-              "notes": "计划"
-            }
-          ],
-          "segments": [
-            {
-              "id": "G1",
-              "shot_ids": [
-                "S01"
-              ],
-              "line_ids": [
-                "L01",
-                "L02",
-                "L03",
-                "L04"
-              ],
-              "duration": 4.0,
-              "videos": []
-            },
-            {
-              "id": "G2",
-              "shot_ids": [
-                "S02"
-              ],
-              "line_ids": [
-                "L05",
-                "L06",
-                "L07",
-                "L08"
-              ],
-              "duration": 4.0,
-              "videos": []
-            },
-            {
-              "id": "G3",
-              "shot_ids": [
-                "S03"
-              ],
-              "line_ids": [
-                "L09",
-                "L10",
-                "L11",
-                "L12",
-                "L13",
-                "L14"
-              ],
-              "duration": 6.0,
-              "videos": []
-            }
-          ]
-        }
-      },
-      "target_duration": 20
+    "candidate_count": 1
+   },
+   "stages": {
+    "music": {
+     "status": "locked",
+     "version": 1,
+     "artifact": "MV001/01_music/timeline_v1.json",
+     "updated_at": "2026-11-13T00:40:00"
+    },
+    "assets": {
+     "status": "locked",
+     "version": 1,
+     "artifact": "MV001/02_assets/assets_v1.json",
+     "updated_at": "2026-11-13T00:40:00"
+    },
+    "video": {
+     "status": "draft",
+     "version": 1,
+     "artifact": "MV001/03_segments/segments_v1.json",
+     "updated_at": "2026-11-13T00:40:00"
     }
-  ]
+   },
+   "cost": 14.3,
+   "spent": 14.3,
+   "detail": {
+    "music": [
+     {
+      "version": 1,
+      "audio": "MV001/01_music/song_v1.mp3",
+      "model": "ACE-Step 1.5",
+      "cost": "≈¥3.9",
+      "generated_at": "2026-11-13 00:40",
+      "duration": 20.0,
+      "status": "locked",
+      "current": true,
+      "requested_duration": 20
+     }
+    ],
+    "assets": [
+     {
+      "name": "女主三视图",
+      "type": "角色",
+      "url": "MV001/02_assets/role_female.svg",
+      "resolution": "1024×1536",
+      "model": "MOSS",
+      "cost": "≈¥2.6",
+      "generated_at": "2026-11-13 00:40"
+     },
+     {
+      "name": "夜班站台",
+      "type": "场景",
+      "url": "MV001/02_assets/scene_subway.svg",
+      "resolution": "1440×2560",
+      "model": "MOSS",
+      "cost": "≈¥2.6",
+      "generated_at": "2026-11-13 00:40"
+     },
+     {
+      "name": "雨夜街道",
+      "type": "场景",
+      "url": "MV001/02_assets/scene_street.svg",
+      "resolution": "1440×2560",
+      "model": "MOSS",
+      "cost": "≈¥2.6",
+      "generated_at": "2026-11-13 00:40"
+     },
+     {
+      "name": "耳机",
+      "type": "道具",
+      "url": "MV001/02_assets/product_headphone.svg",
+      "resolution": "1200×1200",
+      "model": "MOSS",
+      "cost": "≈¥2.6",
+      "generated_at": "2026-11-13 00:40"
+     }
+    ],
+    "storyboard": {
+     "shots": [
+      {
+       "shot_id": "S01",
+       "line_ids": [
+        "L01",
+        "L02"
+       ],
+       "shot_size": "中景",
+       "camera": "固定机位",
+       "visual": "末班地铁关上门，林晚站在空站台上，耳机线垂在肩前",
+       "duration": 3.0,
+       "characters": [
+        "林晚"
+       ],
+       "scene": "地铁站台",
+       "props": [
+        "耳机"
+       ],
+       "candidates": 1,
+       "notes": "冷白站台灯"
+      },
+      {
+       "shot_id": "S02",
+       "line_ids": [
+        "L03",
+        "L04"
+       ],
+       "shot_size": "近景",
+       "camera": "缓慢推近",
+       "visual": "她把耳机戴上，站台灯在耳机壳上留下一条暖色反光",
+       "duration": 3.0,
+       "characters": [
+        "林晚"
+       ],
+       "scene": "地铁站台",
+       "props": [
+        "耳机"
+       ],
+       "candidates": 1,
+       "notes": "浅景深"
+      },
+      {
+       "shot_id": "S03",
+       "line_ids": [
+        "L05",
+        "L06"
+       ],
+       "shot_size": "全景",
+       "camera": "跟随",
+       "visual": "她走过天桥，路灯把水洼照成一块块暖色",
+       "duration": 3.5,
+       "characters": [
+        "林晚"
+       ],
+       "scene": "天桥",
+       "props": [
+        "耳机"
+       ],
+       "candidates": 1,
+       "notes": "雨后反光"
+      },
+      {
+       "shot_id": "S04",
+       "line_ids": [
+        "L07",
+        "L08"
+       ],
+       "shot_size": "中景",
+       "camera": "固定机位",
+       "visual": "她停在栏杆边，看城市的灯，耳机里只有雨声",
+       "duration": 3.5,
+       "characters": [
+        "林晚"
+       ],
+       "scene": "天桥",
+       "props": [
+        "耳机"
+       ],
+       "candidates": 1,
+       "notes": "城市远景"
+      },
+      {
+       "shot_id": "S05",
+       "line_ids": [
+        "L09",
+        "L10"
+       ],
+       "shot_size": "中景",
+       "camera": "固定机位",
+       "visual": "便利店门口，她接过一杯热豆浆，店员打了个哈欠",
+       "duration": 3.0,
+       "characters": [
+        "林晚"
+       ],
+       "scene": "便利店",
+       "props": [
+        "热豆浆",
+        "耳机"
+       ],
+       "candidates": 1,
+       "notes": "暖色店内光"
+      },
+      {
+       "shot_id": "S06",
+       "line_ids": [
+        "L11",
+        "L12"
+       ],
+       "shot_size": "近景",
+       "camera": "固定机位",
+       "visual": "她把今天折进口袋，低头看了一眼手机上的时间",
+       "duration": 3.0,
+       "characters": [
+        "林晚"
+       ],
+       "scene": "便利店门口",
+       "props": [
+        "手机",
+        "耳机"
+       ],
+       "candidates": 1,
+       "notes": "低饱和"
+      },
+      {
+       "shot_id": "S07",
+       "line_ids": [
+        "L13",
+        "L14"
+       ],
+       "shot_size": "全景",
+       "camera": "缓慢拉远",
+       "visual": "小区门口，她重新戴好耳机，走进没有雨的夜色",
+       "duration": 3.0,
+       "characters": [
+        "林晚"
+       ],
+       "scene": "小区门口",
+       "props": [
+        "耳机"
+       ],
+       "candidates": 1,
+       "notes": "尾镜头"
+      }
+     ],
+     "segments": [
+      {
+       "id": "G1",
+       "shot_ids": [
+        "S01",
+        "S02"
+       ],
+       "line_ids": [
+        "L01",
+        "L02",
+        "L03",
+        "L04"
+       ],
+       "duration": 6.0,
+       "videos": []
+      },
+      {
+       "id": "G2",
+       "shot_ids": [
+        "S03",
+        "S04"
+       ],
+       "line_ids": [
+        "L05",
+        "L06",
+        "L07",
+        "L08"
+       ],
+       "duration": 7.0,
+       "videos": []
+      },
+      {
+       "id": "G3",
+       "shot_ids": [
+        "S05",
+        "S06",
+        "S07"
+       ],
+       "line_ids": [
+        "L09",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14"
+       ],
+       "duration": 9.0,
+       "videos": []
+      }
+     ]
+    }
+   },
+   "target_duration": 20
+  },
+  {
+   "id": "MV002",
+   "no": 2,
+   "batch_id": "B01",
+   "model": "muse_router",
+   "model_display": "Muse",
+   "pack": "P01_夜雨城市",
+   "status": "draft",
+   "genome": {
+    "music": {
+     "genre": "city_pop",
+     "bpm": 88,
+     "key": "A minor",
+     "vocal": "female_soft",
+     "variant": 2
+    },
+    "visual": {
+     "pack": "P01_夜雨城市",
+     "palette": "teal_amber"
+    },
+    "edit": {
+     "style": "soft_cut/karaoke_white"
+    },
+    "candidate_count": 1
+   },
+   "stages": {
+    "music": {
+     "status": "not_started",
+     "version": 0,
+     "artifact": "",
+     "updated_at": "2026-11-13T00:40:00"
+    },
+    "assets": {
+     "status": "not_started",
+     "version": 0,
+     "artifact": "",
+     "updated_at": "2026-11-13T00:40:00"
+    },
+    "video": {
+     "status": "not_started",
+     "version": 0,
+     "artifact": "",
+     "updated_at": ""
+    }
+   },
+   "cost": 0,
+   "spent": 0,
+   "detail": {
+    "music": [],
+    "assets": [],
+    "storyboard": {
+     "shots": [
+      {
+       "shot_id": "S01",
+       "line_ids": [
+        "L01",
+        "L02",
+        "L03",
+        "L04"
+       ],
+       "shot_size": "中景",
+       "camera": "固定机位",
+       "visual": "末班地铁关门，站台只剩一盏灯",
+       "duration": 4.0,
+       "characters": [
+        "林晚"
+       ],
+       "scene": "地铁站台",
+       "props": [
+        "耳机"
+       ],
+       "candidates": 1,
+       "notes": "冷白"
+      },
+      {
+       "shot_id": "S02",
+       "line_ids": [
+        "L05",
+        "L06",
+        "L07",
+        "L08"
+       ],
+       "shot_size": "全景",
+       "camera": "跟随",
+       "visual": "她走上天桥，城市在雨里发光",
+       "duration": 4.0,
+       "characters": [
+        "林晚"
+       ],
+       "scene": "天桥",
+       "props": [
+        "耳机"
+       ],
+       "candidates": 1,
+       "notes": "雨夜"
+      },
+      {
+       "shot_id": "S03",
+       "line_ids": [
+        "L09",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14"
+       ],
+       "shot_size": "中景",
+       "camera": "固定机位",
+       "visual": "便利店和小区门口，她走进夜色",
+       "duration": 6.0,
+       "characters": [
+        "林晚"
+       ],
+       "scene": "街道",
+       "props": [
+        "耳机"
+       ],
+       "candidates": 1,
+       "notes": "暖色路灯"
+      }
+     ],
+     "segments": [
+      {
+       "id": "G1",
+       "shot_ids": [
+        "S01",
+        "S02"
+       ],
+       "line_ids": [
+        "L01",
+        "L02",
+        "L03",
+        "L04",
+        "L05",
+        "L06",
+        "L07",
+        "L08"
+       ],
+       "duration": 8.0,
+       "videos": []
+      },
+      {
+       "id": "G2",
+       "shot_ids": [
+        "S03"
+       ],
+       "line_ids": [
+        "L09",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14"
+       ],
+       "duration": 6.0,
+       "videos": []
+      }
+     ]
+    }
+   },
+   "target_duration": 20
+  },
+  {
+   "id": "MV003",
+   "no": 3,
+   "batch_id": "B01",
+   "model": "muse_router",
+   "model_display": "Muse",
+   "pack": "P01_夜雨城市",
+   "status": "not_started",
+   "genome": {
+    "music": {
+     "genre": "city_pop",
+     "bpm": 88,
+     "key": "A minor",
+     "vocal": "female_soft",
+     "variant": 3
+    },
+    "visual": {
+     "pack": "P01_夜雨城市",
+     "palette": "teal_amber"
+    },
+    "edit": {
+     "style": "soft_cut/karaoke_white"
+    },
+    "candidate_count": 1
+   },
+   "stages": {
+    "music": {
+     "status": "not_started",
+     "version": 0,
+     "artifact": "",
+     "updated_at": ""
+    },
+    "assets": {
+     "status": "not_started",
+     "version": 0,
+     "artifact": "",
+     "updated_at": ""
+    },
+    "video": {
+     "status": "not_started",
+     "version": 0,
+     "artifact": "",
+     "updated_at": ""
+    }
+   },
+   "cost": 0,
+   "spent": 0,
+   "detail": {
+    "music": [],
+    "assets": [],
+    "storyboard": {
+     "shots": [
+      {
+       "shot_id": "S01",
+       "line_ids": [
+        "L01",
+        "L02",
+        "L03",
+        "L04"
+       ],
+       "shot_size": "中景",
+       "camera": "固定机位",
+       "visual": "末班地铁，空站台，林晚戴上耳机",
+       "duration": 4.0,
+       "characters": [
+        "林晚"
+       ],
+       "scene": "地铁站台",
+       "props": [
+        "耳机"
+       ],
+       "candidates": 1,
+       "notes": "计划"
+      },
+      {
+       "shot_id": "S02",
+       "line_ids": [
+        "L05",
+        "L06",
+        "L07",
+        "L08"
+       ],
+       "shot_size": "全景",
+       "camera": "跟随",
+       "visual": "天桥、路灯、水洼，城市被调成静音",
+       "duration": 4.0,
+       "characters": [
+        "林晚"
+       ],
+       "scene": "天桥",
+       "props": [
+        "耳机"
+       ],
+       "candidates": 1,
+       "notes": "计划"
+      },
+      {
+       "shot_id": "S03",
+       "line_ids": [
+        "L09",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14"
+       ],
+       "shot_size": "全景",
+       "camera": "缓慢拉远",
+       "visual": "便利店与小区门口，她走进自己的夜",
+       "duration": 6.0,
+       "characters": [
+        "林晚"
+       ],
+       "scene": "街道",
+       "props": [
+        "耳机"
+       ],
+       "candidates": 1,
+       "notes": "计划"
+      }
+     ],
+     "segments": [
+      {
+       "id": "G1",
+       "shot_ids": [
+        "S01"
+       ],
+       "line_ids": [
+        "L01",
+        "L02",
+        "L03",
+        "L04"
+       ],
+       "duration": 4.0,
+       "videos": []
+      },
+      {
+       "id": "G2",
+       "shot_ids": [
+        "S02"
+       ],
+       "line_ids": [
+        "L05",
+        "L06",
+        "L07",
+        "L08"
+       ],
+       "duration": 4.0,
+       "videos": []
+      },
+      {
+       "id": "G3",
+       "shot_ids": [
+        "S03"
+       ],
+       "line_ids": [
+        "L09",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14"
+       ],
+       "duration": 6.0,
+       "videos": []
+      }
+     ]
+    }
+   },
+   "target_duration": 20
+  }
+ ]
 }

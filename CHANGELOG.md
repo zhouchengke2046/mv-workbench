@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0 — 2026-11-14
+
+- Router is the primary platform: students start with a Router-only `zz-keys.json`; backup RunningHub/APIMart keys are issued only when the relay keeps failing.
+- Workbench top bar now shows only the Router balance; all costs are displayed in CNY. RunningHub coin→CNY rate is configurable in `config/models.json` (`fx.rh_coin`); `mvwb quote` prints the CNY conversion.
+- Key layer supports a third provider: `apimart` section in `keys.json`, `keys set/config/import/balance/status` and `exec --need apimart`.
+- Backup-key reminder rule: router failures ≥3 times in 10 minutes without a backup configured → ask the teacher for a backup `zz-keys.json`; importing it enables the fallback platforms.
+
 ## 0.3.9 — 2026-11-14
 
 - Renamed the teacher-issued key file to `zz-keys.json` (from `keys.incoming.json`).

@@ -1,7 +1,7 @@
 # MV001 · 末班地铁 · 框架
 
 ## 音乐计划
-- 模型：ACE-Step 1.5（39 币/45s）
+- 模型：ACE-Step 1.5（≈¥3.9/45s（按 1 币≈¥0.1 折算））
 - 风格：city pop / mandarin pop，88 BPM，A minor，female soft
 - 时长：20s（demo 占位音频）
 

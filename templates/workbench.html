@@ -660,7 +660,6 @@ function renderTop() {
     </div>
     <div class="top-actions">
       <div class="key-strip">
-        ${keyChip(keys.runninghub, "RunningHub", "runninghub")}
         ${keyChip(keys.router, "Router", "router")}
       </div>
       <button class="btn primary" onclick="openKeyConfig()">配置 Key</button>
@@ -706,7 +705,7 @@ function mvRow(m) {
     ${ring(m)}
     <div class="mv-main">
       <div class="mv-id">${m.id}</div>
-      <div class="mv-spent">已花 ${fmt(m.spent != null ? m.spent : m.cost)} 币</div>
+      <div class="mv-spent">已花 ¥${fmt(m.spent != null ? m.spent : m.cost)}</div>
     </div>
   </div>`;
 }
@@ -769,7 +768,7 @@ function mvView(mv) {
       <div class="mv-desc">${esc(mu.genre || "")} · ${mu.bpm || ""}BPM · ${esc(mu.key || "")} · ${esc(mu.vocal || "")}
         ｜ ${esc((g.edit || {}).style || "")} ｜ 每句候选 ${g.candidate_count || 1}</div>
     </div>
-    <div class="mv-cost">${fmt(mv.spent != null ? mv.spent : mv.cost)} 币 <span class="dim" style="font-size:11px">累计</span></div>
+    <div class="mv-cost">¥${fmt(mv.spent != null ? mv.spent : mv.cost)} <span class="dim" style="font-size:11px">累计</span></div>
   </div>
   ${musicSection(mv)}
   ${assetsSection(mv)}

@@ -83,6 +83,11 @@ mvwb keys import --file workspaces/<项目名>/zz-keys.json --delete-source
 - 学生换电脑：重新发一份，或迁移旧电脑的 `~/.config/mv-workbench/keys.json`。
 - 学生把 Key 发到群里/对话里：提醒作废重发。
 
+## 发放节奏
+
+- **初期只发 Router Key**：`zz-keys.json` 里只有 `{"router": "..."}`；方便统一算成本（工作台也只显示 Router 余额）。
+- **备用 Key 按需另发**：中转站连续出问题、短时间修不好时，再发一份含 `runninghub` / `apimart` 字段的 `zz-keys.json`；学生放到项目根目录导入即可，导入后自动启用备用平台。
+
 ## 和工作台“配置 Key”的关系
 
 - **老师统一发放**：用 `zz-keys.json`，两行 JSON，最省事。

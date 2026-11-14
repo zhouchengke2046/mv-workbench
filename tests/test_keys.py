@@ -97,15 +97,17 @@ def test_import_keys_and_delete_source(tmp_path, monkeypatch, capsys):
         "mv_keys_import": 1,
         "runninghub": {"api_key": "rh-import-1234"},
         "router": {"api_key": "sk-import-5678"},
+        "apimart": {"api_key": "ak-import-9999"},
     }), encoding="utf-8")
     args = type("A", (), {"file": str(src), "delete_source": True})()
     mv_keys.cmd_import(args)
     out = capsys.readouterr().out
-    assert "••••1234" in out and "••••5678" in out
+    assert "••••1234" in out and "••••5678" in out and "••••9999" in out
     assert not src.exists()
     cfg, _ = mv_keys.load_cfg()
     assert cfg["runninghub"]["api_key"] == "rh-import-1234"
     assert cfg["router"]["api_key"] == "sk-import-5678"
+    assert cfg["apimart"]["api_key"] == "ak-import-9999"
 
 
 def test_set_refuses_without_tty(tmp_path, monkeypatch, capsys):

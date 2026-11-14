@@ -26,8 +26,8 @@
 | Python 3.9+ | 跑 `mvwb`、Key 管理、构建器；只用标准库 |
 | ffmpeg + ffprobe | 读音乐时长、生成时间轴、检查视频 |
 | 一个 agent | WorkBuddy / ZCode / 同类；能读写文件、运行命令 |
-| RunningHub Key | ACE 音乐、MOSS 资产、H3 视频、S2V 口型 |
-| Router Key | Muse 视频；默认 `https://router.kcacher.top` |
+| Router Key（必配） | 音乐/资产/视频统一入口；默认 `https://router.kcacher.top` |
+| RunningHub / APIMart Key（备用） | Router 连续失败时由老师另发，直连兜底 |
 
 不配 Key 也能做原文、工作台、MV 框架和分镜计划；只有提交模型才需要 Key。
 
@@ -69,7 +69,7 @@ mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
 ## Key
 
 - 唯一真源：`~/.config/mv-workbench/keys.json`（macOS/Linux 0600）。
-- **老师统一发放**：把 `zz-keys.json` 放到项目根目录，对 agent 说“导入项目里的 zz-keys.json，导入后删除”。agent 运行：
+- **老师统一发放**：初期只发 Router Key——`zz-keys.json` 里只有 `{"router":"..."}`；放到项目根目录，对 agent 说“导入项目里的 zz-keys.json，导入后删除”。agent 运行：
   ```bash
   mvwb keys import --file workspaces/<project>/zz-keys.json --delete-source
   ```
@@ -78,7 +78,7 @@ mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
   ```bash
   mvwb keys import --file ~/Downloads/mv-keys-import.json --delete-source
   ```
-- **免二次对话**：agent 先运行 `mvwb keys watch --timeout 600 --data <data.json>`；你在工作台填完下载后，它自动导入、删除文件、刷新余额并重建工作台。
+- **备用 Key 按需另发**：Router 连续失败时，老师会再发一份含 `runninghub`/`apimart` 字段的 `zz-keys.json`；放到项目根目录，agent 导入后自动启用备用平台。也可用 `mvwb keys watch` 免二次对话。
 - **或双击** `setup-keys.command`（macOS）/ `setup-keys.cmd`（Windows），按提示粘贴两个 Key。
 - 或终端：`mvwb keys set runninghub`、`mvwb keys set router`。
 - 余额：`mvwb keys balance --data <data.json>`，再 `mvwb build` 刷新页面快照。
@@ -94,13 +94,16 @@ mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
 
 ## 费用
 
-| 消耗 | 参考价（2026-11-13，会变） |
-|---|---|
-| ACE 音乐 | 39 币 / 45s |
-| MOSS 资产 | 26 币 / 张 |
-| H3 视频 | 约 19 币 / 4s |
-| S2V 口型 | 176 币 / 8s |
-| Muse 视频 | 2s ≈ ¥1；10s ≈ ¥5 |
+| 消耗 | 服务商价 | 折合人民币（演示汇率） |
+|---|---|---|
+| ACE 音乐 | 39 币 / 45s | ≈¥3.9 / 45s |
+| MOSS 资产 | 26 币 / 张 | ≈¥2.6 / 张 |
+| H3 视频 | 约 19 币 / 4s | ≈¥1.9 / 4s |
+| S2V 口型 | 176 币 / 8s | ≈¥17.6 / 8s |
+| Muse 视频 | ¥0.5 / s | ¥0.5 / s |
+
+- RunningHub 币→人民币汇率在 `config/models.json` 的 `fx.rh_coin`（示例 0.1），由老师按实际充值比例修改。
+- 工作台顶部只显示 Router 余额；所有成本一律折算成 ¥ 展示。
 
 - 以服务商账单为准；`mvwb quote` 只是估算。
 - 生成前先报价（数量 × 单价），用户确认后才提交。

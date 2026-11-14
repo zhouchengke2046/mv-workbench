@@ -139,11 +139,15 @@ def cmd_doctor(args):
         cfg, exists = mv_keys.load_cfg()
         rh = (cfg.get("runninghub") or {}).get("api_key") or ""
         rt = (cfg.get("router") or {}).get("api_key") or ""
+        am = (cfg.get("apimart") or {}).get("api_key") or ""
         print("%s keys.json: %s" % (OK if exists else WARN, mv_keys.keys_path()))
-        print("  RunningHub: %s" % ("已配置 " + mv_keys.mask(rh) if rh else "未配置"))
         print("  Router:     %s" % ("已配置 " + mv_keys.mask(rt) if rt else "未配置"))
-        if not rh and not rt:
-            print("%s 还没配 Key；运行 mvwb keys set runninghub / router（输入不回显）" % WARN)
+        print("  RunningHub: %s（备用）" % ("已配置 " + mv_keys.mask(rh) if rh else "未配置"))
+        print("  APIMart:    %s（备用）" % ("已配置 " + mv_keys.mask(am) if am else "未配置"))
+        if not rt:
+            print("%s 还没配 Router key；双击 setup-keys 或导入老师发的 zz-keys.json" % WARN)
+        elif not rh and not am:
+            print("%s 未配置备用 Key；Router 连续失败时，向老师要备用 zz-keys.json" % WARN)
     except SystemExit:
         print("%s keys.json 读取失败" % FAIL)
         failures += 1
@@ -154,10 +158,11 @@ def cmd_doctor(args):
             cfg, _ = mv_keys.load_cfg()
             payload = {
                 "checked_at": mv_keys.now_iso(),
-                "runninghub": mv_keys.balance_runninghub(cfg, 10),
                 "router": mv_keys.balance_router(cfg, 10),
+                "runninghub": mv_keys.balance_runninghub(cfg, 10),
+                "apimart": mv_keys.balance_apimart(cfg, 10),
             }
-            for name in ("runninghub", "router"):
+            for name in ("router", "runninghub", "apimart"):
                 item = payload[name]
                 if item.get("configured") and item.get("ok"):
                     print("%s %s 余额: %s %s" % (OK, name, item.get("balance"), item.get("unit")))
@@ -297,7 +302,9 @@ def cmd_check(args):
 def cmd_quote(args):
     if not CONFIG.is_file():
         raise SystemExit("缺少 config/models.json")
-    models = json.loads(CONFIG.read_text(encoding="utf-8")).get("models", {})
+    cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
+    models = cfg.get("models", {})
+    fx = cfg.get("fx") or {}
     model = args.model
     if model not in models:
         raise SystemExit("未知模型：%s（可选：%s）" % (model, ", ".join(sorted(models))))
@@ -320,10 +327,12 @@ def cmd_quote(args):
         detail = "%d 次 × %s %s" % (max(1, args.segments), spec["price"], unit)
     else:
         raise SystemExit("模型 %s 没有价格字段" % model)
+    rate = 1.0 if unit == "CNY" else float(fx.get("USD", 7.3) if unit == "USD" else fx.get("rh_coin", 0.1))
     print("%s" % model)
     print("  计费：%s" % detail)
     print("  估算：%.2f %s" % (total, unit))
-    print("  以服务商实际账单为准（as_of %s）" % json.loads(CONFIG.read_text(encoding="utf-8")).get("as_of", "?"))
+    print("  折合人民币：≈¥%.2f（%s→CNY 汇率 %.4g，见 config/models.json fx）" % (total * rate, unit, rate))
+    print("  以服务商实际账单为准（as_of %s）" % cfg.get("as_of", "?"))
     return 0
 
 

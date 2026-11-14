@@ -37,5 +37,11 @@
       "price_per_8s": 176,
       "workflow_id": "1979183169033375745"
     }
+  },
+  "fx": {
+    "CNY": 1.0,
+    "USD": 7.3,
+    "rh_coin": 0.1,
+    "_note": "rh_coin = RunningHub 币→人民币汇率，由老师按实际充值比例修改；成本展示一律折算为 CNY。"
   }
 }

@@ -18,11 +18,11 @@ description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 wo
 - **工作台是项目里的静态 `workbench.html`**：直接双击/用浏览器打开 `file://...`；**不启动任何后台服务**。
 - **禁止** `mvwb server`、`python -m http.server`、端口、服务版、旧 Key 页面。工作台右上角“配置 Key”只下载导入文件，不联网、不写页面；没有服务。
 - 用户说“打开工作台”：运行 `mvwb open [--workspace NAME]`，它只打开本地 HTML。
-- **老师统一发放 Key**：学生把 `zz-keys.json` 放到项目根目录；agent 运行 `mvwb keys import --file <项目>/zz-keys.json --delete-source`。导入一次即全局生效，发放文件导入后删除。文件只需两个字段：`{"runninghub": "...", "router": "..."}`；可选元数据见 `references/key-distribution.md`。
+- **初期只发 Router Key**：学生把老师发的 `zz-keys.json` 放到项目根目录（里面通常只有 `{"router": "..."}`）；agent 运行 `mvwb keys import --file <项目>/zz-keys.json --delete-source`。导入一次即全局生效，发放文件导入后删除。
 - **Key 由用户在本地工作台填写**：打开 `workbench.html` → 右上角“配置 Key” → 填两个 Key → 下载 `mv-keys-import.json`；用户对 agent 说“导入下载目录的 mv-keys-import.json”，agent 运行 `mvwb keys import --file <path> --delete-source`。也可双击 `setup-keys.command` / `setup-keys.cmd`，或终端 `mvwb keys set`。agent 只引导，不索要 Key；非交互环境不要调用 `keys set`。
-- **免二次对话**：agent 可先运行 `mvwb keys watch --timeout 600 [--data <data.json>]`；用户在工作台填完并下载后，watcher 自动导入、删除下载文件；带 `--data` 时顺便刷新余额并重建工作台。
+- **备用 Key 按需发放**：Router 连续多次失败（同 10 分钟内 ≥3 次）且未配置备用时，提醒用户向老师要**备用 `zz-keys.json`**（含 `runninghub`/`apimart` 字段），放到项目根目录或下载目录；导入后自动启用备用平台，并刷新余额/工作台。agent 可用 `mvwb keys watch` 免二次对话。
 - Key 不写进 DATA、HTML、脚本、日志或截图；下载的导入文件导入后必须删除。用户已经把 Key 发到对话里时，提醒他作废重发。
-- **余额由 agent 刷新**：`mvwb keys balance --data <data.json>` → `mvwb build`；页面只显示掩码和快照时间，不联网。
+- **余额/成本只看 Router（人民币）**：顶部只显示 Router 余额；所有成本折算为 ¥ 写进 DATA（RunningHub 币→CNY 汇率在 `config/models.json` 的 `fx.rh_coin`，由老师维护）。
 - **每次生成/替换文件后**：更新 `data.json` → `mvwb build` → `mvwb check --data ...`。`check` 报缺失就是工作台不会显示，不能算完成。
 
 ## 最终交付
@@ -318,6 +318,7 @@ config/           模型价格 / provider / keys 示例
 
 ## 版本
 
+- v0.4.0（2026-11-14）：Router 主链 + 备用 Key 按需发放；顶部只显示 Router 余额；成本一律折算 ¥（`fx.rh_coin`）；keys 层支持 apimart 独立段；quote 输出折算人民币。
 - v0.3.9（2026-11-14）：老师发放的 Key 文件统一命名为 `zz-keys.json`；watcher 同时识别 `mv-keys-import*.json` 和 `zz-keys.json`。
 - v0.3.8（2026-11-14）：发放 Key 的 JSON 简化为两个字段 `{"runninghub":"...","router":"..."}`；`issued_to`/`expires_at`/`mv_keys_import` 改为可选，只在登记或 watcher 自动拾取时需要。
 - v0.3.7（2026-11-14）：新增老师发放 Key 的标准：`zz-keys.json` 放项目根目录，`keys import --delete-source`；格式示例与发放规则见 `references/key-distribution.md`。

@@ -6,7 +6,7 @@
 
 - 单文件 `workbench.html`，CSS/JS/`DATA` 内联；**纯静态，双击或 `file://` 打开，不启动服务**。
 - 无按钮、无接口、不联网；Key/余额只是 `DATA.keys` 快照，由 agent 用 `mvwb keys` 更新后重新 build。
-- 左侧：原文（歌词/脚本）+ MV 列表；MV 行 = `MV001` + `已花 X 币` + 三色环。
+- 左侧：原文（歌词/脚本）+ MV 列表；MV 行 = `MV001` + `已花 ¥X` + 三色环。
 - 每 MV 三大项：音乐 / 资产图 / 分镜表；分镜表前两列：视频 / 视频段。
 
 ## 项目目录
@@ -63,14 +63,14 @@ workspaces/<project>/
     "detail": {
       "music": [{
         "version": 1, "audio": "MV001/01_music/song_v1.mp3",
-        "model": "ACE-Step 1.5", "cost": "39 币",
+        "model": "ACE-Step 1.5", "cost": "≈¥3.9",
         "generated_at": "2026-11-13 00:40", "requested_duration": 20, "duration": 20.0,
         "status": "locked", "current": true
       }],
       "assets": [{
         "name": "女主三视图", "type": "角色",
         "url": "MV001/02_assets/role_female.svg",
-        "resolution": "1024×1536", "model": "MOSS", "cost": "26 币",
+        "resolution": "1024×1536", "model": "MOSS", "cost": "≈¥2.6",
         "generated_at": "2026-11-13 00:40"
       }],
       "storyboard": {
@@ -94,7 +94,7 @@ workspaces/<project>/
 ## 规则
 
 - `keys` 只存掩码/余额/查询时间，不含原始 key；由 `mv_keys.py balance --data data.json` 写入，再 build。
-- `spent` = 历史累计花费；左侧“已花 X 币”/MV 头部“累计”用它。
+- `spent` = 历史累计花费（人民币）；左侧“已花 ¥X”/MV 头部“累计”用它。RunningHub 币→CNY 用 `config/models.json` 的 `fx.rh_coin` 折算。
 - `music[].current` 标记当前版；历史版 `current:false`。
 - `segments[].videos` 第一条是当前视频，后面是历史视频；每条带分辨率/模型/费用/时间/时长。
 - `meta.batch.target_duration` 是用户设定的总时长；`mvs[].target_duration` 可覆盖。
