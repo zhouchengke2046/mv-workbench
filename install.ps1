@@ -44,7 +44,7 @@ if (Test-Path $Target) {
 New-Item -ItemType Directory -Force -Path $Target | Out-Null
 New-Item -ItemType Directory -Force -Path $Bin | Out-Null
 
-$items = @("SKILL.md","references","scripts","templates","contracts","demo","config","README.md","LICENSE","NOTICE.md","mvwb","mvwb.cmd")
+$items = @("SKILL.md","references","scripts","templates","contracts","demo","config","README.md","LICENSE","NOTICE.md","mvwb","mvwb.cmd","setup-keys.command","setup-keys.cmd")
 foreach ($item in $items) {
   $src = Join-Path $Repo $item
   if (-not (Test-Path $src)) { Write-Host "missing: $src"; exit 1 }

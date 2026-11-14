@@ -490,7 +490,7 @@ def cmd_init(args):
                 "path": str(path),
                 "runninghub_configured": bool(cfg["runninghub"]["api_key"]),
                 "router_configured": bool(cfg["router"]["api_key"]),
-                "next": "用 config router 设 base_url/balance_mode；用 set <runninghub|router> 补 key；再 balance --write <workbench.html>",
+                "next": "用 config router 设 base_url/balance_mode；用 set <runninghub|router> 补 key；再 balance --data <data.json>，最后 build 刷新页面",
             },
             ensure_ascii=False,
             indent=2,
@@ -547,6 +547,8 @@ def cmd_set(args):
     if args.stdin:
         key = sys.stdin.readline().strip()
     else:
+        if not sys.stdin.isatty():
+            die("当前没有可交互终端。请让用户在本机终端运行，或双击 setup-keys；agent 不要代输 Key")
         key = getpass.getpass("%s API key（输入不回显）: " % name).strip()
     if not key:
         die("空 key，未修改")

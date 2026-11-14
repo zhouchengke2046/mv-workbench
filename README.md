@@ -69,7 +69,8 @@ mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
 ## Key
 
 - 唯一真源：`~/.config/mv-workbench/keys.json`（macOS/Linux 0600）。
-- 配置：`mvwb keys set runninghub`、`mvwb keys set router`（终端隐藏输入）。
+- **最简单**：双击 `setup-keys.command`（macOS）/ `setup-keys.cmd`（Windows），按提示粘贴两个 Key，输入不回显。
+- 或终端：`mvwb keys set runninghub`、`mvwb keys set router`。
 - 余额：`mvwb keys balance --data <data.json>`，再 `mvwb build` 刷新页面快照。
 - 原始 Key 不进 HTML/DATA/日志/截图；页面只显示掩码和查询时间。
 - **不要把 Key 发到对话里**；已经发过的，去服务商后台作废重发。
@@ -118,6 +119,7 @@ zz-mv-gongzuotai/
 ├─ SKILL.md                  唯一入口（给 agent）
 ├─ README.md                 本文件
 ├─ mvwb / mvwb.cmd
+├─ setup-keys.command / setup-keys.cmd
 ├─ install.sh / install.ps1
 ├─ scripts/                  mvwb、keys、build、timeline、providers
 ├─ references/               契约、审核、handoff、提示词、供应商

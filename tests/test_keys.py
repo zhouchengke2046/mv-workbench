@@ -90,6 +90,19 @@ def test_update_data_keys(tmp_path):
     assert "sk-test" not in raw and "rh-test" not in raw
 
 
+def test_set_refuses_without_tty(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("MV_KEYS_PATH", str(tmp_path / "keys.json"))
+    monkeypatch.setattr(sys.stdin, "isatty", lambda: False)
+    args = type("A", (), {
+        "name": "runninghub", "stdin": False, "label": None, "account": None,
+        "base_url": None, "balance_path": None, "balance_mode": None,
+        "provider": None, "proxy": None,
+    })()
+    with pytest.raises(SystemExit):
+        mv_keys.cmd_set(args)
+    assert "没有可交互终端" in capsys.readouterr().err
+
+
 def test_exec_clears_stale_env(tmp_path, monkeypatch):
     path = tmp_path / "keys.json"
     monkeypatch.setenv("MV_KEYS_PATH", str(path))

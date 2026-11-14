@@ -18,7 +18,8 @@ description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 wo
 - **工作台是项目里的静态 `workbench.html`**：直接双击/用浏览器打开 `file://...`；**不启动任何后台服务**。
 - **禁止** `mvwb server`、`python -m http.server`、端口、服务版、旧 Key 页面。工作台没有“配置 Key”按钮是设计，不是 bug。
 - 用户说“打开工作台”：运行 `mvwb open [--workspace NAME]`，它只打开本地 HTML。
-- **Key 由用户在本机终端输入**：agent 负责一步步引导（`mvwb keys set runninghub` / `mvwb keys set router`），但不要替用户输入，也不要索要 Key；输入不回显。不要让用户把 Key 发到对话里，也不要把 Key 写进 DATA、HTML、脚本、日志或截图。用户已经发过来时，提醒他重新配置并作废旧 Key。
+- **Key 由用户在本机输入**：用户可双击 `setup-keys.command` / `setup-keys.cmd`，或在终端运行 `mvwb keys set runninghub` / `mvwb keys set router`；agent 只引导，不替用户输入、不索要 Key。非交互环境不要调用 `keys set`（没有 TTY 会拒绝）。
+- Key 不写进 DATA、HTML、脚本、日志或截图；用户已经把 Key 发到对话里时，提醒他作废重发。
 - **余额由 agent 刷新**：`mvwb keys balance --data <data.json>` → `mvwb build`；页面只显示掩码和快照时间，不联网。
 - **每次生成/替换文件后**：更新 `data.json` → `mvwb build` → `mvwb check --data ...`。`check` 报缺失就是工作台不会显示，不能算完成。
 
@@ -310,6 +311,7 @@ config/           模型价格 / provider / keys 示例
 
 ## 版本
 
+- v0.3.4（2026-11-14）：一键 `setup-keys`（Mac/Win）；`keys set` 非交互环境拒绝而不是 traceback；工作台视频缩略图显示首帧；`keys init` 提示改 `--data`。
 - v0.3.3（2026-11-13）：新增变体/差异化规则与角色风格提示词包（小红书穿搭/日系甜妹/韩系欧巴/治愈系电影/帅哥美女）；Step 3 要求 genome 与差异化表。
 - v0.3.2（2026-11-13）：与用户手册对齐：Key 由用户本机输入；补项目名/三步确认、音乐锁定与时长偏差、资产 QA、大改报价、`data.json` 目录。
 - v0.3.1（2026-11-13）：安装升级保留 workspaces；`init` 默认空项目（`--demo` 复制 demo）；build/check 相对路径回退 skill 根目录；精简包内文档。

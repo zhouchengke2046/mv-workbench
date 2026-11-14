@@ -57,10 +57,10 @@ fi
 rm -rf "$TARGET"
 mkdir -p "$TARGET" "$BIN"
 
-for item in SKILL.md references scripts templates contracts demo config README.md LICENSE NOTICE.md mvwb mvwb.cmd; do
+for item in SKILL.md references scripts templates contracts demo config README.md LICENSE NOTICE.md mvwb mvwb.cmd setup-keys.command setup-keys.cmd; do
   cp -R "$REPO/$item" "$TARGET/"
 done
-chmod +x "$TARGET/mvwb" "$TARGET/scripts/mvwb.py" 2>/dev/null || true
+chmod +x "$TARGET/mvwb" "$TARGET/scripts/mvwb.py" "$TARGET/setup-keys.command" 2>/dev/null || true
 echo "installed skill: $TARGET"
 restore_workspaces
 WORKSPACES_BACKUP=""

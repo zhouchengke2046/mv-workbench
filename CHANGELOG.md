@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.4 — 2026-11-14
+
+- Added one-click key setup: `setup-keys.command` (macOS) / `setup-keys.cmd` (Windows); prompts twice, input hidden, writes `~/.config/mv-workbench/keys.json`.
+- `mvwb keys set` now refuses cleanly when there is no interactive terminal instead of raising a getpass/termios traceback; agents must not type keys for the user.
+- Workbench video thumbnails now show the first frame (`#t=0.1`) instead of a black box.
+- `mvwb keys init` next-step hint now uses `balance --data <data.json>` + `build` (no old `--write` HTML hint).
+
 ## 0.3.3 — 2026-11-13
 
 - Added `references/variation.md`: genome dimensions, deterministic assignment, collision rules and dedup gates for cast/story/music/visual/edit.
