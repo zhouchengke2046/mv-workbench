@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.10 — 2026-11-14
+
+- Progress ring now covers all four steps (script → music → assets → video) instead of three, matching the v0.4.5 step system; `stages.script` added to the DATA contract example.
+- `STATUS_COLOR` covers the full status vocabulary: planning/planned gray, generating blue (with the previously unused pulse animation wired: any generating stage makes the ring blink), review purple, draft orange, locked green, failed red, stale dark orange.
+
 ## 0.4.9 — 2026-11-14
 
 - Fixed video history ordering in the workbench: `videoCell` used "first entry = current", which pushed newly appended v2 into 历史 when data grows append-style (found on the 半糖晚风 workbench). Now `segments[].videos` is append-style with the `current:true` flag marking the current video — the same convention the music table already uses; contract doc updated to match.

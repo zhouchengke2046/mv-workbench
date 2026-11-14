@@ -472,8 +472,9 @@ audio{width:100%;height:36px}
 </div>
 <script>const DATA = {"meta": {"id": "D01", "title": "末班地铁", "generated_at": ""}, "keys": {"runninghub": {"label": "RunningHub", "account": "", "configured": false, "masked": "", "ok": false, "balance": null, "unit": "币", "wallet": null, "wallet_unit": null, "unlimited": false, "checked_at": null, "error": "未配置"}, "router": {"label": "Router", "account": "", "configured": false, "masked": "", "ok": false, "balance": null, "unit": "CNY", "wallet": null, "wallet_unit": null, "unlimited": false, "checked_at": null, "error": "未配置"}}, "lyric": {"title": "", "body": ""}, "script": {"title": "", "body": ""}, "mvs": []};
 const STATUS_COLOR = {
-  not_started: "#c9cdd4", draft: "#f5a623", locked: "#00b42a",
-  failed: "#f53f3f", stale: "#ff6b00",
+  not_started: "#c9cdd4", planning: "#c9cdd4", planned: "#c9cdd4",
+  generating: "#4d6bfe", review: "#8b5cf6", draft: "#f5a623",
+  locked: "#00b42a", failed: "#f53f3f", stale: "#ff6b00",
 };
 
 let S = {
@@ -621,13 +622,17 @@ function mvRow(m) {
 }
 
 function ring(m) {
-  const keys = ["music", "assets", "video"];
-  const r = 10, c = 2 * Math.PI * r, arc = c / 3;
-  const colors = keys.map((k) => STATUS_COLOR[((m.stages || {})[k] || {}).status] || "#c9cdd4");
+  // 四步进度环：脚本 → 音乐 → 资产 → 视频；颜色按 stages[k].status，
+  // 任一阶段 generating 时整环闪烁（.ring.pulse）
+  const keys = ["script", "music", "assets", "video"];
+  const stages = m.stages || {};
+  const r = 10, c = 2 * Math.PI * r, arc = c / 4;
+  const colors = keys.map((k) => STATUS_COLOR[(stages[k] || {}).status] || "#c9cdd4");
   const arcs = colors.map((col, i) => `<circle cx="14" cy="14" r="${r}" fill="none" stroke="${col}"
     stroke-width="3" stroke-dasharray="${(arc - 2).toFixed(2)} ${(c - (arc - 2)).toFixed(2)}"
-    transform="rotate(${-90 + i * 120} 14 14)"></circle>`).join("");
-  return `<svg class="ring" viewBox="0 0 28 28">
+    transform="rotate(${-90 + i * 90} 14 14)"></circle>`).join("");
+  const busy = keys.some((k) => (stages[k] || {}).status === "generating") ? " pulse" : "";
+  return `<svg class="ring${busy}" viewBox="0 0 28 28" title="脚本/音乐/资产/视频 进度">
     <circle cx="14" cy="14" r="${r}" fill="none" stroke="#e5e6eb" stroke-width="3"></circle>
     ${arcs}
   </svg>`;

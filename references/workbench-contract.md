@@ -58,6 +58,7 @@ workspaces/<project>/
   "mvs": [{
     "id": "MV001", "status": "ready", "target_duration": 20, "cost": 143, "spent": 143,
     "stages": {
+      "script": {"status": "locked", "version": 1, "artifact": "00_script.md"},
       "music": {"status": "locked", "version": 1, "artifact": "01_music/timeline_v1.json", "cost": 39},
       "assets": {"status": "locked", "version": 1, "artifact": "02_assets/assets_v1.json", "cost": 104},
       "video": {"status": "draft", "version": 1, "artifact": "03_segments/segments_v1.json", "cost": 0}
@@ -123,6 +124,8 @@ workspaces/<project>/
 1. 读 `mv_manifest.json`、`01_music/`、`02_assets/`、`03_segments/`；
 2. 只重跑点名项，写 `*_v{n+1}.json`/媒体，不覆盖旧版；
 3. 更新 `mv_manifest.json` 的 stages/history，`spent` 累加；
+4. **进度环约定**：左侧 MV 列表的圆环 = 四段（脚本→音乐→资产→视频），段色按 `stages[k].status`：
+   灰=not_started/planning/planned，蓝=generating（整环闪烁），紫=review，橙=draft，绿=locked，红=failed，深橙=stale。
 4. 音乐出来后对比 `target_duration` 与 `actual_duration`；偏差 >1s 或 >2% 先暂停；更新 segments 的实际时长；
 5. 更新 `DATA`（或 `DATA.json` 后用 `build_workbench.py` 重建）；
 6. 刷新页面。
