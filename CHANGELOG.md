@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1 — 2026-11-14
+
+- Added a unified alert format (`scripts/alerts.py`) with a full code table (`references/alerts.md`): K/B/P/W/T/Q series.
+- Wired alerts into `mvwb keys` (missing key, bad import file, watch timeout, non-interactive), `mvwb rh` / `mvwb muse` (auth/quota/submit/task-failed/timeout/download), `mvwb check` / `build` (missing refs, invalid DATA).
+- Backup-key flow is now alert-driven: router repeated failures emit **B001**; the student forwards the alert text to the teacher, who decides whether to issue a backup `zz-keys.json`. No more "go ask the teacher for keys" wording.
+- Manual gained a "把提醒原文发给老师" section; raw errors are truncated to 300 chars and redacted.
+
 ## 0.4.0 — 2026-11-14
 
 - Router is the primary platform: students start with a Router-only `zz-keys.json`; backup RunningHub/APIMart keys are issued only when the relay keeps failing.

@@ -21,8 +21,19 @@ HERE = Path(__file__).resolve().parent
 SCRIPTS = HERE.parent
 sys.path.insert(0, str(SCRIPTS))
 import mv_keys  # noqa: E402
+import alerts  # noqa: E402
 from console import setup  # noqa: E402
 setup()
+
+PLATFORM = "router"
+
+
+def http_alert(status):
+    if status in (401, 403):
+        return "P1"
+    if status == 402:
+        return "P2"
+    return "P5" if status in (408, 429, 500, 502, 503, 504) else "P3"
 
 
 def load_router():
@@ -115,7 +126,7 @@ def main():
 
     key, base, proxy = load_router()
     if not key:
-        raise SystemExit("Router key 未配置：先运行 mvwb keys set router")
+        alerts.fail("K001", "Router key 未配置：先运行 mvwb keys set router，或导入老师发的 zz-keys.json", platform=PLATFORM)
     if args.image_urls and not args.image_field:
         raise SystemExit("参考图字段未验证：请显式传 --image-field image_urls|input_reference|image")
 
@@ -147,12 +158,12 @@ def main():
         encoding="utf-8",
     )
     if status != 200:
-        print("submit failed HTTP %s: %s" % (status, error_text(data)))
-        return 2
+        alerts.fail(http_alert(status), "submit HTTP %s: %s" % (status, error_text(data)),
+                    platform=PLATFORM, model="muse-video-ext", error_class="submit", raw=json.dumps(data, ensure_ascii=False)[:300])
     task_id = task_id_of(data)
     if not task_id:
-        print("submit returned no id: %s" % json.dumps(data, ensure_ascii=False)[:500])
-        return 2
+        alerts.fail("P3", "submit 返回没有任务 id：%s" % json.dumps(data, ensure_ascii=False)[:500],
+                    platform=PLATFORM, model="muse-video-ext", error_class="submit")
     print("task:", task_id)
 
     final = None
@@ -170,20 +181,21 @@ def main():
             final = data
             break
         if state in ("failed", "error", "cancelled", "canceled"):
-            print("failed:", error_text(data))
-            return 3
+            alerts.fail("P4", "任务 %s 状态=%s：%s" % (task_id, state, error_text(data)),
+                        platform=PLATFORM, model="muse-video-ext", error_class="task_failed",
+                        raw=json.dumps(data, ensure_ascii=False)[:300])
         time.sleep(args.poll_interval)
     if final is None:
-        print("timeout waiting for completion")
-        return 4
+        alerts.fail("P5", "轮询 %d 次仍未完成（task=%s）" % (args.poll_limit, task_id),
+                    platform=PLATFORM, model="muse-video-ext", error_class="poll_timeout")
 
     print("download:", out)
     try:
         size = download(base + "/v1/videos/" + task_id + "/content", key, out, proxy)
         print("saved %s bytes" % size)
     except Exception as exc:
-        print("download failed:", type(exc).__name__, exc)
-        return 5
+        alerts.fail("P6", "下载失败（task=%s）：%s: %s" % (task_id, type(exc).__name__, exc),
+                    platform=PLATFORM, model="muse-video-ext", error_class="download")
 
     meta = {
         "task_id": task_id,

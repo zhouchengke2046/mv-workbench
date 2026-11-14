@@ -9,6 +9,10 @@ import json
 import sys
 from pathlib import Path
 
+SCRIPTS = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPTS))
+import alerts  # noqa: E402
+
 from console import setup
 
 setup()
@@ -27,14 +31,14 @@ def main():
     data_path = Path(args.data).expanduser()
     out = Path(args.out).expanduser()
     if not template.is_file():
-        raise SystemExit("template not found: %s" % template)
+        alerts.fail("W3", "template not found: %s" % template, error_class="build")
     if not data_path.is_file():
-        raise SystemExit("data not found: %s" % data_path)
+        alerts.fail("W2", "data not found: %s" % data_path, error_class="build")
 
     html = template.read_text(encoding="utf-8")
     data = json.loads(data_path.read_text(encoding="utf-8"))
     if not isinstance(data, dict) or not all(k in data for k in ("meta", "lyric", "script", "mvs")):
-        raise SystemExit("DATA must contain meta/lyric/script/mvs")
+        alerts.fail("W2", "DATA must contain meta/lyric/script/mvs", error_class="build")
     if "keys" not in data:
         data["keys"] = {}
 
@@ -43,16 +47,16 @@ def main():
     for section in ("runninghub", "router"):
         key = ((data.get("keys") or {}).get(section) or {}).get("api_key")
         if key:
-            raise SystemExit("refusing to build: DATA.keys.%s contains a raw api_key" % section)
+            alerts.fail("W3", "refusing to build: DATA.keys.%s contains a raw api_key" % section, error_class="build")
 
     index = html.find(MARKER)
     if index < 0:
-        raise SystemExit("template missing %r" % MARKER)
+        alerts.fail("W3", "template missing %r" % MARKER, error_class="build")
     start = index + len(MARKER)
     try:
         _, end = json.JSONDecoder().raw_decode(html[start:])
     except json.JSONDecodeError as exc:
-        raise SystemExit("template DATA is not valid JSON: %s" % exc)
+        alerts.fail("W2", "template DATA is not valid JSON: %s" % exc, error_class="build")
 
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html[:start] + serialized + html[start + end:], encoding="utf-8")

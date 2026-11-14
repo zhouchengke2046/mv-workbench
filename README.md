@@ -78,7 +78,7 @@ mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
   ```bash
   mvwb keys import --file ~/Downloads/mv-keys-import.json --delete-source
   ```
-- **备用 Key 按需另发**：Router 连续失败时，老师会再发一份含 `runninghub`/`apimart` 字段的 `zz-keys.json`；放到项目根目录，agent 导入后自动启用备用平台。也可用 `mvwb keys watch` 免二次对话。
+- **备用 Key 走 B001 提醒**：Router 连续失败时 agent 会输出 `[提醒] B001` 块；学生把提醒原文发给老师，由老师决定是否发放备用 `zz-keys.json`。代码表见 `references/alerts.md`。
 - **或双击** `setup-keys.command`（macOS）/ `setup-keys.cmd`（Windows），按提示粘贴两个 Key。
 - 或终端：`mvwb keys set runninghub`、`mvwb keys set router`。
 - 余额：`mvwb keys balance --data <data.json>`，再 `mvwb build` 刷新页面快照。

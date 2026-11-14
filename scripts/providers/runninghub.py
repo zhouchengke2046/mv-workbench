@@ -24,8 +24,26 @@ from pathlib import Path
 
 SCRIPTS = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SCRIPTS))
+import alerts  # noqa: E402
 from console import setup  # noqa: E402
 setup()
+
+PLATFORM = "runninghub"
+
+
+def business_alert(resp):
+    text = json.dumps(resp, ensure_ascii=False).lower()
+    if any(k in text for k in ("332", "901", "user_does_not_exist", "401", "403", "unauthorized", "forbidden", "invalid apikey", "apikey")):
+        return "P1"
+    if any(k in text for k in ("821", "insufficient", "balance", "coin", "余额", "积分")):
+        return "P2"
+    return "P3"
+
+
+def http_alert(status):
+    if status in (401, 403):
+        return "P1"
+    return "P5" if status in (408, 429, 500, 502, 503, 504) else "P3"
 
 BASE = "https://www.runninghub.cn"
 
@@ -33,11 +51,13 @@ BASE = "https://www.runninghub.cn"
 def load_key():
     key = os.environ.get("RUNNINGHUB_API_KEY", "").strip()
     if not key:
-        sys.exit("[!] 未配置 RunningHub key；运行 mvwb keys set runninghub，或由 mv_keys.py exec 注入 RUNNINGHUB_API_KEY")
+        alerts.fail("K001", "未配置 RunningHub key；运行 mvwb keys set runninghub，或由 mv_keys.py exec 注入 RUNNINGHUB_API_KEY", platform=PLATFORM)
     return key
 
 
-def fail(msg, detail=""):
+def fail(msg, detail="", alert=None, model=None, error_class="submit"):
+    if alert:
+        alerts.emit(alert, platform=PLATFORM, model=model, error_class=error_class, raw=detail or msg)
     print("[!] %s" % msg, file=sys.stderr)
     if detail:
         print("    接口返回：%s" % str(detail)[:500].replace("\n", " "), file=sys.stderr)
@@ -51,17 +71,17 @@ def read_json(req, timeout=60):
             raw = resp.read().decode("utf-8", "replace")
     except urllib.error.HTTPError as exc:
         raw = exc.read().decode("utf-8", "replace")
-        fail("RunningHub 返回 HTTP %s" % exc.code, raw)
+        fail("RunningHub 返回 HTTP %s" % exc.code, raw, alert=http_alert(exc.code), error_class="http")
     except urllib.error.URLError as exc:
         fail("连不上 RunningHub（%s）" % exc.reason,
-             "检查网络、代理或防火墙；RunningHub 国内通常可直连")
+             "检查网络、代理或防火墙；RunningHub 国内通常可直连", alert="P5", error_class="network")
     except (TimeoutError, OSError) as exc:
         fail("请求 RunningHub 超时或中断（%s）" % exc,
-             "稍后重试；持续失败先运行 mvwb doctor --network")
+             "稍后重试；持续失败先运行 mvwb doctor --network", alert="P5", error_class="timeout")
     try:
         return json.loads(raw)
     except ValueError:
-        fail("RunningHub 返回的不是 JSON", raw)
+        fail("RunningHub 返回的不是 JSON", raw, alert="P3", error_class="http")
 
 
 def post(path, payload, key=None, bearer=False):
@@ -104,16 +124,16 @@ def upload(path, key):
         with open(path, "rb") as fh:
             file_bytes = fh.read()
     except OSError as exc:
-        fail("读不到要上传的文件：%s" % path, exc)
+        fail("读不到要上传的文件：%s" % path, exc, alert="P3", error_class="upload")
     body += file_bytes + ("\r\n--%s--\r\n" % boundary).encode()
     req = urllib.request.Request(BASE + "/task/openapi/upload", data=body,
                                  headers={"Content-Type": "multipart/form-data; boundary=%s" % boundary})
     r = read_json(req, timeout=120)
     if r.get("code") != 0:
-        fail(explain_business_error(r, "上传"), json.dumps(r, ensure_ascii=False))
+        fail(explain_business_error(r, "上传"), json.dumps(r, ensure_ascii=False), alert=business_alert(r), error_class="upload")
     data = r.get("data")
     if not isinstance(data, str) or not data:
-        fail("上传接口没有返回文件路径", json.dumps(r, ensure_ascii=False))
+        fail("上传接口没有返回文件路径", json.dumps(r, ensure_ascii=False), alert="P3", error_class="upload")
     print("[upload] %s -> %s" % (path, data))
     return data
 
@@ -157,31 +177,32 @@ def main():
         data = demo.get("data") if isinstance(demo, dict) else None
         if not isinstance(data, dict) or not isinstance(data.get("nodeInfoList"), list):
             fail(explain_business_error(demo, "读取 AI 应用参数"),
-                 "没有返回 nodeInfoList；" + json.dumps(demo, ensure_ascii=False))
+                 "没有返回 nodeInfoList；" + json.dumps(demo, ensure_ascii=False),
+                 alert=business_alert(demo), error_class="prepare")
         nodes = data["nodeInfoList"]
         if args.overrides:
             try:
                 with open(args.overrides, encoding="utf-8") as fh:
                     ov = {tuple(k.split(":", 1)): v for k, v in json.load(fh).items()}
             except (OSError, ValueError) as exc:
-                fail("overrides 文件读取失败：%s" % args.overrides, exc)
+                fail("overrides 文件读取失败：%s" % args.overrides, exc, alert="P3", error_class="prepare")
             apply_overrides(nodes, ov)
         r = post("/openapi/v2/run/ai-app/%s" % args.app,
                  {"nodeInfoList": nodes, "instanceType": "default", "usePersonalQueue": "false"},
                  key=key, bearer=True)
         tid = r.get("taskId") or (r.get("data") or {}).get("taskId")
         if not tid:
-            fail(explain_business_error(r, "提交任务"), json.dumps(r, ensure_ascii=False))
+            fail(explain_business_error(r, "提交任务"), json.dumps(r, ensure_ascii=False), alert=business_alert(r), error_class="submit")
     else:
         try:
             with open(args.nodes, encoding="utf-8") as fh:
                 nodes = json.load(fh)
         except (OSError, ValueError) as exc:
-            fail("nodes 文件读取失败：%s" % args.nodes, exc)
+            fail("nodes 文件读取失败：%s" % args.nodes, exc, alert="P3", error_class="prepare")
         if isinstance(nodes, dict) and "nodeInfoList" in nodes:
             nodes = nodes["nodeInfoList"]
         if not isinstance(nodes, list):
-            fail("nodes 文件格式不对：应为节点数组，或 {nodeInfoList: [...]}", args.nodes)
+            fail("nodes 文件格式不对：应为节点数组，或 {nodeInfoList: [...]}", args.nodes, alert="P3", error_class="prepare")
         r = post("/task/openapi/create",
                  {"apiKey": key, "workflowId": args.wf, "nodeInfoList": nodes,
                   "instanceType": "default"})
@@ -189,7 +210,7 @@ def main():
             fail(explain_business_error(r, "提交任务"), json.dumps(r, ensure_ascii=False))
         tid = (r.get("data") or {}).get("taskId")
         if not tid:
-            fail("提交成功但接口没有返回 taskId", json.dumps(r, ensure_ascii=False))
+            fail("提交成功但接口没有返回 taskId", json.dumps(r, ensure_ascii=False), alert="P3", error_class="submit")
     print("[%s] taskId=%s" % (args.name, tid))
 
     t0 = time.time()
@@ -197,24 +218,29 @@ def main():
         time.sleep(args.interval)
         s = post("/task/openapi/status", {"apiKey": key, "taskId": tid})
         if s.get("code") != 0:
-            fail(explain_business_error(s, "查询任务状态"), json.dumps(s, ensure_ascii=False))
+            fail(explain_business_error(s, "查询任务状态"), json.dumps(s, ensure_ascii=False), alert=business_alert(s), error_class="status")
         d = s.get("data")
         stt = d.get("taskStatus") if isinstance(d, dict) else d
         print("[%s] %ds %s" % (args.name, int(time.time() - t0), stt), flush=True)
         if stt in ("SUCCESS", "FAILED", "CANCELLED"):
+            if stt != "SUCCESS":
+                alerts.emit("P4", level="提示", platform=PLATFORM, error_class="task_failed",
+                            raw="task=%s status=%s" % (tid, stt))
             break
         if time.time() - t0 > args.timeout:
-            print("[%s] TIMEOUT（任务可能仍在跑，拿 taskId 手动查）task=%s" % (args.name, tid))
+            alerts.emit("P5", level="提示", platform=PLATFORM, error_class="poll_timeout",
+                        stats="taskId=%s 已等=%ss" % (tid, args.timeout),
+                        raw="任务可能仍在跑，拿 taskId 手动查")
             return
 
     o = post("/task/openapi/outputs", {"apiKey": key, "taskId": tid})
     if o.get("code") != 0:
-        fail(explain_business_error(o, "获取产物"), json.dumps(o, ensure_ascii=False))
+        fail(explain_business_error(o, "获取产物"), json.dumps(o, ensure_ascii=False), alert=business_alert(o), error_class="outputs")
     print("[%s] outputs code=%s" % (args.name, o.get("code")))
     coins, saved = 0, []
     files = o.get("data") or []
     if not isinstance(files, list):
-        fail("产物格式不对：data 应为文件数组", json.dumps(o, ensure_ascii=False))
+        fail("产物格式不对：data 应为文件数组", json.dumps(o, ensure_ascii=False), alert="P3", error_class="outputs")
     for i, f in enumerate(files):
         if not isinstance(f, dict):
             continue
@@ -229,7 +255,8 @@ def main():
             try:
                 urllib.request.urlretrieve(u, fn)
             except (urllib.error.URLError, OSError) as exc:
-                print("[warn] 下载失败 %s：%s" % (u[:100], exc), file=sys.stderr)
+                alerts.emit("P6", level="提示", platform=PLATFORM, error_class="download",
+                            raw="下载失败 %s：%s" % (u[:120], exc))
                 continue
             saved.append(fn)
             print("    saved -> %s" % fn)

@@ -75,7 +75,10 @@ def keys_path():
     return Path(os.environ.get("MV_KEYS_PATH") or str(DEFAULT_KEYS_PATH)).expanduser()
 
 
-def die(message, code=1):
+def die(message, code=1, alert=None, **alert_kw):
+    if alert:
+        import alerts
+        alerts.emit(alert, raw=message, **alert_kw)
     print(json.dumps({"ok": False, "error": message}, ensure_ascii=False), file=sys.stderr)
     raise SystemExit(code)
 
@@ -131,9 +134,9 @@ def load_cfg():
     try:
         cfg = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
-        die("keys.json 不是合法 JSON：%s" % exc)
+        die("keys.json 不是合法 JSON：%s" % exc, alert="K002")
     except OSError as exc:
-        die("读取 keys.json 失败：%s" % exc)
+        die("读取 keys.json 失败：%s" % exc, alert="K002")
     return _normalize(cfg), True
 
 
@@ -143,7 +146,7 @@ def save_cfg(cfg):
         path.parent.mkdir(parents=True, exist_ok=True)
         os.chmod(path.parent, 0o700)
     except OSError as exc:
-        die("创建配置目录失败：%s" % exc)
+        die("创建配置目录失败：%s" % exc, alert="K002")
     tmp = path.with_name(path.name + ".tmp")
     try:
         tmp.write_text(json.dumps(cfg, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -431,9 +434,9 @@ def update_data_keys(path, keys_data):
     try:
         data = json.loads(target.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        die("DATA 读取失败：%s（%s）" % (target, exc))
+        die("DATA 读取失败：%s（%s）" % (target, exc), alert="W2")
     if not isinstance(data, dict):
-        die("DATA 顶层必须是 JSON 对象")
+        die("DATA 顶层必须是 JSON 对象", alert="W2")
     data["keys"] = keys_data
     serialized = json.dumps(data, ensure_ascii=False)
     for section in ("runninghub", "router", "apimart"):
@@ -577,10 +580,10 @@ def cmd_set(args):
         key = sys.stdin.readline().strip()
     else:
         if not sys.stdin.isatty():
-            die("当前没有可交互终端。请让用户在本机终端运行，或双击 setup-keys；agent 不要代输 Key")
+            die("当前没有可交互终端。请让用户在本机终端运行，或双击 setup-keys；agent 不要代输 Key", alert="K006")
         key = getpass.getpass("%s API key（输入不回显）: " % name).strip()
     if not key:
-        die("空 key，未修改")
+        die("空 key，未修改", alert="K003")
     cfg[name]["api_key"] = key
     if args.label:
         cfg[name]["label"] = args.label
@@ -622,26 +625,26 @@ def cmd_import(args):
     """从工作台下载的 mv-keys-import.json 导入，导入后可选删除源文件。"""
     src = Path(args.file).expanduser()
     if not src.is_file():
-        die("找不到配置文件：%s" % src)
+        die("找不到配置文件：%s" % src, alert="K004")
     try:
         payload = json.loads(src.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        die("配置文件读取失败：%s" % exc)
+        die("配置文件读取失败：%s" % exc, alert="K003")
     if not isinstance(payload, dict):
-        die("配置文件顶层必须是 JSON 对象")
+        die("配置文件顶层必须是 JSON 对象", alert="K003")
 
     rh_key = _read_import_key(payload, "runninghub", "runninghub_key")
     rt_key = _read_import_key(payload, "router", "router_key")
     am_key = _read_import_key(payload, "apimart", "apimart_key")
     if not rh_key and not rt_key and not am_key:
-        die("文件里没有 runninghub / router / apimart key")
+        die("文件里没有 runninghub / router / apimart key", alert="K003")
     for label, value in (("RunningHub", rh_key), ("Router", rt_key), ("APIMart", am_key)):
         if not value:
             continue
         if value.startswith("••••") or value.startswith("****"):
-            die("%s 是掩码，不是原始 Key；请重新填写完整 Key" % label)
+            die("%s 是掩码，不是原始 Key；请重新填写完整 Key" % label, alert="K003")
         if len(value) < 8 or len(value) > 500 or any(ch in value for ch in "\r\n\t "):
-            die("%s Key 格式不正确" % label)
+            die("%s Key 格式不正确" % label, alert="K003")
 
     cfg, _ = load_cfg()
     imported = []
@@ -693,7 +696,7 @@ def cmd_watch(args):
     """短时监听下载目录：工作台下载 mv-keys-import.json 后自动导入并删除。"""
     dirs = [Path(d).expanduser() for d in (args.dir or _download_dirs())]
     if not dirs:
-        die("找不到下载目录；用 --dir 指定")
+        die("找不到下载目录；用 --dir 指定", alert="K004")
     print(json.dumps({
         "ok": True,
         "watching": [str(d) for d in dirs],
@@ -756,7 +759,7 @@ def cmd_watch(args):
                             ])
                 return 0
         time.sleep(args.interval)
-    die("等待超时：没有在 %s 找到新的 mv-keys-import*.json" % ", ".join(str(d) for d in dirs))
+    die("等待超时：没有在 %s 找到新的 mv-keys-import*.json / zz-keys.json" % ", ".join(str(d) for d in dirs), alert="K005")
 
 
 def cmd_config(args):
@@ -839,19 +842,19 @@ def cmd_balance(args):
 def cmd_exec(command, need="any"):
     cfg, exists = load_cfg()
     if not exists:
-        die("未找到 %s；先运行 mv_keys.py init" % keys_path())
+        die("未找到 %s；先运行 mv_keys.py init" % keys_path(), alert="K002")
     runninghub = ((cfg.get("runninghub") or {}).get("api_key") or "").strip()
     router = ((cfg.get("router") or {}).get("api_key") or "").strip()
     apimart = ((cfg.get("apimart") or {}).get("api_key") or "").strip()
 
     if need in ("runninghub", "both") and not runninghub:
-        die("这条命令需要 runninghub key，但 keys.json 未配置")
+        die("这条命令需要 runninghub key，但 keys.json 未配置", alert="K001", platform="runninghub")
     if need in ("router", "both") and not router:
-        die("这条命令需要 router key，但 keys.json 未配置")
+        die("这条命令需要 router key，但 keys.json 未配置", alert="K001", platform="router")
     if need == "apimart" and not apimart:
-        die("这条命令需要 apimart key，但 keys.json 未配置")
+        die("这条命令需要 apimart key，但 keys.json 未配置", alert="K001", platform="apimart")
     if need == "any" and not runninghub and not router and not apimart:
-        die("keys.json 里没有配置任何 key；先运行 mv_keys.py set ...")
+        die("keys.json 里没有配置任何 key；先运行 mv_keys.py set ...", alert="K001")
 
     env = os.environ.copy()
     # 清掉 shell 残留，确保只用 keys.json，避免串号

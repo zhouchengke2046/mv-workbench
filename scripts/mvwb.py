@@ -29,6 +29,7 @@ BUILD_SCRIPT = SCRIPTS / "build_workbench.py"
 CONFIG = ROOT / "config" / "models.json"
 
 sys.path.insert(0, str(SCRIPTS))
+import alerts  # noqa: E402
 import mv_keys  # noqa: E402
 from console import setup  # noqa: E402
 setup()
@@ -147,7 +148,7 @@ def cmd_doctor(args):
         if not rt:
             print("%s 还没配 Router key；双击 setup-keys 或导入老师发的 zz-keys.json" % WARN)
         elif not rh and not am:
-            print("%s 未配置备用 Key；Router 连续失败时，向老师要备用 zz-keys.json" % WARN)
+            print("%s 未配置备用 Key；Router 连续失败会生成 B001 提醒，转发给老师处理" % WARN)
     except SystemExit:
         print("%s keys.json 读取失败" % FAIL)
         failures += 1
@@ -263,11 +264,11 @@ def _collect_refs(node, out):
 def cmd_check(args):
     data_path = _resolve_input(args.data)
     if not data_path.is_file():
-        raise SystemExit("找不到 DATA：%s" % data_path)
+        alerts.fail("W1", "找不到 DATA：%s" % data_path, error_class="check")
     try:
         payload = json.loads(data_path.read_text(encoding="utf-8"))
     except ValueError as exc:
-        raise SystemExit("DATA 不是合法 JSON：%s（%s）" % (data_path, exc))
+        alerts.fail("W2", "DATA 不是合法 JSON：%s（%s）" % (data_path, exc), error_class="check")
 
     refs = []
     _collect_refs(payload, refs)
@@ -288,11 +289,15 @@ def cmd_check(args):
 
     wb = _resolve_input(args.workbench) if args.workbench else base / "workbench.html"
     if wb.is_file() and data_path.stat().st_mtime > wb.stat().st_mtime:
-        print("[warn] DATA 比 %s 新，页面还是旧的：先运行 mvwb build" % wb.name)
+        alerts.emit("W4", level="提示", error_class="check",
+                    stats="data=%s html=%s" % (data_path.name, wb.name), stream=sys.stdout)
     elif not wb.is_file():
         print("[warn] 同目录没有 workbench.html；生成后运行 mvwb build")
 
     if missing:
+        alerts.emit("W1", platform=None, error_class="check",
+                    stats="缺失=%d" % len(missing),
+                    raw="；".join(missing[:10]))
         print("[fail] 有 %d 个本地文件找不到；视频/资产不会显示在工作台" % len(missing))
         return 1
     print("[ok] DATA 里的本地资产/视频都存在")
