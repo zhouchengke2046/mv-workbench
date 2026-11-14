@@ -34,8 +34,8 @@
         "router": {
           "model": "ace-step-1.5-rh-ck",
           "api": "/v1/responses",
-          "verified": null,
-          "note": "task 协议待文档确认"
+          "verified": "2026-11-14",
+          "note": "已实测（脚本 scripts/providers/tokentech_task.py music）：POST /v1/responses {model,input,background:true,metadata:{nodeInfoList:[{nodeId,fieldName,fieldValue}]}}，参数只认 nodeInfoList：114=风格 text、115=歌词 text、116=时长秒 value（60s 实证）、117=BPM value、94=language/keyscale/timesignature（默认 zh/C major/4，未单测）；轮询 GET /v1/responses/{id}，产物 URL 在 output 的 src=\"...\"；计费按 RH 运行时长实扣，以账单为准"
         }
       }
     },
@@ -53,8 +53,8 @@
         "router": {
           "model": "moss-t2i-rh-ck",
           "api": "/v1/responses",
-          "verified": null,
-          "note": "task 协议待文档确认"
+          "verified": "2026-11-14",
+          "note": "已实测（脚本 scripts/providers/tokentech_task.py image）：同 ace 任务协议；nodeInfoList 4=主提示词 text、5=负向 text、16=seed；单次返回 1 张竖版 PNG；计费按 RH 运行时长实扣，以账单为准"
         }
       }
     },

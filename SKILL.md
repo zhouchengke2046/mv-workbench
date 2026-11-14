@@ -202,6 +202,7 @@ mvwb quote --model muse-video-ext --seconds 2
 | 资产 | `mvwb rh --app 2116462203997081601 ...` | `02_assets/*` + `assets_v1.json` |
 | H3 视频 | `mvwb rh --wf 2110943749894402050 ...` | `03_segments/G*_v1.mp4` |
 | Muse 视频 | `mvwb muse --prompt ... --seconds N --size 720x1280 --out ...` | `03_segments/G*_v1.mp4` |
+| 音乐/资产（Router） | `tokentech_task.py music|image ...`（协议见 references/providers/router.md） | `01_music/`、`02_assets/` |
 | 交付 | 写 `handoff_v1.json` | 给剪辑 |
 
 - **音乐先锁定**；读实际 `duration/timeline` 后更新段时长；资产按参考包；视频段按实际句长逐段生成。
@@ -297,6 +298,8 @@ mvwb build --data workspaces/my_project/data.json --out workspaces/my_project/wo
 mvwb check --data workspaces/my_project/data.json
 mvwb rh --app <id> --name <tag> --overrides <json> --out <dir>
 mvwb muse --prompt "..." --seconds 2 --size 720x1280 --out out.mp4
+python3 scripts/providers/tokentech_task.py image --prompt "..." --seed 123 --out out.png
+python3 scripts/providers/tokentech_task.py music --lyrics "..." --style "..." --seconds 60 --out out.mp3
 mvwb timeline <lyric.json> <audio.mp3> --out <dir>
 ```
 
@@ -322,6 +325,7 @@ workspaces/       学生项目（每个项目一个目录）
 
 ## 版本
 
+- v0.4.4（2026-11-14）：Router 任务协议实测打通（moss 生图 / ace 生音乐）：`POST /v1/responses` + `metadata.nodeInfoList` 直通 RunningHub 节点；新增 `scripts/providers/tokentech_task.py`；时长/BPM/歌词/风格/负向/seed 全参数可控；计费按 RH 运行时长实扣。
 - v0.4.3（2026-11-14）：工作台 UI 精简——移除页内 Key 配置；余额只显数值不显掩码；删 MV 头部累计徽标；音乐/资产空态对齐；页面“只读”字样全部移除；顶栏顺序 生成时间→余额。
 - v0.4.2（2026-11-14）：目录重排归类——入口类（安装/mvwb/setup-keys）收进 `start/`，开发者文件收进 `dev/` 与 `docs/`；Key 示例改名 `config/zz-keys.example.json`；根目录只留 SKILL/README/LICENSE/NOTICE。
 - v0.4.2（2026-11-14）：目录归类——入口类收进 `start/`，开发文件收进 `dev/`、`docs/`；根目录只留 4 个文件；Key 示例改名 `config/zz-keys.example.json`。

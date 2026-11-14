@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.4 — 2026-11-14
+
+- Router task protocol verified end-to-end (`moss-t2i-rh-ck` image, `ace-step-1.5-rh-ck` music):
+  - `POST /v1/responses` with `background:true`; params travel ONLY via `metadata.nodeInfoList` (straight pass-through to the RunningHub workflow nodes). With `nodeInfoList` present, `input` is not mapped to lyrics.
+  - moss nodes: 4 prompt / 5 negative / 16 seed. ace nodes: 114 style / 115 lyrics / 116 duration-seconds / 117 BPM / 94 language/keyscale/timesignature (defaults zh, C major, 4; not individually probed).
+  - Duration is controllable: 116.value=60 produced a 60.0s track (default is 180).
+  - Verification method: outputs embed the executed workflow snapshot (PNG tEXt / MP3 ID3 TXXX "prompt").
+  - Billing is charged by actual RunningHub runtime; per-run amounts vary (moss ¥0.31–0.37, ace ¥0.31–0.46 observed). Display actual billed amounts; `fx.rh_coin` stays as the quote fallback.
+- New adapter `scripts/providers/tokentech_task.py` (image/music subcommands) with the unified alert wiring (K001/P1–P6, platform=router).
+- `config/models.json`: moss/ace router slots marked verified 2026-11-14 with the protocol note; `references/providers/router.md` documents the task protocol.
+
 ## 0.4.3 — 2026-11-14
 
 - Workbench UI cleanup per review:
