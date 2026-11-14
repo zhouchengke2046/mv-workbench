@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.6 — 2026-11-14
+
+- Fixed `mvwb timeline` contract mismatch found during the v0.4.5 end-to-end test:
+  - Input now accepts `lyric.json` (`{"lines":[{"line_id","text"}…]}`) as documented; plain-text lyrics still work.
+  - `--out` ending with `.json` now writes real JSON (`{"mv_id","duration","lines":[{"line_id","start","end"}]}`, matching the demo schema) instead of a markdown table written into a `.json` filename.
+
 ## 0.4.5 — 2026-11-14
 
 - Reference-script + picture-script system (from a second workbench iteration):
