@@ -1,0 +1,16 @@
+{
+  "_note": "老师发给学生的 Key 文件。学生放到项目根目录，agent 用 mvwb keys import --file <path> --delete-source 导入后删除。",
+  "mv_keys_import": 1,
+  "issued_to": "student-001",
+  "issued_at": "2026-11-14",
+  "expires_at": "2026-12-31",
+  "runninghub": {
+    "api_key": "",
+    "label": "RunningHub",
+    "account": ""
+  },
+  "router": {
+    "api_key": "",
+    "base_url": "https://router.kcacher.top"
+  }
+}

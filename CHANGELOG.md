@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.7 — 2026-11-14
+
+- Added the teacher-issued key workflow: put `keys.incoming.json` in the project root; agent imports and deletes it with `mvwb keys import --file ... --delete-source`.
+- Added `config/keys.distribute.example.json` and `references/key-distribution.md` (standard JSON, per-student keys, expiry/metadata, why project-root beats chat attachments).
+- Added `keys.incoming.json` / `mv-keys-import*.json` to `.gitignore`.
+- Manual now leads with the teacher-issued file; the in-workbench panel is the self-service alternative.
+
 ## 0.3.6 — 2026-11-14
 
 - Added `mvwb keys watch`: a short-lived watcher for `~/Downloads` / `~/Desktop` / `~/下载`.

@@ -69,6 +69,11 @@ mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
 ## Key
 
 - 唯一真源：`~/.config/mv-workbench/keys.json`（macOS/Linux 0600）。
+- **老师统一发放**：把 `keys.incoming.json` 放到项目根目录，对 agent 说“导入项目里的 keys.incoming.json，导入后删除”。agent 运行：
+  ```bash
+  mvwb keys import --file workspaces/<project>/keys.incoming.json --delete-source
+  ```
+  格式见 `references/key-distribution.md`；导入一次全局生效。
 - **在工作台配置**：双击 `workbench.html` → 右上角“配置 Key” → 填两个 Key → 下载 `mv-keys-import.json`；对 agent 说“导入下载目录的 mv-keys-import.json”。agent 运行：
   ```bash
   mvwb keys import --file ~/Downloads/mv-keys-import.json --delete-source
