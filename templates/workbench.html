@@ -798,11 +798,11 @@ function videoCell(seg) {
   if (!videos.length) return `<div class="video-empty">待生成</div>`;
   const cur = videos[0], hist = videos.slice(1);
   return `<div class="video-box">
-    <div class="video-thumb"><video controls preload="metadata" muted poster="${cur.poster || ""}" src="${cur.url}"></video>
+    <div class="video-thumb"><video controls preload="metadata" muted poster="${cur.poster || ""}" src="${cur.url}#t=0.1"></video>
       <span class="res-badge">${esc(cur.resolution)}</span></div>
     <div class="video-meta">${esc(cur.model)} · ${esc(cur.cost)}<br>${esc(cur.generated_at)} · ${cur.duration}s</div>
     ${hist.length ? `<details class="video-history"><summary>历史视频 ${hist.length} 条</summary>
-      ${hist.map((v) => `<div class="video-hist"><div class="video-thumb"><video controls preload="metadata" muted poster="${v.poster || ""}" src="${v.url}"></video>
+      ${hist.map((v) => `<div class="video-hist"><div class="video-thumb"><video controls preload="metadata" muted poster="${v.poster || ""}" src="${v.url}#t=0.1"></video>
         <span class="res-badge">${esc(v.resolution)}</span></div>
         <div class="video-meta">${esc(v.model)} · ${esc(v.cost)}<br>${esc(v.generated_at)} · ${v.duration}s</div></div>`).join("")}
     </details>` : ""}
