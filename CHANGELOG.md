@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.8 — 2026-11-14
+
+- Simplified the teacher-issued key JSON to two fields: `{"runninghub": "...", "router": "..."}`.
+- `issued_to` / `expires_at` / `mv_keys_import` are now optional; only needed for accounting or watcher auto-pickup.
+- Updated example, reference, README, SKILL and manual.
+
 ## 0.3.7 — 2026-11-14
 
 - Added the teacher-issued key workflow: put `keys.incoming.json` in the project root; agent imports and deletes it with `mvwb keys import --file ... --delete-source`.

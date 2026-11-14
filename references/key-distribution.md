@@ -26,68 +26,65 @@ Key 文件在项目根目录的 keys.incoming.json。
 mvwb keys import --file workspaces/<项目名>/keys.incoming.json --delete-source
 ```
 
-导入后：
+导入后 Key 写入 `~/.config/mv-workbench/keys.json`（0600），发放文件被删除；所有项目共用这份全局 Key。
 
-- Key 写入 `~/.config/mv-workbench/keys.json`（0600）；
-- 下载/发放的 JSON 被删除；
-- 所有项目共用这一份全局 Key，不用每个项目重复导入；
-- 再查余额、重建工作台。
+## JSON 只需要两个字段
 
-## 为什么不建议“直接发给 agent”
+```json
+{"runninghub": "rh-xxxxxxxx", "router": "sk-xxxxxxxx"}
+```
 
-- 聊天附件可能被复制到临时目录，路径不固定；
-- Key 会进入对话历史/日志，事后难清理；
-- 项目目录里的文件路径确定，agent 可以校验、导入、删除，形成闭环。
+就这两行。`mvwb keys import` 直接认。两个 Key 至少给一个；给两个最省事。Router 地址不写就用默认 `https://router.kcacher.top`。
 
-如果只能发附件：让 agent 先把附件保存到项目根目录的 `keys.incoming.json`，再按上面流程导入，不要直接读聊天里的 Key。
+如果只有一个 Key：
 
-## 统一 JSON 格式
+```json
+{"runninghub": "rh-xxxxxxxx"}
+```
 
-**格式必须统一**，否则 agent 每次都要猜字段。使用这个结构（`config/keys.distribute.example.json`）：
+或：
+
+```json
+{"router": "sk-xxxxxxxx"}
+```
+
+## 可选：需要登记/自动拾取时才加
+
+只有在“想用 `mvwb keys watch` 自动拾取”或“要按学生对账”时，才加下面这些字段；不加也能手动导入。
 
 ```json
 {
   "mv_keys_import": 1,
   "issued_to": "student-001",
-  "issued_at": "2026-11-14",
   "expires_at": "2026-12-31",
-  "runninghub": {
-    "api_key": "rh-xxxxxxxx",
-    "label": "RunningHub",
-    "account": "student-001"
-  },
-  "router": {
-    "api_key": "sk-xxxxxxxx",
-    "base_url": "https://router.kcacher.top"
-  }
+  "runninghub": "rh-xxxxxxxx",
+  "router": "sk-xxxxxxxx"
 }
 ```
 
-字段说明：
+| 字段 | 用途 |
+|---|---|
+| `mv_keys_import: 1` | watcher 只自动拾取带这个标记的文件；手动导入不需要 |
+| `issued_to` | 发放对象，方便对账；目前只记录，不校验 |
+| `expires_at` | 过期日期；目前只记录，不自动拒绝，过期由老师侧作废 |
 
-| 字段 | 必填 | 说明 |
-|---|---|---|
-| `mv_keys_import` | 建议 | 固定 `1`；导入 watcher 只认带这个标记的文件 |
-| `issued_to` | 建议 | 学生编号/姓名，便于对账 |
-| `issued_at` / `expires_at` | 可选 | 发放/过期日期；过期后由老师作废 |
-| `runninghub.api_key` | 二选一 | RunningHub Key |
-| `router.api_key` | 二选一 | Router Key |
-| `router.base_url` | 可选 | 默认 `https://router.kcacher.top` |
+## 为什么不建议“直接发给 agent”
 
-- 两个 Key 至少给一个；给两个最省事。
-- `mvwb keys import` 会忽略未知字段，所以以后加 `note`、`group` 不影响。
-- 不要用 `{ "runninghub_key": "...", "router_key": "..." }` 这种自定义扁平格式；虽然旧代码兼容，但统一用上面的嵌套格式。
+- 聊天附件可能落到临时目录，路径不固定；
+- Key 会进入对话历史/日志，事后难清理；
+- 项目目录里的文件路径确定，agent 能校验、导入、删除，形成闭环。
+
+如果只能发附件：让 agent 先把附件保存成项目根目录的 `keys.incoming.json`，再导入，不要直接读聊天里的 Key。
 
 ## 发放建议
 
 - **一人一份 Key**，不要所有学生共用一个；否则无法单独停用、无法对账。
-- 文件不要进 Git；`workspaces/` 默认被忽略，根目录也加了 `keys.incoming.json` / `mv-keys-import*.json`。
-- 发完后让学生导入并删除；老师侧保留发放记录（谁、何时、哪个 Key）。
-- 学生换电脑：重新发一份，或从旧电脑的 `~/.config/mv-workbench/keys.json` 迁移。
+- 文件不要进 Git；`workspaces/` 默认忽略，根目录也忽略了 `keys.incoming.json` / `mv-keys-import*.json`。
+- 学生换电脑：重新发一份，或迁移旧电脑的 `~/.config/mv-workbench/keys.json`。
 - 学生把 Key 发到群里/对话里：提醒作废重发。
 
 ## 和工作台“配置 Key”的关系
 
-- **老师统一发放**：用本文件的 `keys.incoming.json`，最省事。
-- **学生自己买 Key**：用工作台右上角“配置 Key”下载 `mv-keys-import.json`，再让 agent 导入；格式与上面兼容。
+- **老师统一发放**：用 `keys.incoming.json`，两行 JSON，最省事。
+- **学生自己买 Key**：用工作台右上角“配置 Key”下载 `mv-keys-import.json`，格式兼容。
 - **没有 agent 在旁边**：双击 `setup-keys.command` / `.cmd` 手动输入。

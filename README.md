@@ -73,7 +73,7 @@ mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
   ```bash
   mvwb keys import --file workspaces/<project>/keys.incoming.json --delete-source
   ```
-  格式见 `references/key-distribution.md`；导入一次全局生效。
+  文件只要两个字段：`{"runninghub":"...","router":"..."}`；格式见 `references/key-distribution.md`；导入一次全局生效。
 - **在工作台配置**：双击 `workbench.html` → 右上角“配置 Key” → 填两个 Key → 下载 `mv-keys-import.json`；对 agent 说“导入下载目录的 mv-keys-import.json”。agent 运行：
   ```bash
   mvwb keys import --file ~/Downloads/mv-keys-import.json --delete-source
