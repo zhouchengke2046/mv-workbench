@@ -9,6 +9,7 @@
   init [--force] [--from-env]
   status
   set <runninghub|router> [--stdin] [--label X] [--account X] [--base-url X] [--proxy X]
+  import --file mv-keys-import.json [--delete-source]
   balance [--data DATA_JSON] [--write WORKBENCH_HTML] [--no-backup] [--timeout 12]
   exec -- <命令...>
 
@@ -576,6 +577,75 @@ def cmd_set(args):
     )
 
 
+def _read_import_key(payload, section, flat_name):
+    item = payload.get(section)
+    if isinstance(item, dict):
+        value = item.get("api_key") or item.get("key") or ""
+    elif isinstance(item, str):
+        value = item
+    else:
+        value = ""
+    if not value:
+        value = payload.get(flat_name) or ""
+    return str(value).strip()
+
+
+def cmd_import(args):
+    """从工作台下载的 mv-keys-import.json 导入，导入后可选删除源文件。"""
+    src = Path(args.file).expanduser()
+    if not src.is_file():
+        die("找不到配置文件：%s" % src)
+    try:
+        payload = json.loads(src.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        die("配置文件读取失败：%s" % exc)
+    if not isinstance(payload, dict):
+        die("配置文件顶层必须是 JSON 对象")
+
+    rh_key = _read_import_key(payload, "runninghub", "runninghub_key")
+    rt_key = _read_import_key(payload, "router", "router_key")
+    if not rh_key and not rt_key:
+        die("文件里没有 runninghub / router key")
+    for label, value in (("RunningHub", rh_key), ("Router", rt_key)):
+        if not value:
+            continue
+        if value.startswith("••••") or value.startswith("****"):
+            die("%s 是掩码，不是原始 Key；请重新填写完整 Key" % label)
+        if len(value) < 8 or len(value) > 500 or any(ch in value for ch in "\r\n\t "):
+            die("%s Key 格式不正确" % label)
+
+    cfg, _ = load_cfg()
+    imported = []
+    if rh_key:
+        cfg["runninghub"]["api_key"] = rh_key
+        imported.append("runninghub")
+    if rt_key:
+        cfg["router"]["api_key"] = rt_key
+        imported.append("router")
+    save_cfg(cfg)
+
+    deleted = False
+    delete_error = None
+    if args.delete_source:
+        try:
+            src.unlink()
+            deleted = True
+        except OSError as exc:
+            delete_error = str(exc)
+
+    print(json.dumps({
+        "ok": True,
+        "imported": imported,
+        "runninghub": mask(cfg["runninghub"].get("api_key")),
+        "router": mask(cfg["router"].get("api_key")),
+        "path": str(keys_path()),
+        "source": str(src),
+        "deleted_source": deleted,
+        "delete_error": delete_error,
+        "next": "运行 mvwb keys balance --data <data.json>，再 mvwb build 刷新页面",
+    }, ensure_ascii=False, indent=2))
+
+
 def cmd_config(args):
     cfg, _ = load_cfg()
     section = args.section
@@ -715,6 +785,10 @@ def build_parser():
     set_parser.add_argument("--provider", help="Router 类型，例如 new-api")
     set_parser.add_argument("--proxy", help="Router 代理，例如 http://127.0.0.1:7897")
 
+    import_parser = subparsers.add_parser("import", help="从工作台下载的 JSON 导入 Key")
+    import_parser.add_argument("--file", required=True, help="mv-keys-import.json 路径")
+    import_parser.add_argument("--delete-source", action="store_true", help="导入成功后删除源文件")
+
     config = subparsers.add_parser("config", help="只改元数据，不动 api_key")
     config.add_argument("section", choices=["runninghub", "router"])
     config.add_argument("--label")
@@ -754,6 +828,8 @@ def main():
         cmd_status(args)
     elif args.cmd == "set":
         cmd_set(args)
+    elif args.cmd == "import":
+        cmd_import(args)
     elif args.cmd == "config":
         cmd_config(args)
     elif args.cmd == "balance":

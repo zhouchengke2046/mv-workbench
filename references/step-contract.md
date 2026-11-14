@@ -227,7 +227,7 @@ ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 MV001/03_se
 
 | 情况 | 动作 |
 |---|---|
-| 缺 Key | 停；让用户在本机终端运行 `mvwb keys set ...`；agent 不索要、不代输 Key |
+| 缺 Key | 停；让用户在工作台“配置 Key”填好并下载 `mv-keys-import.json`，agent 运行 `mvwb keys import --file <path> --delete-source`；或双击 `setup-keys`。不索要、不代输 Key |
 | 余额不足/查询失败 | 停；给出余额快照与充值建议 |
 | 生成失败 | 保留错误原文前 300 字；给 1 条排查动作；不重复提交 |
 | 自检失败 | 修当前项；修不了就停，不进入下一步 |

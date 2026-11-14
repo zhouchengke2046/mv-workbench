@@ -90,6 +90,24 @@ def test_update_data_keys(tmp_path):
     assert "sk-test" not in raw and "rh-test" not in raw
 
 
+def test_import_keys_and_delete_source(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("MV_KEYS_PATH", str(tmp_path / "keys.json"))
+    src = tmp_path / "mv-keys-import.json"
+    src.write_text(json.dumps({
+        "mv_keys_import": 1,
+        "runninghub": {"api_key": "rh-import-1234"},
+        "router": {"api_key": "sk-import-5678"},
+    }), encoding="utf-8")
+    args = type("A", (), {"file": str(src), "delete_source": True})()
+    mv_keys.cmd_import(args)
+    out = capsys.readouterr().out
+    assert "••••1234" in out and "••••5678" in out
+    assert not src.exists()
+    cfg, _ = mv_keys.load_cfg()
+    assert cfg["runninghub"]["api_key"] == "rh-import-1234"
+    assert cfg["router"]["api_key"] == "sk-import-5678"
+
+
 def test_set_refuses_without_tty(tmp_path, monkeypatch, capsys):
     monkeypatch.setenv("MV_KEYS_PATH", str(tmp_path / "keys.json"))
     monkeypatch.setattr(sys.stdin, "isatty", lambda: False)

@@ -600,6 +600,53 @@ function keyChip(k, fallback, section) {
   const title = `${name}${account}${when}\n${note}\nKey 文件：~/.config/mv-workbench/keys.json\nKey/余额由 agent 用 mvwb keys 配置和刷新；本页只读`;
   return `<span class="key-item ${cls}" title="${esc(title)}"><span class="key-dot"></span><span class="key-name">${esc(name)}</span>${masked}<span class="key-bal">${esc(text)}</span></span>`;
 }
+function openKeyConfig() {
+  if (document.querySelector(".modal-back")) return;
+  const back = document.createElement("div");
+  back.className = "modal-back";
+  back.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-label="配置 Key">
+    <h2>配置 Key</h2>
+    <p>只在本地浏览器里填写，不联网、不写进这个 HTML。填完后下载配置文件，交给 agent 导入。</p>
+    <label>RunningHub Key<input id="kc-rh" type="password" autocomplete="off" spellcheck="false" placeholder="粘贴 RunningHub Key"></label>
+    <label>Router Key<input id="kc-rt" type="password" autocomplete="off" spellcheck="false" placeholder="粘贴 Router Key"></label>
+    <p class="dim" style="font-size:11px;line-height:1.6">下载的文件含原始 Key：导入后让 agent 删除；不要发到群里或云盘。两个 Key 都会保存在本机 <code>~/.config/mv-workbench/keys.json</code>。</p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeKeyConfig()">取消</button>
+      <button class="btn primary" onclick="downloadKeyConfig()">下载配置文件</button>
+    </div>
+    <p id="kc-msg" class="dim" style="font-size:11px;line-height:1.6;margin-top:10px"></p>
+  </div>`;
+  back.onclick = (e) => { if (e.target === back) closeKeyConfig(); };
+  document.body.appendChild(back);
+  setTimeout(() => { const el = document.getElementById("kc-rh"); if (el) el.focus(); }, 50);
+}
+function closeKeyConfig() {
+  const modal = document.querySelector(".modal-back");
+  if (modal) modal.remove();
+}
+function downloadKeyConfig() {
+  const rh = (document.getElementById("kc-rh").value || "").trim();
+  const rt = (document.getElementById("kc-rt").value || "").trim();
+  const msg = document.getElementById("kc-msg");
+  if (!rh || !rt) { msg.textContent = "两个 Key 都要填。"; return; }
+  const payload = {
+    mv_keys_import: 1,
+    created_at: new Date().toISOString(),
+    runninghub: { api_key: rh },
+    router: { api_key: rt }
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "mv-keys-import.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  document.getElementById("kc-rh").value = "";
+  document.getElementById("kc-rt").value = "";
+  msg.textContent = "已下载 mv-keys-import.json。对 agent 说：Key 配置已下载到 Downloads/mv-keys-import.json，帮我导入并删除临时文件。";
+}
 function renderTop() {
   document.title = DATA.meta.title + " · MV 批量工作台";
   const keys = DATA.keys || {};
@@ -616,6 +663,7 @@ function renderTop() {
         ${keyChip(keys.runninghub, "RunningHub", "runninghub")}
         ${keyChip(keys.router, "Router", "router")}
       </div>
+      <button class="btn primary" onclick="openKeyConfig()">配置 Key</button>
       <span class="hint">生成于 ${esc(DATA.meta.generated_at || "")}</span>
       <span class="readonly-badge">只读 · 静态文件</span>
     </div>`;
@@ -798,11 +846,11 @@ function videoCell(seg) {
   if (!videos.length) return `<div class="video-empty">待生成</div>`;
   const cur = videos[0], hist = videos.slice(1);
   return `<div class="video-box">
-    <div class="video-thumb"><video controls preload="metadata" muted poster="${cur.poster || ""}" src="${cur.url}"></video>
+    <div class="video-thumb"><video controls preload="metadata" muted poster="${cur.poster || ""}" src="${cur.url}#t=0.1"></video>
       <span class="res-badge">${esc(cur.resolution)}</span></div>
     <div class="video-meta">${esc(cur.model)} · ${esc(cur.cost)}<br>${esc(cur.generated_at)} · ${cur.duration}s</div>
     ${hist.length ? `<details class="video-history"><summary>历史视频 ${hist.length} 条</summary>
-      ${hist.map((v) => `<div class="video-hist"><div class="video-thumb"><video controls preload="metadata" muted poster="${v.poster || ""}" src="${v.url}"></video>
+      ${hist.map((v) => `<div class="video-hist"><div class="video-thumb"><video controls preload="metadata" muted poster="${v.poster || ""}" src="${v.url}#t=0.1"></video>
         <span class="res-badge">${esc(v.resolution)}</span></div>
         <div class="video-meta">${esc(v.model)} · ${esc(v.cost)}<br>${esc(v.generated_at)} · ${v.duration}s</div></div>`).join("")}
     </details>` : ""}

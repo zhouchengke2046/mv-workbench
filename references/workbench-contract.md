@@ -1,6 +1,6 @@
 # Workbench DATA 契约
 
-> 这是 `zz-mv-gongzuotai` 单 skill 的内部参考，不是独立 skill。工作台是只读展示；agent 更新 `DATA`，页面不生成。
+> 这是 `zz-mv-gongzuotai` 单 skill 的内部参考，不是独立 skill。工作台是只读展示 + 本地 Key 导入；agent 更新 `DATA`，页面不生成。
 
 ## 形态
 

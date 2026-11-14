@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.5 — 2026-11-14
+
+- Added a local Key panel in the static workbench: fill RunningHub/Router keys, download `mv-keys-import.json`; no service, no network, keys are not written into the HTML.
+- Added `mvwb keys import --file <json> [--delete-source]`; validates, masks, writes `keys.json` 0600, optionally deletes the download.
+- The agent flow is now: user configures in the workbench → downloads the file → agent imports and deletes it → balance/build.
+- Hard rules/docs updated; downloaded import file is treated as sensitive and must be deleted after import.
+
 ## 0.3.4 — 2026-11-14
 
 - Added one-click key setup: `setup-keys.command` (macOS) / `setup-keys.cmd` (Windows); prompts twice, input hidden, writes `~/.config/mv-workbench/keys.json`.

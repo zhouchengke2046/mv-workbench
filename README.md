@@ -69,18 +69,22 @@ mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
 ## Key
 
 - 唯一真源：`~/.config/mv-workbench/keys.json`（macOS/Linux 0600）。
-- **最简单**：双击 `setup-keys.command`（macOS）/ `setup-keys.cmd`（Windows），按提示粘贴两个 Key，输入不回显。
+- **在工作台配置**：双击 `workbench.html` → 右上角“配置 Key” → 填两个 Key → 下载 `mv-keys-import.json`；对 agent 说“导入下载目录的 mv-keys-import.json”。agent 运行：
+  ```bash
+  mvwb keys import --file ~/Downloads/mv-keys-import.json --delete-source
+  ```
+- **或双击** `setup-keys.command`（macOS）/ `setup-keys.cmd`（Windows），按提示粘贴两个 Key。
 - 或终端：`mvwb keys set runninghub`、`mvwb keys set router`。
 - 余额：`mvwb keys balance --data <data.json>`，再 `mvwb build` 刷新页面快照。
-- 原始 Key 不进 HTML/DATA/日志/截图；页面只显示掩码和查询时间。
+- 原始 Key 不进 HTML/DATA/日志/截图；页面只显示掩码和查询时间。下载的导入文件含原始 Key，导入后必须删除。
 - **不要把 Key 发到对话里**；已经发过的，去服务商后台作废重发。
 
 ## 工作台
 
 - 单文件静态 HTML，双击 / `file://` 打开；不启动服务、不开端口、不联网。
-- 顶部只显示 Key 掩码和余额快照；没有“配置 Key”按钮是设计。
+- 顶部显示 Key 掩码和余额快照；右上角“配置 Key”只在本机填 Key、下载导入文件，不联网、不写页面。
 - 左侧：歌词/脚本 + MV 列表；右侧：音乐、资产图、分镜/视频段。
-- 只读；生成和更新由 agent 写文件 + `mvwb build` 完成。
+- 页面本身只读；生成和更新由 agent 写文件 + `mvwb build` 完成。
 
 ## 费用
 
