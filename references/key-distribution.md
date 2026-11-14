@@ -2,13 +2,13 @@
 
 ## 推荐方式：项目目录里的一个 JSON
 
-**老师**生成一个 `keys.incoming.json`，私下发给学生。  
+**老师**生成一个 `zz-keys.json`，私下发给学生。  
 **学生**把它放到项目根目录：
 
 ```text
 workspaces/<项目名>/
 ├─ 原文/
-├─ keys.incoming.json     ← 放这里
+├─ zz-keys.json     ← 放这里
 ├─ data.json
 └─ workbench.html
 ```
@@ -16,14 +16,14 @@ workspaces/<项目名>/
 **学生对 agent 说**：
 
 ```text
-Key 文件在项目根目录的 keys.incoming.json。
+Key 文件在项目根目录的 zz-keys.json。
 请帮我导入，导入后删除这个文件。
 ```
 
 **agent 执行**：
 
 ```bash
-mvwb keys import --file workspaces/<项目名>/keys.incoming.json --delete-source
+mvwb keys import --file workspaces/<项目名>/zz-keys.json --delete-source
 ```
 
 导入后 Key 写入 `~/.config/mv-workbench/keys.json`（0600），发放文件被删除；所有项目共用这份全局 Key。
@@ -74,17 +74,17 @@ mvwb keys import --file workspaces/<项目名>/keys.incoming.json --delete-sourc
 - Key 会进入对话历史/日志，事后难清理；
 - 项目目录里的文件路径确定，agent 能校验、导入、删除，形成闭环。
 
-如果只能发附件：让 agent 先把附件保存成项目根目录的 `keys.incoming.json`，再导入，不要直接读聊天里的 Key。
+如果只能发附件：让 agent 先把附件保存成项目根目录的 `zz-keys.json`，再导入，不要直接读聊天里的 Key。
 
 ## 发放建议
 
 - **一人一份 Key**，不要所有学生共用一个；否则无法单独停用、无法对账。
-- 文件不要进 Git；`workspaces/` 默认忽略，根目录也忽略了 `keys.incoming.json` / `mv-keys-import*.json`。
+- 文件不要进 Git；`workspaces/` 默认忽略，根目录也忽略了 `zz-keys.json` / `mv-keys-import*.json`。
 - 学生换电脑：重新发一份，或迁移旧电脑的 `~/.config/mv-workbench/keys.json`。
 - 学生把 Key 发到群里/对话里：提醒作废重发。
 
 ## 和工作台“配置 Key”的关系
 
-- **老师统一发放**：用 `keys.incoming.json`，两行 JSON，最省事。
+- **老师统一发放**：用 `zz-keys.json`，两行 JSON，最省事。
 - **学生自己买 Key**：用工作台右上角“配置 Key”下载 `mv-keys-import.json`，格式兼容。
 - **没有 agent 在旁边**：双击 `setup-keys.command` / `.cmd` 手动输入。

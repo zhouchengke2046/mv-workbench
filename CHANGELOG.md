@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.9 — 2026-11-14
+
+- Renamed the teacher-issued key file to `zz-keys.json` (from `keys.incoming.json`).
+- `mvwb keys watch` now recognizes both `mv-keys-import*.json` and a minimal `zz-keys.json` in the watched download folders.
+- Updated README, SKILL, reference, example and manual.
+
 ## 0.3.8 — 2026-11-14
 
 - Simplified the teacher-issued key JSON to two fields: `{"runninghub": "...", "router": "..."}`.

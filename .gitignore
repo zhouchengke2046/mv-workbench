@@ -16,3 +16,4 @@ tests/tmp/
 dist/
 keys.incoming.json
 mv-keys-import*.json
+zz-keys.json

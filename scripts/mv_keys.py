@@ -667,14 +667,17 @@ def cmd_watch(args):
         "ok": True,
         "watching": [str(d) for d in dirs],
         "timeout": args.timeout,
-        "hint": "现在去工作台点“配置 Key”并下载 mv-keys-import.json；不要关这个进程",
+        "hint": "现在去工作台点“配置 Key”并下载 mv-keys-import.json，或把老师发的 zz-keys.json 放进这个目录；不要关这个进程",
     }, ensure_ascii=False), flush=True)
 
     started = time.time()
     seen = set()
     while time.time() - started < args.timeout:
         for directory in dirs:
-            for path in sorted(directory.glob("mv-keys-import*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
+            candidates = []
+            for pattern in ("mv-keys-import*.json", "zz-keys.json"):
+                candidates.extend(directory.glob(pattern))
+            for path in sorted(set(candidates), key=lambda p: p.stat().st_mtime, reverse=True):
                 try:
                     stat1 = path.stat()
                 except OSError:
@@ -694,8 +697,11 @@ def cmd_watch(args):
                     payload = json.loads(path.read_text(encoding="utf-8"))
                 except (OSError, json.JSONDecodeError):
                     continue
-                if not isinstance(payload, dict) or payload.get("mv_keys_import") != 1:
+                if not isinstance(payload, dict):
                     continue
+                if payload.get("mv_keys_import") != 1:
+                    if path.name != "zz-keys.json" or not any(payload.get(k) for k in ("runninghub", "router")):
+                        continue
                 try:
                     cmd_import(argparse.Namespace(file=str(path), delete_source=True))
                 except SystemExit:
