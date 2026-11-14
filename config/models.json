@@ -6,30 +6,76 @@
       "provider": "router",
       "api": "/v1/videos",
       "unit": "CNY",
-      "price_per_second": 0.5,
+      "price_per_second": 0.05,
       "min_seconds": 2,
       "max_seconds": 10,
       "resolution": "720p",
-      "tested": "2026-11-13: 2s=1.00 CNY, 720x1280, 24fps"
+      "tested": "2026-11-13: 2s=1.00 CNY, 720x1280, 24fps",
+      "billing_note": "Router 计费 = seconds×0.0068493 + upstream_cost；实测 2s ≈ ¥0.03-0.10，以账单为准",
+      "providers": {
+        "router": {
+          "api": "/v1/videos",
+          "verified": "2026-11-13"
+        }
+      }
     },
     "ace-step-1.5": {
       "provider": "runninghub",
       "unit": "币",
       "price": 39,
       "duration": 45,
-      "workflow_id": "2075301815628943362"
+      "workflow_id": "2075301815628943362",
+      "providers": {
+        "runninghub": {
+          "kind": "aiapp",
+          "app_id": "2075301815628943362",
+          "verified": "2026-11-06"
+        },
+        "router": {
+          "model": "ace-step-1.5-rh-ck",
+          "api": "/v1/responses",
+          "verified": null,
+          "note": "task 协议待文档确认"
+        }
+      }
     },
     "moss": {
       "provider": "runninghub",
       "unit": "币",
       "price_per_image": 26,
-      "workflow_id": "2116462203997081601"
+      "workflow_id": "2116462203997081601",
+      "providers": {
+        "runninghub": {
+          "kind": "workflow",
+          "wf_id": "2116462203997081601",
+          "verified": "2026-11-13"
+        },
+        "router": {
+          "model": "moss-t2i-rh-ck",
+          "api": "/v1/responses",
+          "verified": null,
+          "note": "task 协议待文档确认"
+        }
+      }
     },
     "h3-yz": {
       "provider": "runninghub",
       "unit": "币",
       "price_per_4s": 19,
-      "workflow_id": "2110943749894402050"
+      "workflow_id": "2110943749894402050",
+      "providers": {
+        "runninghub": {
+          "kind": "workflow",
+          "wf_id": "2110943749894402050",
+          "verified": "2026-11-13"
+        },
+        "router": {
+          "model": "minimax-h3-rh-ck",
+          "api": "/v1/responses",
+          "verified": null,
+          "note": "task 协议待文档确认"
+        }
+      }
     },
     "s2v": {
       "provider": "runninghub",
@@ -41,7 +87,7 @@
   "fx": {
     "CNY": 1.0,
     "USD": 7.3,
-    "rh_coin": 0.1,
-    "_note": "rh_coin = RunningHub 币→人民币汇率，由老师按实际充值比例修改；成本展示一律折算为 CNY。"
+    "rh_coin": 0.01095890411,
+    "_note": "rh_coin 来源：Router /api/pricing billing_expr（coins×0.01095890411 元）；成本展示一律折算 CNY。"
   }
 }

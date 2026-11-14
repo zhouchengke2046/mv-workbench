@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TARGET="${HOME}/.agents/skills/zz-mv-gongzuotai"
 BIN="${HOME}/.local/bin"
 FORCE=0
@@ -11,7 +11,7 @@ while [ $# -gt 0 ]; do
     --target) TARGET="$2"; shift 2 ;;
     --bin) BIN="$2"; shift 2 ;;
     --force) FORCE=1; shift ;;
-    -h|--help) echo "usage: ./install.sh [--target ~/.agents/skills/zz-mv-gongzuotai] [--bin ~/.local/bin] [--force]"; exit 0 ;;
+    -h|--help) echo "usage: start/install.sh [--target ~/.agents/skills/zz-mv-gongzuotai] [--bin ~/.local/bin] [--force]"; exit 0 ;;
     *) echo "unknown option: $1"; exit 1 ;;
   esac
 done
@@ -57,10 +57,10 @@ fi
 rm -rf "$TARGET"
 mkdir -p "$TARGET" "$BIN"
 
-for item in SKILL.md references scripts templates contracts demo config README.md LICENSE NOTICE.md mvwb mvwb.cmd setup-keys.command setup-keys.cmd; do
+for item in SKILL.md references scripts templates contracts demo config start README.md LICENSE NOTICE.md; do
   cp -R "$REPO/$item" "$TARGET/"
 done
-chmod +x "$TARGET/mvwb" "$TARGET/scripts/mvwb.py" "$TARGET/setup-keys.command" 2>/dev/null || true
+chmod +x "$TARGET/start/mvwb" "$TARGET/scripts/mvwb.py" "$TARGET/start/setup-keys.command" 2>/dev/null || true
 echo "installed skill: $TARGET"
 restore_workspaces
 WORKSPACES_BACKUP=""

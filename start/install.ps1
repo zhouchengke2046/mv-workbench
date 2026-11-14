@@ -1,5 +1,5 @@
 $ErrorActionPreference = "Stop"
-$Repo = $PSScriptRoot
+$Repo = Split-Path $PSScriptRoot -Parent
 $Target = Join-Path $HOME ".agents\skills\zz-mv-gongzuotai"
 $Bin = Join-Path $HOME ".local\bin"
 
@@ -44,7 +44,7 @@ if (Test-Path $Target) {
 New-Item -ItemType Directory -Force -Path $Target | Out-Null
 New-Item -ItemType Directory -Force -Path $Bin | Out-Null
 
-$items = @("SKILL.md","references","scripts","templates","contracts","demo","config","README.md","LICENSE","NOTICE.md","mvwb","mvwb.cmd","setup-keys.command","setup-keys.cmd")
+$items = @("SKILL.md","references","scripts","templates","contracts","demo","config","README.md","LICENSE","NOTICE.md","start")
 foreach ($item in $items) {
   $src = Join-Path $Repo $item
   if (-not (Test-Path $src)) { Write-Host "missing: $src"; exit 1 }

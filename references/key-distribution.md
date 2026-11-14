@@ -92,4 +92,4 @@ mvwb keys import --file workspaces/<项目名>/zz-keys.json --delete-source
 
 - **老师统一发放**：用 `zz-keys.json`，两行 JSON，最省事。
 - **学生自己买 Key**：用工作台右上角“配置 Key”下载 `mv-keys-import.json`，格式兼容。
-- **没有 agent 在旁边**：双击 `setup-keys.command` / `.cmd` 手动输入。
+- **没有 agent 在旁边**：双击 `start/setup-keys.command` / `start/setup-keys.cmd` 手动输入。

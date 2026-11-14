@@ -7,7 +7,7 @@
 ## 拿到压缩包后怎么开始
 
 1. 解压到英文短路径，例如 `D:\MV\zz-mv-gongzuotai`。
-2. **只看工作台**：双击 `demo/workbench.html`。不需要启动服务、不占端口。
+2. **只看工作台**：双击 `demo/workbench.html`。不需要启动服务、不占端口。想配 Key/安装命令，进 `start/` 文件夹。
 3. **做自己的项目**：把解压后的文件夹设为 agent（WorkBuddy / ZCode）的工作区，对它说：
 
 ```text
@@ -17,7 +17,7 @@
 
 4. 没有 exe、没有“下一步”，这是正常的：它是给 agent 用的 skill 包，不是桌面软件。
 
-> 命令里的 `mvwb` 指安装后的命令；没有安装就在解压目录运行 `python scripts/mvwb.py ...`。
+> 命令里的 `mvwb` 指安装后的命令；没有安装就在解压目录运行 `python scripts/mvwb.py ...` 或双击 `start/` 里的对应文件。
 
 ## 依赖
 
@@ -79,7 +79,7 @@ mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
   mvwb keys import --file ~/Downloads/mv-keys-import.json --delete-source
   ```
 - **备用 Key 走 B001 提醒**：Router 连续失败时 agent 会输出 `[提醒] B001` 块；学生把提醒原文发给老师，由老师决定是否发放备用 `zz-keys.json`。代码表见 `references/alerts.md`。
-- **或双击** `setup-keys.command`（macOS）/ `setup-keys.cmd`（Windows），按提示粘贴两个 Key。
+- **或双击** `start/setup-keys.command`（macOS）/ `start/setup-keys.cmd`（Windows），按提示粘贴两个 Key。
 - 或终端：`mvwb keys set runninghub`、`mvwb keys set router`。
 - 余额：`mvwb keys balance --data <data.json>`，再 `mvwb build` 刷新页面快照。
 - 原始 Key 不进 HTML/DATA/日志/截图；页面只显示掩码和查询时间。下载的导入文件含原始 Key，导入后必须删除。
@@ -123,23 +123,32 @@ mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
 Windows 先试 `winget install Gyan.FFmpeg`；下载超时就换 npm 镜像装 `@ffmpeg-installer/ffmpeg` + `@ffprobe-installer/ffprobe`，或 WSL2。
 
 **Windows 要注意什么？**  
-用英文路径；命令用 `mvwb.cmd`；不强制 0600。路径/权限问题用 WSL2。
+用英文路径；命令在 `start/`（`start/mvwb.cmd`）；不强制 0600。路径/权限问题用 WSL2。
 
-## 目录
+## 目录（归类说明）
 
 ```text
 zz-mv-gongzuotai/
-├─ SKILL.md                  唯一入口（给 agent）
-├─ README.md                 本文件
-├─ mvwb / mvwb.cmd
-├─ setup-keys.command / setup-keys.cmd
-├─ install.sh / install.ps1
-├─ scripts/                  mvwb、keys、build、timeline、providers
-├─ references/               契约、审核、handoff、提示词、供应商
-├─ templates/workbench.html
-├─ contracts/
-├─ demo/                     可直接打开的 demo
-└─ config/
+│
+│ 给「人」的
+├─ README.md                 ← 先看这个（含目录地图）
+├─ start/                    ← 入口：安装、mvwb 命令、一键配 Key
+│  ├─ setup-keys.command/.cmd   双击配 Key（Mac/Win）
+│  ├─ install.sh / install.ps1  安装成全局 skill + mvwb 命令
+│  └─ mvwb / mvwb.cmd           未安装时直接用
+├─ demo/workbench.html       ← 开箱 demo（双击看效果）
+├─ workspaces/<项目>/         ← 你的项目：工作台 + MV001(音乐/资产/视频段)
+│
+│ 给「agent」的
+├─ SKILL.md                  agent 入口（工作区指向这里）
+├─ scripts/                  mvwb、keys、alerts、build、timeline、providers
+├─ references/               规则契约 / 提醒代码表 / 提示词库 / 平台接口
+├─ templates/ + contracts/   工作台模板与数据契约
+├─ config/                   zz-keys.example.json、模型价格与 fx 汇率
+│
+│ 给「开发者」的
+├─ tests/  dev/  docs/  .github/
+└─ LICENSE  NOTICE.md
 ```
 
 ## License

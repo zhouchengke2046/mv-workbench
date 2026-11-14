@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.2 — 2026-11-14
+
+- Reorganized the package for humans: all entry points (installers, `mvwb` wrappers, one-click key setup) moved into `start/`; developer files into `dev/` (CONTRIBUTING, pyproject, requirements-dev, check_secrets); CHANGELOG/SECURITY into `docs/`.
+- Root now only holds `SKILL.md`, `README.md`, `LICENSE`, `NOTICE.md` plus categorized folders; README gained a directory map explaining what each folder is for.
+- Key example renamed to `config/zz-keys.example.json` (matches the distributed `zz-keys.json` naming).
+- No behavior changes; installers/doctor/tests updated for the new paths.
+
 ## 0.4.1 — 2026-11-14
 
 - Added a unified alert format (`scripts/alerts.py`) with a full code table (`references/alerts.md`): K/B/P/W/T/Q series.

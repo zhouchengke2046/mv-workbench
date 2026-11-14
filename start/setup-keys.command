@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
-cd "$(dirname "$0")"
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$REPO"
 
 PY="python3"
 if [ -x ".venv/bin/python" ]; then PY=".venv/bin/python"; fi

@@ -11,7 +11,7 @@ description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 wo
 - 工作台只展示与统筹；生成由 agent 调用本 skill 的 `scripts/` 完成。
 - 流程到**视频段**结束：不粗剪、不拼片、不做成片；视频段 + handoff 交给下一阶段剪辑。
 
-> 命令里的 `mvwb` 指安装后的全局命令；如果 `~/.local/bin` 不在 PATH，用 `~/.agents/skills/zz-mv-gongzuotai/mvwb`（安装时已复制并加执行位）；如果仍不可用，用 `python3 ~/.agents/skills/zz-mv-gongzuotai/scripts/mvwb.py`。
+> 命令里的 `mvwb` 指安装后的全局命令；如果 `~/.local/bin` 不在 PATH，用 `~/.agents/skills/zz-mv-gongzuotai/start/mvwb`（安装时已复制并加执行位）；如果仍不可用，用 `python3 ~/.agents/skills/zz-mv-gongzuotai/scripts/mvwb.py`。
 
 ## 工作台与 Key（硬规则）
 
@@ -19,7 +19,7 @@ description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 wo
 - **禁止** `mvwb server`、`python -m http.server`、端口、服务版、旧 Key 页面。工作台右上角“配置 Key”只下载导入文件，不联网、不写页面；没有服务。
 - 用户说“打开工作台”：运行 `mvwb open [--workspace NAME]`，它只打开本地 HTML。
 - **初期只发 Router Key**：学生把老师发的 `zz-keys.json` 放到项目根目录（里面通常只有 `{"router": "..."}`）；agent 运行 `mvwb keys import --file <项目>/zz-keys.json --delete-source`。导入一次即全局生效，发放文件导入后删除。
-- **Key 由用户在本地工作台填写**：打开 `workbench.html` → 右上角“配置 Key” → 填两个 Key → 下载 `mv-keys-import.json`；用户对 agent 说“导入下载目录的 mv-keys-import.json”，agent 运行 `mvwb keys import --file <path> --delete-source`。也可双击 `setup-keys.command` / `setup-keys.cmd`，或终端 `mvwb keys set`。agent 只引导，不索要 Key；非交互环境不要调用 `keys set`。
+- **Key 由用户在本地工作台填写**：打开 `workbench.html` → 右上角“配置 Key” → 填两个 Key → 下载 `mv-keys-import.json`；用户对 agent 说“导入下载目录的 mv-keys-import.json”，agent 运行 `mvwb keys import --file <path> --delete-source`。也可双击 `start/setup-keys.command` / `start/setup-keys.cmd`，或终端 `mvwb keys set`。agent 只引导，不索要 Key；非交互环境不要调用 `keys set`。
 - **备用 Key 走 B001 提醒**：Router 同 10 分钟内连续 ≥3 次失败且未配备用时，agent 生成 **B001 提醒块**；学生把提醒原文转发给老师，由老师决定是否发放备用 `zz-keys.json`（含 `runninghub`/`apimart` 字段）。发放后导入即启用，并刷新余额/工作台。agent 可用 `mvwb keys watch` 免二次对话。
 - **提醒格式统一**：所有失败/阻塞/警告走 `scripts/alerts.py`（代码表见 `references/alerts.md`），学生只需整块转发提醒原文。**禁止**直接说“找老师要备用 Key”这类话；备用 Key 一律通过 B001 提醒由老师决定。
 - Key 不写进 DATA、HTML、脚本、日志或截图；下载的导入文件导入后必须删除。用户已经把 Key 发到对话里时，提醒他作废重发。
@@ -309,17 +309,21 @@ mvwb timeline <lyric.json> <audio.mp3> --out <dir>
 ## 文件
 
 ```text
-SKILL.md
-scripts/          mvwb、keys、build、timeline、providers
-references/       workbench 契约、step 契约、提示词、provider、handoff
+SKILL.md          agent 入口（本文件）
+start/            人的入口：安装、mvwb 命令、一键配 Key
+scripts/          mvwb、keys、alerts、build、timeline、providers
+references/       workbench 契约、step 契约、提醒代码表、提示词、provider
 templates/        workbench.html
 contracts/        timeline/storyboard/segments/mv 契约
-demo/             原创 demo
-config/           模型价格 / provider / keys 示例
+demo/             原创 demo（可直接打开）
+config/           模型价格 / fx 汇率 / keys 示例
+workspaces/       学生项目（每个项目一个目录）
 ```
 
 ## 版本
 
+- v0.4.2（2026-11-14）：目录重排归类——入口类（安装/mvwb/setup-keys）收进 `start/`，开发者文件收进 `dev/` 与 `docs/`；Key 示例改名 `config/zz-keys.example.json`；根目录只留 SKILL/README/LICENSE/NOTICE。
+- v0.4.2（2026-11-14）：目录归类——入口类收进 `start/`，开发文件收进 `dev/`、`docs/`；根目录只留 4 个文件；Key 示例改名 `config/zz-keys.example.json`。
 - v0.4.1（2026-11-14）：统一提醒格式（scripts/alerts.py + references/alerts.md 代码表）；备用 Key 改为 B001 提醒转发给老师；keys/providers/check/build 全量接入；手册新增「把提醒原文发给老师」。（2026-11-14）：Router 主链 + 备用 Key 按需发放；顶部只显示 Router 余额；成本一律折算 ¥（`fx.rh_coin`）；keys 层支持 apimart 独立段；quote 输出折算人民币。
 - v0.3.9（2026-11-14）：老师发放的 Key 文件统一命名为 `zz-keys.json`；watcher 同时识别 `mv-keys-import*.json` 和 `zz-keys.json`。
 - v0.3.8（2026-11-14）：发放 Key 的 JSON 简化为两个字段 `{"runninghub":"...","router":"..."}`；`issued_to`/`expires_at`/`mv_keys_import` 改为可选，只在登记或 watcher 自动拾取时需要。
