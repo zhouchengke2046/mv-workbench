@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.3 — 2026-11-14
+
+- Workbench UI cleanup per review:
+  - Removed the in-page Key configuration feature entirely (button, modal, download flow); keys come from `zz-keys.json` / `start/setup-keys` / `mvwb keys set`.
+  - Top bar now shows only the configured key's balance — no masked key value, no config button.
+  - Removed the "累计" cost badge in the MV header (duplicate of the sidebar total).
+  - "音乐未生成" empty state now uses the same wrapper as "资产未生成" (aligned padding).
+  - Removed every "只读" label from the page (title, sidebar, meta rows, badges, CSS).
+  - Top-bar order: 生成时间 first, balance chip far right.
+
 ## 0.4.2 — 2026-11-14
 
 - Reorganized the package for humans: all entry points (installers, `mvwb` wrappers, one-click key setup) moved into `start/`; developer files into `dev/` (CONTRIBUTING, pyproject, requirements-dev, check_secrets); CHANGELOG/SECURITY into `docs/`.

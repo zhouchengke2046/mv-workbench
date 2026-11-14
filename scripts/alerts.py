@@ -21,7 +21,7 @@ RAW_LIMIT = 300
 
 CODES = {
     # ---- Key / 配置 ----
-    "K001": {"title": "Key 未配置", "student": "导入老师发的 zz-keys.json（放到项目根目录或下载目录），或在工作台“配置 Key”里填写", "teacher": "确认是否已发放 zz-keys.json / 发新的对应平台 Key"},
+    "K001": {"title": "Key 未配置", "student": "导入老师发的 zz-keys.json（放到项目根目录或下载目录），或双击 start/setup-keys 自己输入", "teacher": "确认是否已发放 zz-keys.json / 发新的对应平台 Key"},
     "K002": {"title": "keys.json 读取失败", "student": "把本提醒发给老师；不要自己改文件", "teacher": "指导修复或重发 zz-keys.json"},
     "K003": {"title": "Key 文件格式不对", "student": "把本提醒发给老师；保留原文件不要删", "teacher": "核对 zz-keys.json 内容/格式，必要时重发"},
     "K004": {"title": "找不到 Key 文件", "student": "确认 zz-keys.json 的实际位置（项目根目录/下载目录），把路径告诉 agent", "teacher": "确认学生是否已收到文件"},

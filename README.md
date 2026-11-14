@@ -74,10 +74,7 @@ mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
   mvwb keys import --file workspaces/<project>/zz-keys.json --delete-source
   ```
   文件只要两个字段：`{"runninghub":"...","router":"..."}`；格式见 `references/key-distribution.md`；导入一次全局生效。
-- **在工作台配置**：双击 `workbench.html` → 右上角“配置 Key” → 填两个 Key → 下载 `mv-keys-import.json`；对 agent 说“导入下载目录的 mv-keys-import.json”。agent 运行：
-  ```bash
-  mvwb keys import --file ~/Downloads/mv-keys-import.json --delete-source
-  ```
+- 备用 Key 的导入文件（JSON）也用同一条命令导入；`import` 接受任意路径的 JSON 文件。
 - **备用 Key 走 B001 提醒**：Router 连续失败时 agent 会输出 `[提醒] B001` 块；学生把提醒原文发给老师，由老师决定是否发放备用 `zz-keys.json`。代码表见 `references/alerts.md`。
 - **或双击** `start/setup-keys.command`（macOS）/ `start/setup-keys.cmd`（Windows），按提示粘贴两个 Key。
 - 或终端：`mvwb keys set runninghub`、`mvwb keys set router`。
@@ -88,7 +85,7 @@ mvwb timeline <lyric.json> <audio.mp3> --out MV001/01_music
 ## 工作台
 
 - 单文件静态 HTML，双击 / `file://` 打开；不启动服务、不开端口、不联网。
-- 顶部显示 Key 掩码和余额快照；右上角“配置 Key”只在本机填 Key、下载导入文件，不联网、不写页面。
+- 顶部只显示 Router 余额（人民币）；页面没有任何配置入口，Key 走 `zz-keys.json` / `start/setup-keys` / `mvwb keys set`。
 - 左侧：歌词/脚本 + MV 列表；右侧：音乐、资产图、分镜/视频段。
 - 页面本身只读；生成和更新由 agent 写文件 + `mvwb build` 完成。
 

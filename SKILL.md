@@ -16,10 +16,10 @@ description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 wo
 ## 工作台与 Key（硬规则）
 
 - **工作台是项目里的静态 `workbench.html`**：直接双击/用浏览器打开 `file://...`；**不启动任何后台服务**。
-- **禁止** `mvwb server`、`python -m http.server`、端口、服务版、旧 Key 页面。工作台右上角“配置 Key”只下载导入文件，不联网、不写页面；没有服务。
+- **禁止** `mvwb server`、`python -m http.server`、端口、服务版。工作台是纯查看页，**没有任何配置入口**。
 - 用户说“打开工作台”：运行 `mvwb open [--workspace NAME]`，它只打开本地 HTML。
 - **初期只发 Router Key**：学生把老师发的 `zz-keys.json` 放到项目根目录（里面通常只有 `{"router": "..."}`）；agent 运行 `mvwb keys import --file <项目>/zz-keys.json --delete-source`。导入一次即全局生效，发放文件导入后删除。
-- **Key 由用户在本地工作台填写**：打开 `workbench.html` → 右上角“配置 Key” → 填两个 Key → 下载 `mv-keys-import.json`；用户对 agent 说“导入下载目录的 mv-keys-import.json”，agent 运行 `mvwb keys import --file <path> --delete-source`。也可双击 `start/setup-keys.command` / `start/setup-keys.cmd`，或终端 `mvwb keys set`。agent 只引导，不索要 Key；非交互环境不要调用 `keys set`。
+- **Key 不经过工作台**：用户导入 `zz-keys.json`、双击 `start/setup-keys.*`，或终端 `mvwb keys set`；agent 运行 `mvwb keys import --file <path> --delete-source`。agent 只引导，不索要 Key；非交互环境不要调用 `keys set`。
 - **备用 Key 走 B001 提醒**：Router 同 10 分钟内连续 ≥3 次失败且未配备用时，agent 生成 **B001 提醒块**；学生把提醒原文转发给老师，由老师决定是否发放备用 `zz-keys.json`（含 `runninghub`/`apimart` 字段）。发放后导入即启用，并刷新余额/工作台。agent 可用 `mvwb keys watch` 免二次对话。
 - **提醒格式统一**：所有失败/阻塞/警告走 `scripts/alerts.py`（代码表见 `references/alerts.md`），学生只需整块转发提醒原文。**禁止**直接说“找老师要备用 Key”这类话；备用 Key 一律通过 B001 提醒由老师决定。
 - Key 不写进 DATA、HTML、脚本、日志或截图；下载的导入文件导入后必须删除。用户已经把 Key 发到对话里时，提醒他作废重发。
@@ -185,7 +185,7 @@ mvwb open --workspace my_project
 
 ```bash
 mvwb keys status
-mvwb keys import --file ~/Downloads/mv-keys-import.json --delete-source
+mvwb keys import --file workspaces/my_project/zz-keys.json --delete-source
 mvwb keys watch --timeout 600 --data workspaces/my_project/data.json
 mvwb keys balance --data workspaces/my_project/data.json
 mvwb quote --model muse-video-ext --seconds 2
@@ -289,7 +289,7 @@ mvwb open
 mvwb open --workspace my_project
 mvwb init my_project
 mvwb keys status
-mvwb keys import --file ~/Downloads/mv-keys-import.json --delete-source
+mvwb keys import --file workspaces/my_project/zz-keys.json --delete-source
 mvwb keys watch --timeout 600 --data workspaces/my_project/data.json
 mvwb keys balance --data workspaces/my_project/data.json
 mvwb quote --model muse-video-ext --seconds 2
@@ -322,6 +322,7 @@ workspaces/       学生项目（每个项目一个目录）
 
 ## 版本
 
+- v0.4.3（2026-11-14）：工作台 UI 精简——移除页内 Key 配置；余额只显数值不显掩码；删 MV 头部累计徽标；音乐/资产空态对齐；页面“只读”字样全部移除；顶栏顺序 生成时间→余额。
 - v0.4.2（2026-11-14）：目录重排归类——入口类（安装/mvwb/setup-keys）收进 `start/`，开发者文件收进 `dev/` 与 `docs/`；Key 示例改名 `config/zz-keys.example.json`；根目录只留 SKILL/README/LICENSE/NOTICE。
 - v0.4.2（2026-11-14）：目录归类——入口类收进 `start/`，开发文件收进 `dev/`、`docs/`；根目录只留 4 个文件；Key 示例改名 `config/zz-keys.example.json`。
 - v0.4.1（2026-11-14）：统一提醒格式（scripts/alerts.py + references/alerts.md 代码表）；备用 Key 改为 B001 提醒转发给老师；keys/providers/check/build 全量接入；手册新增「把提醒原文发给老师」。（2026-11-14）：Router 主链 + 备用 Key 按需发放；顶部只显示 Router 余额；成本一律折算 ¥（`fx.rh_coin`）；keys 层支持 apimart 独立段；quote 输出折算人民币。

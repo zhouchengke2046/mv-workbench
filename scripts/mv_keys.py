@@ -622,7 +622,7 @@ def _read_import_key(payload, section, flat_name):
 
 
 def cmd_import(args):
-    """从工作台下载的 mv-keys-import.json 导入，导入后可选删除源文件。"""
+    """从 Key JSON 文件（如 zz-keys.json）导入，导入后可选删除源文件。"""
     src = Path(args.file).expanduser()
     if not src.is_file():
         die("找不到配置文件：%s" % src, alert="K004")
@@ -693,7 +693,7 @@ def _download_dirs():
 
 
 def cmd_watch(args):
-    """短时监听下载目录：工作台下载 mv-keys-import.json 后自动导入并删除。"""
+    """短时监听目录：出现 zz-keys.json / 导入 JSON 后自动导入并删除。"""
     dirs = [Path(d).expanduser() for d in (args.dir or _download_dirs())]
     if not dirs:
         die("找不到下载目录；用 --dir 指定", alert="K004")
@@ -701,7 +701,7 @@ def cmd_watch(args):
         "ok": True,
         "watching": [str(d) for d in dirs],
         "timeout": args.timeout,
-        "hint": "现在去工作台点“配置 Key”并下载 mv-keys-import.json，或把老师发的 zz-keys.json 放进这个目录；不要关这个进程",
+        "hint": "把老师发的 zz-keys.json 放进这个目录（或让 agent 直接 import）；不要关这个进程",
     }, ensure_ascii=False), flush=True)
 
     started = time.time()

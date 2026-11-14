@@ -88,8 +88,9 @@ mvwb keys import --file workspaces/<项目名>/zz-keys.json --delete-source
 - **初期只发 Router Key**：`zz-keys.json` 里只有 `{"router": "..."}`；方便统一算成本（工作台也只显示 Router 余额）。
 - **备用 Key 按需另发**：中转站连续出问题、短时间修不好时，再发一份含 `runninghub` / `apimart` 字段的 `zz-keys.json`；学生放到项目根目录导入即可，导入后自动启用备用平台。
 
-## 和工作台“配置 Key”的关系
+## 和工作台的关系
 
-- **老师统一发放**：用 `zz-keys.json`，两行 JSON，最省事。
-- **学生自己买 Key**：用工作台右上角“配置 Key”下载 `mv-keys-import.json`，格式兼容。
-- **没有 agent 在旁边**：双击 `start/setup-keys.command` / `start/setup-keys.cmd` 手动输入。
+- 工作台页面**不提供任何 Key 配置入口**（纯查看）。
+- **老师统一发放**：用 `zz-keys.json` 放项目根目录，两行 JSON，最省事。
+- **学生自己买 Key**：双击 `start/setup-keys.command` / `start/setup-keys.cmd` 自己输入，或终端 `mvwb keys set`。
+- `mvwb keys import --file <json>` 也接受工作台之外的导入文件（如 `mv-keys-import.json`），格式兼容。
