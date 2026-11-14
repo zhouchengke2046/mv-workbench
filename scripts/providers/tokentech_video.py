@@ -194,11 +194,20 @@ def main():
                     platform=PLATFORM, model="muse-video-ext", error_class="poll_timeout")
 
     print("download:", out)
-    try:
-        size = download(base + "/v1/videos/" + task_id + "/content", key, out, proxy)
-        print("saved %s bytes" % size)
-    except Exception as exc:
-        alerts.fail("P6", "下载失败（task=%s）：%s: %s" % (task_id, type(exc).__name__, exc),
+    last_exc = None
+    for attempt in range(8):
+        try:
+            size = download(base + "/v1/videos/" + task_id + "/content", key, out, proxy)
+            print("saved %s bytes (try %d)" % (size, attempt + 1))
+            break
+        except Exception as exc:
+            last_exc = exc
+            time.sleep(3 + attempt * 2)  # 递增退避：3,5,7,9,11,13,15s
+    else:
+        alerts.fail("P6",
+                    "下载失败（task=%s，已重试 8 次）：%s: %s。任务已完成可补拉："
+                    "curl -H \"Authorization: Bearer $ROUTER_API_KEY\" %s/v1/videos/%s/content -o %s"
+                    % (task_id, type(last_exc).__name__, last_exc, base, task_id, out),
                     platform=PLATFORM, model="muse-video-ext", error_class="download")
 
     meta = {

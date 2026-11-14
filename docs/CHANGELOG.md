@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.13 — 2026-11-14
+
+- `tokentech_video.py`: video download now retries 8 times with escalating backoff (3s→17s); on final failure the P6 alert includes the task id and a one-line resume command (`curl … /v1/videos/<task>/content`) — the content endpoint failed all 4 old retries twice during round-3 QA while a single manual retry succeeded.
+- `mv_keys.py import`: the "next" hint now says the balance refresh is mandatory (`keys balance --data`), otherwise the workbench shows "未配置" and stale spend — a flow gap reproduced in round-3 QA.
+- `step-contract.md` Step 2: added the hard rule "导入 Key 后必须 keys balance --data → build".
+
 ## 0.4.12 — 2026-11-14
 
 - `mvwb init --dir <目录>`: create a standalone project in ANY directory (one project per directory), not only under the skill's `workspaces/`. Refuses non-empty dirs; all other commands already take explicit `--data/--out` paths, so a standalone directory is a first-class citizen (verified against the 半糖晚风 project moved out of the test shell).

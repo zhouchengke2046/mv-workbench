@@ -117,6 +117,7 @@ mvwb check --data workspaces/<project>/data.json
 ```
 
 - `check` 缺失/空文件 = 0。
+- **Key 导入后必须刷新快照**：`mvwb keys import …` → `mvwb keys balance --data <项目>/data.json` → `mvwb build`。漏跑 balance 会导致工作台顶部显示「未配置」、spent 不更新（E2E 实测踩坑）。
 - HTML 中不出现原始 Key（构建器会拒绝）。
 - 双击 HTML 能打开；左侧有原文与 MV 列表；每 MV 有音乐/资产/脚本/分镜四块占位。
 

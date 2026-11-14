@@ -328,6 +328,7 @@ workspaces/       学生项目（每个项目一个目录）
 
 ## 版本
 
+- v0.4.13（2026-11-14）：video 下载重试 8 次+递增退避、P6 带补拉命令；keys import 提示必须 balance --data（漏跑会显示未配置）；step-contract 补硬规则。
 - v0.4.12（2026-11-14）：`mvwb init --dir <目录>` 支持在任意目录独立建项（一项目一目录）；工作区不再强制在 skill 的 workspaces/ 下，所有命令本就接受显式 --data/--out 路径。
 - v0.4.11（2026-11-14）：进度环改三色完成度——绿=已生成完、橙=进行中（部分完成/生成中呼吸闪烁）、灰=未开始；资产计划数约定 `stages.assets.total`（Step 3 落盘）。
 - v0.4.10（2026-11-14）：进度环改四段（脚本→音乐→资产→视频），补全状态词配色（generating 蓝+整环闪烁/review 紫/planning 灰），DATA 契约 stages 增加 script 键。

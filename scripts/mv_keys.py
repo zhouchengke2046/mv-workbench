@@ -678,7 +678,7 @@ def cmd_import(args):
         "source": str(src),
         "deleted_source": deleted,
         "delete_error": delete_error,
-        "next": "运行 mvwb keys balance --data <data.json>，再 mvwb build 刷新页面",
+        "next": "导入后必须：mvwb keys balance --data <项目>/data.json 刷新余额/Keys 快照，再 mvwb build（否则工作台顶部显示未配置）",
     }, ensure_ascii=False, indent=2))
 
 
