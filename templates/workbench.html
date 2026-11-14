@@ -113,6 +113,29 @@ h1,h2,h3{font-weight:600;color:var(--fg)}
 .mv-status.stale{color:var(--warn)}
 .mv-pct{font-size:10px;color:var(--dim);font-variant-numeric:tabular-nums}
 .model{font-size:9px;padding:1px 5px;border-radius:4px;font-weight:500;letter-spacing:.02em}
+
+/* ---------- sidebar 原文区 ---------- */
+.source-block{margin-bottom:4px}
+.source-head{display:flex;justify-content:space-between;align-items:baseline;gap:6px;
+  color:var(--dim);font-size:10px;letter-spacing:.1em;margin:14px 4px 6px;text-transform:uppercase}
+.source-head span:last-child{letter-spacing:.02em;text-transform:none}
+.source-item{display:flex;align-items:center;gap:8px;padding:7px 8px;margin-bottom:2px;
+  border-radius:12px;border:1px solid transparent;cursor:pointer;transition:.12s}
+.source-item:hover{background:#f7f8fa}
+.source-item.on{background:var(--acc-soft);border-color:#dbe2ff;box-shadow:inset 3px 0 0 var(--acc)}
+.source-icon{width:26px;height:26px;border-radius:9px;flex:none;
+  background:linear-gradient(135deg,#4d6bfe,#8b5cf6);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;
+  box-shadow:0 2px 6px rgba(77,107,254,.2)}
+.source-main{min-width:0;flex:1}
+.source-main b{display:block;font-size:12px;font-weight:600;color:var(--fg);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.source-main small{display:block;color:var(--dim);font-size:10px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.source-arrow{color:var(--dim2);font-size:11px;flex:none;opacity:0;transition:.12s}
+.source-item:hover .source-arrow,.source-item.on .source-arrow{opacity:1}
+.mv-list-head{display:flex;justify-content:space-between;align-items:baseline;
+  color:var(--dim);font-size:10px;letter-spacing:.1em;margin:16px 4px 6px;text-transform:uppercase}
 .model.h3{color:var(--acc);background:var(--acc-soft);border:1px solid #dbe2ff}
 .model.muse{color:var(--acc2);background:#f5efff;border:1px solid #e4d5ff}
 
@@ -120,8 +143,6 @@ h1,h2,h3{font-weight:600;color:var(--fg)}
 .mv-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}
 .mv-title{font-size:24px;font-weight:600;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .mv-desc{color:var(--dim);font-size:11.5px;margin-top:6px}
-.mv-cost{font-size:13px;font-weight:600;white-space:nowrap;background:#fff;border:1px solid var(--line);
-  border-radius:var(--pill);padding:7px 13px;box-shadow:var(--shadow)}
 
 /* ---------- stage cards ---------- */
 .stage-list{display:flex;flex-direction:column;gap:14px}
@@ -374,7 +395,9 @@ audio{width:100%;height:36px}
 .mv-state.cur{color:var(--ok)}
 .mv-state.his{color:var(--dim)}
 .mv-model{color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mv-cost,.mv-dur,.mv-time{color:var(--dim);white-space:nowrap;font-variant-numeric:tabular-nums}
+.mv-cost,.mv-dur,.mv-time{color:var(--dim);font-variant-numeric:tabular-nums}
+.mv-dur,.mv-time{white-space:nowrap}
+.mv-cost{line-height:1.5}
 .music-row audio{width:230px;height:30px;display:block}
 
 
@@ -402,8 +425,8 @@ audio{width:100%;height:36px}
 .music-row audio{width:310px;height:30px}
 
 
-/* 音频再宽一倍 */
-.music-row{grid-template-columns:42px 52px 118px 620px 64px 150px;min-width:1090px}
+/* 音频再宽一倍；费用列 1fr，长文本完整显示 */
+.music-row{grid-template-columns:42px 52px 118px 620px 1fr 150px;min-width:1090px}
 .music-row audio{width:610px;height:30px}
 /* 视频列收窄到 9:16 实际宽度，多出的宽度给信息列 */
 .storyboard .video-cell{width:168px}
@@ -422,18 +445,22 @@ audio{width:100%;height:36px}
 .mv-spent{font-size:9px;color:var(--dim);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 
-/* 分镜表固定列宽：压缩画面描述，保证时长可见 */
+/* 分镜表固定列宽：压缩画面描述，保证时长可见（视频/视频段/镜号/景别/运镜/画面描述/时长） */
 .storyboard{width:100%;min-width:0;table-layout:fixed}
 .storyboard th:nth-child(1){width:168px}
 .storyboard th:nth-child(2){width:96px}
 .storyboard th:nth-child(3){width:54px}
-.storyboard th:nth-child(4){width:64px}
-.storyboard th:nth-child(5){width:74px}
-.storyboard th:nth-child(6){width:86px}
-.storyboard th:nth-child(7){width:38%}
-.storyboard th:nth-child(8){width:60px}
+.storyboard th:nth-child(4){width:74px}
+.storyboard th:nth-child(5){width:86px}
+.storyboard th:nth-child(6){width:38%}
+.storyboard th:nth-child(7){width:60px}
 .storyboard .video-cell{width:168px}
 .storyboard .segment-cell{width:96px}
+
+/* MV 脚本块：画面脚本正文 */
+.mv-script{white-space:pre-wrap;font:13px/2 -apple-system,BlinkMacSystemFont,"PingFang SC",
+  "HarmonyOS Sans SC","Microsoft YaHei",sans-serif;color:var(--fg);background:#fff;
+  padding:0;margin:0;max-width:none;max-height:none;overflow:visible}
 
 </style>
 </head>
@@ -573,7 +600,7 @@ function renderSidebar() {
       <div class="source-item ${scriptOn ? "on" : ""}" role="button" tabindex="0"
         onclick="showSource('script')">
         <span class="source-icon">剧</span>
-        <span class="source-main"><b>脚本</b><small>故事脚本原文 · 未拆分镜</small></span>
+        <span class="source-main"><b>参考脚本</b><small>甲方提供 · 原样展示</small></span>
         <span class="source-arrow">→</span>
       </div>
     </div>
@@ -633,11 +660,12 @@ function lyricView() {
 function scriptView() {
   return `<div class="source-view">
     <section class="lyric-hero">
-      <div class="hero-kicker">原文 · 脚本</div>
+      <div class="hero-kicker">原文 · 参考脚本</div>
       <h1>${esc(DATA.script.title)}</h1>
-      <div class="lyric-meta"><span>甲方原文</span><span>故事脚本</span><span>未拆分镜</span></div>
+      <div class="lyric-meta"><span>甲方提供 · 原样展示</span><span>未拆分镜</span><span>各 MV 据此改编画面脚本</span></div>
     </section>
     <pre class="original">${esc(DATA.script.body)}</pre>
+    <div class="script-note">参考脚本由甲方提供，这里原样展示、不改写；各条 MV 在左侧列表点开后，在「脚本」里查看据它改编的本 MV 画面脚本。改编保留参考脚本骨架；歌词固定不变，画面逐句匹配歌词。</div>
   </div>`;
 }
 
@@ -651,6 +679,7 @@ function mvView(mv) {
         ｜ ${esc((g.edit || {}).style || "")} ｜ 每句候选 ${g.candidate_count || 1}</div>
     </div>
   </div>
+  ${scriptSection(mv)}
   ${musicSection(mv)}
   ${assetsSection(mv)}
   ${storyboardSection(mv)}`;
@@ -693,6 +722,18 @@ function assetsSection(mv) {
   </section>`;
 }
 
+function scriptSection(mv) {
+  const sc = (mv.detail || {}).script || {};
+  const body = (sc.body || "").trim();
+  return `<section class="block">
+    <div class="block-head"><h2>脚本</h2>
+      <span class="hint">本 MV 画面脚本 · 据参考脚本改编</span></div>
+    <div class="block-body">
+      ${body ? `<pre class="mv-script">${esc(body)}</pre>` : `<div class="empty">画面脚本未生成</div>`}
+    </div>
+  </section>`;
+}
+
 function storyboardSection(mv) {
   const sb = ((mv.detail || {}).storyboard) || { shots: [], segments: [] };
   const byId = {};
@@ -704,7 +745,6 @@ function storyboardSection(mv) {
         <td class="segment-cell" rowspan="${segShots.length}"><b>${esc(seg.id)}</b>
           <span>${Number(seg.duration).toFixed(2)}s · ${segShots.length} 镜</span></td>` : ""}
       <td class="shot">${esc(s.shot_id)}</td>
-      <td>${(s.line_ids || []).join("、")}</td>
       <td>${esc(s.shot_size || "")}</td>
       <td>${esc(s.camera || "")}</td>
       <td>${esc(s.visual || "")}</td>
@@ -715,7 +755,7 @@ function storyboardSection(mv) {
     <div class="block-head"><h2>分镜表</h2>
       <span class="hint">${(sb.shots || []).length} 镜 · ${(sb.segments || []).length} 个视频段</span></div>
     <div class="block-body"><div class="storyboard-wrap"><table class="storyboard">
-      <thead><tr><th>视频</th><th>视频段</th><th>镜号</th><th>对应句</th><th>景别</th><th>运镜</th><th>画面描述</th><th>时长</th></tr></thead>
+      <thead><tr><th>视频</th><th>视频段</th><th>镜号</th><th>景别</th><th>运镜</th><th>画面描述</th><th>时长</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div></div>
   </section>`;

@@ -6,8 +6,9 @@
 
 - 单文件 `workbench.html`，CSS/JS/`DATA` 内联；**纯静态，双击或 `file://` 打开，不启动服务**。
 - 无按钮、无接口、不联网；Key/余额只是 `DATA.keys` 快照，由 agent 用 `mvwb keys` 更新后重新 build。
-- 左侧：原文（歌词/脚本）+ MV 列表；MV 行 = `MV001` + `已花 ¥X` + 三色环。
-- 每 MV 三大项：音乐 / 资产图 / 分镜表；分镜表前两列：视频 / 视频段。
+- 左侧：原文（歌词/参考脚本）+ MV 列表；MV 行 = `MV001` + `已花 ¥X` + 三色环。
+- 每 MV 四大项：音乐 / 资产图 / 脚本 / 分镜表；分镜表前两列：视频 / 视频段。
+- 「参考脚本」是甲方提供的原文，原样展示、不改写；它的作用是供改编，不是让所有 MV 照搬。每条 MV 的「脚本」是据参考脚本改编出的本 MV 画面脚本，分镜表由它拆出。改编只动画面、不动歌词：**歌词固定不变，每个镜头的画面必须与它覆盖的歌词句匹配**。
 
 ## 项目目录
 
@@ -20,6 +21,7 @@ workspaces/<project>/
 ├─ workbench.html
 └─ MV001/
    ├─ mv_manifest.json
+   ├─ 00_script.md 画面脚本（据参考脚本改编）
    ├─ 01_music/song_v1.mp3, timeline_v1.json
    ├─ 02_assets/assets_v1.json, *.png
    ├─ 03_segments/segments_v1.json, G1_v1.mp4, G2_v1.mp4…
@@ -52,7 +54,7 @@ workspaces/<project>/
     }
   },
   "lyric": {"title": "末班地铁", "body": "[主歌 1]\n…"},
-  "script": {"title": "末班地铁 · 故事脚本", "body": "人物\n…"},
+  "script": {"title": "末班地铁 · 参考脚本", "body": "人物\n…"},
   "mvs": [{
     "id": "MV001", "status": "ready", "target_duration": 20, "cost": 143, "spent": 143,
     "stages": {
@@ -73,6 +75,7 @@ workspaces/<project>/
         "resolution": "1024×1536", "model": "MOSS", "cost": "≈¥2.6",
         "generated_at": "2026-11-13 00:40"
       }],
+      "script": {"body": "画面脚本 · MV001（据参考脚本改编）\n人物…\n开场｜…"},
       "storyboard": {
         "shots": [{"shot_id": "S01", "line_ids": ["L01"], "shot_size": "中景",
                    "camera": "固定机位", "visual": "末班地铁关上门…", "duration": 3.0}],
@@ -96,6 +99,7 @@ workspaces/<project>/
 - `keys` 只存掩码/余额/查询时间，不含原始 key；由 `mv_keys.py balance --data data.json` 写入，再 build。
 - `spent` = 历史累计花费（人民币）；左侧“已花 ¥X”/MV 头部“累计”用它。RunningHub 币→CNY 用 `config/models.json` 的 `fx.rh_coin` 折算。
 - `music[].current` 标记当前版；历史版 `current:false`。
+- 顶层 `script` 是参考脚本（甲方原文，原样展示）；`mvs[].detail.script.body` 是这条 MV 的画面脚本（据参考脚本改编），分镜表由它拆出；磁盘产物为 `MVxxx/00_script.md`。
 - `segments[].videos` 第一条是当前视频，后面是历史视频；每条带分辨率/模型/费用/时间/时长。
 - `meta.batch.target_duration` 是用户设定的总时长；`mvs[].target_duration` 可覆盖。
 - `music[].requested_duration` 是传给 ACE 的秒数；`music[].duration` 是实际输出。

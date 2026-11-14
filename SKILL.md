@@ -1,6 +1,6 @@
 ---
 name: zz-mv-gongzuotai
-description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 workbench.html，按 MV 生成音乐计划、资产清单、标准分镜和视频段计划，再逐项生成音乐、资产图、视频段并审核重跑。最终产物是每个 MV 一个本地目录（音乐/资产/视频段 + handoff），不含粗剪和成片。Key/余额用 mvwb；模型提示词和 RunningHub/Router 用法在本 skill 的 references/ 内。
+description: MV 项目统筹 skill：从甲方歌词/参考脚本生成静态 workbench.html，按 MV 改编画面脚本、生成音乐计划、资产清单、标准分镜和视频段计划，再逐项生成音乐、资产图、视频段并审核重跑。最终产物是每个 MV 一个本地目录（音乐/资产/视频段 + handoff），不含粗剪和成片。Key/余额用 mvwb；模型提示词和 RunningHub/Router 用法在本 skill 的 references/ 内。
 ---
 
 # zz-mv-gongzuotai · 单 skill 的 MV 项目统筹
@@ -34,12 +34,13 @@ description: MV 项目统筹 skill：从甲方歌词/故事脚本生成静态 wo
 workspaces/<project>/
 ├─ 原文/
 │  ├─ lyric_original.md      甲方歌词原文
-│  ├─ story_script.md        甲方故事脚本原文（不拆镜）
+│  ├─ story_script.md        甲方参考脚本原文（不拆镜，供改编）
 │  └─ lyric.json             L01… 行号映射
 ├─ workbench.html            项目工作台（只读展示 + 本地 Key 导入）
 ├─ data.json                 工作台数据源（agent 更新）
 └─ MV001/
    ├─ mv_manifest.json       阶段状态/版本/成本
+   ├─ 00_script.md           画面脚本（据参考脚本改编）
    ├─ 00_framework.md        音乐/资产/分段计划
    ├─ 01_music/
    │  ├─ song_v1.mp3
@@ -88,7 +89,7 @@ workspaces/<project>/
 | 0 初始化 | 项目名、数量、时长、风格、比例、预算 | workspace + `data.json` + `workbench.html` | `mvwb check` = 0 缺失 | 参数确认 |
 | 1 原文 | 歌词/脚本文件 | `原文/*` + `lyric.json` | 行数/id 连续/未拆镜 | 原文核对 |
 | 2 空工作台 | 批次参数 | DATA + 静态 HTML | build + check + 双击可开 | 工作台确认 |
-| 3 框架 | 审核意见 | manifest + framework + segments | 时长/漏句/段≤10s | 框架确认 + 报价 |
+| 3 框架 | 审核意见 | manifest + script + framework + segments | 脚本/时长/漏句/段≤10s | 脚本+框架确认 + 报价 |
 | 4 生成 | 点名项 | 音乐/资产/视频段/handoff | 文件存在/时长/QA/时间轴 | 逐项 locked |
 
 - 对话输出统一为「结论 + 产物路径 + 自检结果 + 待确认」，不贴整段 JSON。
@@ -105,7 +106,7 @@ workspaces/<project>/
 
 ```text
 原文/lyric_original.md   歌名/主歌/副歌，原文
-原文/story_script.md     故事脚本原文，不拆镜
+原文/story_script.md     参考脚本原文，不拆镜（供改编）
 原文/lyric.json          L01… 行号映射
 ```
 
@@ -163,6 +164,7 @@ mvwb open --workspace my_project
 
 创建 `MV001…MV00N`，每条：
 
+- **先改脚本**：参考脚本（甲方原文）只供改编、原样保留；每条 MV 据它的**骨架**（人物/场景/情节走向/风格）改编出自己的画面脚本 `00_script.md`，再从画面脚本拆分镜。**歌词固定不变**（不改写、不增删）；**画面必须匹配歌词**——每个镜头的画面要和它覆盖的歌词句对得上。
 - **比例默认 9:16 竖屏**（工作台按 1080×1920，Muse 输出 720×1280）；用户明确指定才改。
 - **先写 genome**：`cast_id/outfit_id/face_seed`、`story_id`、`music`、`visual`、`edit`；规则见 `references/variation.md`。同批任意两条至少 3 个维度不同，禁止同一角色+同一穿搭、同一故事矛盾、同一 genre+BPM+vocal、同一场景包。
 - 输出一张**差异化表**（每条的 cast/story/music/visual/edit）；有重复组合就停，换池子里的下一个，不要开工。
@@ -171,13 +173,13 @@ mvwb open --workspace my_project
 - `00_framework.md`：音乐计划、资产清单、标准分镜、视频段计划；这里的 `duration` 是**计划值**，以 `target_duration` 为总目标。
 - **资产清单是给用户审核的**：人物三视图/场景空镜/道具，用来锁定后续视频的一致性；不是可选项。向用户解释“没有资产图，每条视频的人物/场景会漂”。
 - `03_segments/segments_v1.json`：先写计划，`videos: []`。
-- 更新 `DATA.mvs`：音乐/资产为空，分镜/段有计划；保留 `keys` 快照。
+- 更新 `DATA.mvs`：音乐/资产为空，脚本（`detail.script.body`）/分镜/段有计划；保留 `keys` 快照。
 
 给用户看框架摘要：
 
-> 框架有没有要改的？要改哪条 MV、哪个镜头、哪句？只改你点名的部分。
+> 画面脚本和框架有没有要改的？要改哪条 MV、哪个镜头、哪句？只改你点名的部分。
 
-**门：框架审核通过 + 生成范围/报价确认。**
+**门：画面脚本+框架审核通过 + 生成范围/报价确认。**
 
 ### Step 4 · 生成与审核
 
@@ -325,6 +327,7 @@ workspaces/       学生项目（每个项目一个目录）
 
 ## 版本
 
+- v0.4.5（2026-11-14）：参考脚本 + 画面脚本体系——「脚本」改名「参考脚本」（甲方原文，原样展示，供改编）；每 MV 新增「脚本」块（`detail.script.body` / `00_script.md` 画面脚本，据参考脚本改编，分镜由它拆出），三大项改四大项（脚本→音乐→资产图→分镜表）；改编逻辑写入 Step 3 硬规则（骨架保留、歌词固定不变、画面逐句匹配歌词）。工作台 UI 二轮——分镜表删「对应句」列（7 列）；修音乐「费用」气泡误用徽标样式（删死代码 `.mv-cost`，费用列 1fr 全文显示）；补侧栏「原文」区基础 CSS；demo 补三条原创画面脚本与 00_script.md。
 - v0.4.4（2026-11-14）：Router 任务协议实测打通（moss 生图 / ace 生音乐）：`POST /v1/responses` + `metadata.nodeInfoList` 直通 RunningHub 节点；新增 `scripts/providers/tokentech_task.py`；时长/BPM/歌词/风格/负向/seed 全参数可控；计费按 RH 运行时长实扣。
 - v0.4.3（2026-11-14）：工作台 UI 精简——移除页内 Key 配置；余额只显数值不显掩码；删 MV 头部累计徽标；音乐/资产空态对齐；页面“只读”字样全部移除；顶栏顺序 生成时间→余额。
 - v0.4.2（2026-11-14）：目录重排归类——入口类（安装/mvwb/setup-keys）收进 `start/`，开发者文件收进 `dev/` 与 `docs/`；Key 示例改名 `config/zz-keys.example.json`；根目录只留 SKILL/README/LICENSE/NOTICE。

@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Standard Storyboard (per MV)",
-  "description": "每条 MV 一份标准分镜（由歌词+故事脚本派生）；原文故事脚本不拆镜，分镜表才拆。每镜必须有景别、运镜、画面描述、时长。",
+  "description": "每条 MV 一份标准分镜（由歌词+画面脚本派生；画面脚本据甲方参考脚本改编）；参考脚本不拆镜，分镜表才拆。每镜必须有景别、运镜、画面描述、时长。",
   "type": "object",
   "required": ["workbench_id", "mv_id", "version", "shots"],
   "properties": {

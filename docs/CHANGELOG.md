@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.5 — 2026-11-14
+
+- Reference-script + picture-script system (from a second workbench iteration):
+  - "脚本" renamed "参考脚本" (client's original text, shown as-is, for adaptation only); each MV gains a picture script block (`detail.script.body` / `00_script.md`, adapted from the reference script; storyboards are broken down from it). The three big sections became four: 脚本 → 音乐 → 资产图 → 分镜表.
+  - Adaptation rules added to Step 3 hard rules: keep the skeleton (characters/scenes/plot/style), lyrics never change, every shot must match the lyric line it covers.
+  - Workbench UI round two: storyboard table drops the "对应句" column (7 columns); fixed the music cost bubble reusing the badge pill style (dead `.mv-cost` removed, cost column 1fr full text); sidebar 原文 area base CSS added.
+  - Demo updated to the new structure with three original picture scripts and `00_script.md` files.
+
 ## 0.4.4 — 2026-11-14
 
 - Router task protocol verified end-to-end (`moss-t2i-rh-ck` image, `ace-step-1.5-rh-ck` music):
