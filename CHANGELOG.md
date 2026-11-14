@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.3 — 2026-11-13
+
+- Added `references/variation.md`: genome dimensions, deterministic assignment, collision rules and dedup gates for cast/story/music/visual/edit.
+- Added `references/prompts/casting-style.md`: casting cards, MOSS three-view template, style packs (小红书穿搭/日系甜妹/韩系欧巴/清爽帅哥/清冷知性/治愈系电影), video subject blocks and negative prompts.
+- Step 3 now requires a `genome` and a differentiation table; duplicate combinations stop the batch.
+- Asset QA now follows the MOSS rule: left face close-up, middle full-body with head fully out of frame, right back.
+- Feishu manual gained a "怎么让每条不一样、角色好看" section with dialogue examples.
+
 ## 0.3.2 — 2026-11-13
 
 - Aligned the skill logic with the human-facing manual:

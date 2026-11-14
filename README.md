@@ -43,7 +43,8 @@
 - **生成**：音乐先锁定，再资产，再视频段；只重跑点名项，新版本保留历史。
 - **交付**：所有段 `locked` 后写 `handoff_v1.json`，剪辑拿视频段和清单进入下一阶段。
 
-每步的输入、产物、自检和门见 `references/step-contract.md`。
+每步的输入、产物、自检和门见 `references/step-contract.md`。  
+角色/风格提示词见 `references/prompts/casting-style.md`；变体与去重见 `references/variation.md`。
 
 ## 常用命令
 

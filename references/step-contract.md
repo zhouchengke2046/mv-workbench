@@ -142,12 +142,15 @@ MV001/
 - 每句歌词必须落在某个 segment 的 `line_ids` 里，不能漏句。
 - 资产清单至少包含：角色、主场景、关键道具（按项目需要）。
 - 比例默认 9:16；资产按用途给分辨率。
+- 每条先写 `genome`：`cast_id/outfit_id/face_seed`、`story_id`、`music`、`visual`、`edit`；规则见 `references/variation.md`。
+- 输出差异化表；同批任意两条至少 3 个维度不同，禁止相同 `cast+outfit`、相同故事矛盾、相同 `genre+BPM+vocal`、相同场景包。
 
 **自检**
 
 - 段时长之和与目标时长差 ≤1s。
 - 每段 `line_ids` 连续且覆盖全部行。
 - 每个镜头有景别/运镜/画面描述。
+- 差异化表无重复组合；有重复就换池子里的下一个。
 - 此时 `videos=[]`，没有生成文件。
 
 **门**：用户逐条审核框架；agent 给出数量 × 单价报价，用户确认后才进入 Step 4。
@@ -182,7 +185,9 @@ mvwb timeline 原文/lyric.json MV001/01_music/song_v1.mp3 --out MV001/01_music
 **自检**
 
 - 分辨率符合清单；无文字/水印/多余肢体。
-- 角色三视图：正面/侧面/背面，纯灰底；场景：空镜、无人物；道具：纯底、无手。
+- 角色三视图按 `references/prompts/moss.md`：左格正面头肩、中格正面全身但**头部完全不入画**、右格背面；纯色无缝背景；不要四视图。
+- 角色卡/风格包见 `references/prompts/casting-style.md`；每个角色先出 4 张候选，选 1 张再锁定。
+- 场景：空镜、无人物、大全景 45° 俯视；道具：纯底、无手。
 - 每张给 `qa: pass | warn | fail`；`fail` 必须重跑，`warn` 要用户确认后才能用。
 - 资产 `locked` 后，改资产要把依赖视频段标 `stale`。
 

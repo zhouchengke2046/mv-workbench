@@ -68,7 +68,7 @@ workspaces/<project>/
         "status": "locked", "current": true
       }],
       "assets": [{
-        "name": "女主四视图", "type": "角色",
+        "name": "女主三视图", "type": "角色",
         "url": "MV001/02_assets/role_female.svg",
         "resolution": "1024×1536", "model": "MOSS", "cost": "26 币",
         "generated_at": "2026-11-13 00:40"

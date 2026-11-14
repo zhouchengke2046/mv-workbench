@@ -160,6 +160,8 @@ mvwb open --workspace my_project
 创建 `MV001…MV00N`，每条：
 
 - **比例默认 9:16 竖屏**（工作台按 1080×1920，Muse 输出 720×1280）；用户明确指定才改。
+- **先写 genome**：`cast_id/outfit_id/face_seed`、`story_id`、`music`、`visual`、`edit`；规则见 `references/variation.md`。同批任意两条至少 3 个维度不同，禁止同一角色+同一穿搭、同一故事矛盾、同一 genre+BPM+vocal、同一场景包。
+- 输出一张**差异化表**（每条的 cast/story/music/visual/edit）；有重复组合就停，换池子里的下一个，不要开工。
 
 - `mv_manifest.json`：stages 全 `not_started`；genome、cost/spent=0。
 - `00_framework.md`：音乐计划、资产清单、标准分镜、视频段计划；这里的 `duration` 是**计划值**，以 `target_duration` 为总目标。
@@ -197,6 +199,9 @@ mvwb quote --model muse-video-ext --seconds 2
 | 交付 | 写 `handoff_v1.json` | 给剪辑 |
 
 - **音乐先锁定**；读实际 `duration/timeline` 后更新段时长；资产按参考包；视频段按实际句长逐段生成。
+- **资产按角色卡生成**：角色三视图用 `references/prompts/casting-style.md` 的模板 + 风格包；MOSS 规则是左格脸、中格全身但**头部完全不入画**、右格背面。每个角色先出 4 张候选，选 1 张再锁定。
+- **同 MV 角色一致**：所有资产/视频段引用同一 `cast_id` 的角色卡和 `outfit_id`；换装只在故事需要时发生并记录。
+- **跨 MV 不重复**：同批的 `cast_id`、故事、音乐、场景包按 genome 差异化；资产锁定前抽查两条，避免“同一个人换件衣服就算新 MV”。
 - 每段可生成多条视频：当前第一条，历史追加 `G1_v2.mp4`。
 - 新版本写 `*_v{n+1}.json`，不覆盖旧版。
 - 更新 `stages/status/spent`，重建 `DATA`。
@@ -209,6 +214,8 @@ mvwb quote --model muse-video-ext --seconds 2
 
 - 只重跑点名项；新版本 + 历史。
 - 音乐 `locked` 后不可改；换音乐 = 新建 MV。
+- 同批音乐先做近似去重：`genre + BPM 档 + vocal` 不能全同；前 10 秒听起来像同一首就换 `music_id`。
+- 资产 `qa: pass / warn / fail`：`fail` 必须重跑；`warn` 要用户确认后才能用。
 - 资产改动 → 依赖它的视频段标记 `stale`。
 - 分镜/视频段计划改动 → 对应视频段 `stale`。
 - 用户说“定稿/通过” → 对应 stage `locked`。
@@ -251,10 +258,12 @@ mvwb quote --model muse-video-ext --seconds 2
 | Router API/余额 | — | `references/providers/router.md` |
 | 工作台 DATA 契约 | — | `references/workbench-contract.md` |
 | 四步执行契约 | — | `references/step-contract.md` |
+| 变体/差异化/去重 | — | `references/variation.md` |
+| 角色卡/风格/帅哥美女/治愈系 | — | `references/prompts/casting-style.md` |
 | 交付字段 | — | `references/handoff.md` |
 
 - 视频按段确认模型；不同段可不同模型，但同一 MV 风格包/调色统一。
-- 多参考图：角色四视图/场景板/道具/产品实拍；一图一职；先跑 1 段样板。
+- 多参考图：角色三视图（不要四视图）/场景板/道具/产品实拍；一图一职；先跑 1 段样板。
 
 ## Key
 
@@ -301,6 +310,7 @@ config/           模型价格 / provider / keys 示例
 
 ## 版本
 
+- v0.3.3（2026-11-13）：新增变体/差异化规则与角色风格提示词包（小红书穿搭/日系甜妹/韩系欧巴/治愈系电影/帅哥美女）；Step 3 要求 genome 与差异化表。
 - v0.3.2（2026-11-13）：与用户手册对齐：Key 由用户本机输入；补项目名/三步确认、音乐锁定与时长偏差、资产 QA、大改报价、`data.json` 目录。
 - v0.3.1（2026-11-13）：安装升级保留 workspaces；`init` 默认空项目（`--demo` 复制 demo）；build/check 相对路径回退 skill 根目录；精简包内文档。
 - v0.3.0（2026-11-13）：移除后台服务，工作台回归纯静态；Key/余额改 CLI；新增四步执行契约与 `mvwb check`；修复透传参数。
