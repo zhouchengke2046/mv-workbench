@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.11 — 2026-11-14
+
+- Progress ring simplified to THREE colors by completion (user decision): green = stage fully generated; orange = in progress (partial like 2/4 images, or tasks running — whole ring breathes via the pulse animation while `status:"generating"`); gray = not started. Derivation is data-driven (`detail.script.body` / current music audio / assets count vs `stages.assets.total` / segments with current videos); Step 3 writes `stages.assets.total` so partial completion is visible. Replaces the per-status color map.
+
 ## 0.4.10 — 2026-11-14
 
 - Progress ring now covers all four steps (script → music → assets → video) instead of three, matching the v0.4.5 step system; `stages.script` added to the DATA contract example.

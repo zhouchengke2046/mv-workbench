@@ -471,11 +471,7 @@ audio{width:100%;height:36px}
   <main id="main"></main>
 </div>
 <script>const DATA = {"meta": {"id": "D01", "title": "末班地铁", "generated_at": ""}, "keys": {"runninghub": {"label": "RunningHub", "account": "", "configured": false, "masked": "", "ok": false, "balance": null, "unit": "币", "wallet": null, "wallet_unit": null, "unlimited": false, "checked_at": null, "error": "未配置"}, "router": {"label": "Router", "account": "", "configured": false, "masked": "", "ok": false, "balance": null, "unit": "CNY", "wallet": null, "wallet_unit": null, "unlimited": false, "checked_at": null, "error": "未配置"}}, "lyric": {"title": "", "body": ""}, "script": {"title": "", "body": ""}, "mvs": []};
-const STATUS_COLOR = {
-  not_started: "#c9cdd4", planning: "#c9cdd4", planned: "#c9cdd4",
-  generating: "#4d6bfe", review: "#8b5cf6", draft: "#f5a623",
-  locked: "#00b42a", failed: "#f53f3f", stale: "#ff6b00",
-};
+
 
 let S = {
   view: DATA.mvs.length ? { type: "mv", id: DATA.mvs[0].id } : { type: "source", kind: "lyric" },
@@ -622,17 +618,44 @@ function mvRow(m) {
 }
 
 function ring(m) {
-  // 四步进度环：脚本 → 音乐 → 资产 → 视频；颜色按 stages[k].status，
-  // 任一阶段 generating 时整环闪烁（.ring.pulse）
+  // 三色完成度环（脚本→音乐→资产→视频）：
+  // 绿=已生成完；橙=进行中（部分完成如 2/4，或任务在跑 → 整环呼吸闪烁）；灰=完全没生成。
+  // 完成度从数据推导；assets 的计划数写在 stages.assets.total（Step 3 框架时落盘）。
   const keys = ["script", "music", "assets", "video"];
   const stages = m.stages || {};
+  const detail = m.detail || {};
+  const states = keys.map((k) => {
+    const st = stages[k] || {};
+    const status = String(st.status || "");
+    const generating = status === "generating";
+    let done = false, partial = false;
+    if (k === "script") {
+      done = !!((detail.script || {}).body || "").trim() || !!st.artifact;
+    } else if (k === "music") {
+      const items = detail.music || [];
+      const cur = items.find((v) => v.current) || items[0];
+      done = !!(cur && cur.audio);
+    } else if (k === "assets") {
+      const doneN = (detail.assets || []).length;
+      const total = Number(st.total) || doneN;
+      done = doneN > 0 && doneN >= total;
+      partial = doneN > 0 && doneN < total;
+    } else if (k === "video") {
+      const segs = ((detail.storyboard || {}).segments) || [];
+      const doneN = segs.filter((sg) => (sg.videos || []).some((v) => v.current)).length;
+      done = segs.length > 0 && doneN >= segs.length;
+      partial = doneN > 0 && doneN < segs.length;
+    }
+    if (done) return { col: "#00b42a", blink: false };
+    if (partial || generating || status === "draft" || status === "review") return { col: "#f5a623", blink: generating };
+    return { col: "#c9cdd4", blink: false };
+  });
   const r = 10, c = 2 * Math.PI * r, arc = c / 4;
-  const colors = keys.map((k) => STATUS_COLOR[(stages[k] || {}).status] || "#c9cdd4");
-  const arcs = colors.map((col, i) => `<circle cx="14" cy="14" r="${r}" fill="none" stroke="${col}"
+  const arcs = states.map((st, i) => `<circle cx="14" cy="14" r="${r}" fill="none" stroke="${st.col}"
     stroke-width="3" stroke-dasharray="${(arc - 2).toFixed(2)} ${(c - (arc - 2)).toFixed(2)}"
     transform="rotate(${-90 + i * 90} 14 14)"></circle>`).join("");
-  const busy = keys.some((k) => (stages[k] || {}).status === "generating") ? " pulse" : "";
-  return `<svg class="ring${busy}" viewBox="0 0 28 28" title="脚本/音乐/资产/视频 进度">
+  const busy = states.some((st) => st.blink) ? " pulse" : "";
+  return `<svg class="ring${busy}" viewBox="0 0 28 28" title="脚本/音乐/资产/视频 完成度：绿=已生成完 橙=进行中 灰=未开始">
     <circle cx="14" cy="14" r="${r}" fill="none" stroke="#e5e6eb" stroke-width="3"></circle>
     ${arcs}
   </svg>`;

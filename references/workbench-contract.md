@@ -124,8 +124,10 @@ workspaces/<project>/
 1. 读 `mv_manifest.json`、`01_music/`、`02_assets/`、`03_segments/`；
 2. 只重跑点名项，写 `*_v{n+1}.json`/媒体，不覆盖旧版；
 3. 更新 `mv_manifest.json` 的 stages/history，`spent` 累加；
-4. **进度环约定**：左侧 MV 列表的圆环 = 四段（脚本→音乐→资产→视频），段色按 `stages[k].status`：
-   灰=not_started/planning/planned，蓝=generating（整环闪烁），紫=review，橙=draft，绿=locked，红=failed，深橙=stale。
+4. **进度环约定（三色完成度）**：左侧 MV 列表的圆环 = 四段（脚本→音乐→资产→视频）：
+   绿=该阶段已生成完；橙=进行中（部分完成如 2/4，或任务在跑——`status: "generating"` 时整环呼吸闪烁）；灰=完全没生成。
+   完成度从数据推导（脚本看 `detail.script.body`、音乐看当前音频、资产看 `detail.assets` 条数 vs `stages.assets.total`、视频看有 current 视频的段数 vs 段总数）；
+   **计划数约定**：Step 3 框架落盘时写 `stages.assets.total`（资产张数），视频总段数取自 `storyboard.segments`。
 4. 音乐出来后对比 `target_duration` 与 `actual_duration`；偏差 >1s 或 >2% 先暂停；更新 segments 的实际时长；
 5. 更新 `DATA`（或 `DATA.json` 后用 `build_workbench.py` 重建）；
 6. 刷新页面。
