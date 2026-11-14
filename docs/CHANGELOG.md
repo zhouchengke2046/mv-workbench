@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.9 — 2026-11-14
+
+- Fixed video history ordering in the workbench: `videoCell` used "first entry = current", which pushed newly appended v2 into 历史 when data grows append-style (found on the 半糖晚风 workbench). Now `segments[].videos` is append-style with the `current:true` flag marking the current video — the same convention the music table already uses; contract doc updated to match.
+
 ## 0.4.8 — 2026-11-14
 
 - Codified the verified main-chain paths (from the 半糖晚风 E2E run) into the skill:

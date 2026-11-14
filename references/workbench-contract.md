@@ -100,7 +100,7 @@ workspaces/<project>/
 - `spent` = 历史累计花费（人民币）；左侧“已花 ¥X”/MV 头部“累计”用它。RunningHub 币→CNY 用 `config/models.json` 的 `fx.rh_coin` 折算。
 - `music[].current` 标记当前版；历史版 `current:false`。
 - 顶层 `script` 是参考脚本（甲方原文，原样展示）；`mvs[].detail.script.body` 是这条 MV 的画面脚本（据参考脚本改编），分镜表由它拆出；磁盘产物为 `MVxxx/00_script.md`。
-- `segments[].videos` 第一条是当前视频，后面是历史视频；每条带分辨率/模型/费用/时间/时长。
+- `segments[].videos` 按**生成顺序追加（旧版在前）**；`current:true` 的那条是当前视频，其余进历史，无标志时兜底取第一条；每条带分辨率/模型/费用/时间/时长。与音乐表（`current` 标志定当前/历史）同一套约定。
 - `meta.batch.target_duration` 是用户设定的总时长；`mvs[].target_duration` 可覆盖。
 - `music[].requested_duration` 是传给 ACE 的秒数；`music[].duration` 是实际输出。
 - 分镜/段的 `duration` 在音乐出来前是计划值；音乐出来后按 `timeline` 更新为实际值。

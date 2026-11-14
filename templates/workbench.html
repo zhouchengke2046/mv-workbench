@@ -764,7 +764,8 @@ function storyboardSection(mv) {
 function videoCell(seg) {
   const videos = seg.videos || [];
   if (!videos.length) return `<div class="video-empty">待生成</div>`;
-  const cur = videos[0], hist = videos.slice(1);
+  const cur = videos.find((v) => v.current) || videos[0];
+  const hist = videos.filter((v) => v !== cur);
   return `<div class="video-box">
     <div class="video-thumb"><video controls preload="metadata" muted poster="${cur.poster || ""}" src="${cur.url}#t=0.1"></video>
       <span class="res-badge">${esc(cur.resolution)}</span></div>

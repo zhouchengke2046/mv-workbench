@@ -328,6 +328,7 @@ workspaces/       学生项目（每个项目一个目录）
 
 ## 版本
 
+- v0.4.9（2026-11-14）：修工作台视频历史排序——videos 数组统一为追加式（旧在前）+ `current` 标志定当前（与音乐表同约定），新增版本不再被误判进历史。
 - v0.4.8（2026-11-14）：固化主链正确路径——新增 `references/router-playbook.md`（音乐/资产/视频/时间轴/对账/鉴定技巧/备用链一览）；step-contract Step4 三节改为实测命令（音乐/资产 tokentech_task、视频 R2V 双图默认、抽帧一致性自检）；成本口径改为实扣优先。
 - v0.4.7（2026-11-14）：Muse R2V 参考图通道实测生效（image/image_urls；角色三视图+场景双图可同时锚定人物与品牌场景）；tokentech_video/models.json/router.md 同步。
 - v0.4.6（2026-11-14）：修复 mvwb timeline 契约——输入支持 lyric.json（文档口径），--out 以 .json 结尾输出真 JSON（对齐 demo schema）；E2E 系统测试发现。
