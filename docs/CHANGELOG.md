@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.14 — 2026-11-14
+
+- Asset image prompts codified into a fixed paradigm (`references/prompts/moss.md`, inheriting the 漫剧 house shell): bilingual zh/en × nine-section structure × three mandatory layouts (character vertical three-panel with headless middle panel / prop plain-background single view / scene empty wide shot), four negative categories, negative-rebound warning (never name the color+shape you want excluded), continuity lock, IMG-<C|S|P> naming, and the Router nodeInfoList mapping (4/5/16).
+- New checker `scripts/check_asset_prompts.py` (bilingual blocks, section tags, three-view keywords, plain background, no-people+light direction, non-empty negative) plus three bilingual templates under `references/prompts/examples/` — all pass the checker; a missing-blocks negative case is intercepted.
+- Video prompts split into per-model dialects with auto-matching: `muse.md` = timeline-style short form + verified R2V dual-reference recipe; `h3.md` = official eight-section long form for 43.text + full nodeInfoList parameter table (155/20/121/123/43/47…, first-use discipline 480p trial). step-contract 4.3 routes by model and forbids cross-applying dialects.
+
 ## 0.4.13 — 2026-11-14
 
 - `tokentech_video.py`: video download now retries 8 times with escalating backoff (3s→17s); on final failure the P6 alert includes the task id and a one-line resume command (`curl … /v1/videos/<task>/content`) — the content endpoint failed all 4 old retries twice during round-3 QA while a single manual retry succeeded.

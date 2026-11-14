@@ -259,6 +259,8 @@ mvwb quote --model muse-video-ext --seconds 2
 | 阶段 | 默认 | 看哪个 reference |
 |---|---|---|
 | 音乐 ACE-Step | `2075301815628943362` | `references/prompts/ace.md` |
+| **资产提示词固定范式** | MOSS | `references/prompts/moss.md` + 机检 check_asset_prompts.py |
+| **视频提示词方言** | 按模型匹配 | `references/prompts/muse.md`（muse）/ `references/prompts/h3.md`（h3） |
 | 资产 MOSS | `2116462203997081601` | `references/prompts/moss.md` |
 | H3 多参视频 | `2110943749894402050` | `references/prompts/h3.md` |
 | Muse 视频（Router） | `muse-video-ext` | `references/prompts/muse.md` |
@@ -328,6 +330,7 @@ workspaces/       学生项目（每个项目一个目录）
 
 ## 版本
 
+- v0.4.14（2026-11-14）：资产卡提示词固化为固定范式（moss.md：中英双语×九段式×三类版式（角色竖版三格/道具纯底/场景空镜）+负面四类+负向回弹警示+连续性锁），新增机检 check_asset_prompts.py 与三条双语样板（examples/）；视频提示词按模型自动匹配方言——muse=时间线式短文、h3=八段长文+nodeInfoList，step-contract 4.3 分模型给出写法与命令（继承漫剧壳口径，MV 竖版实测修正）。
 - v0.4.13（2026-11-14）：video 下载重试 8 次+递增退避、P6 带补拉命令；keys import 提示必须 balance --data（漏跑会显示未配置）；step-contract 补硬规则。
 - v0.4.12（2026-11-14）：`mvwb init --dir <目录>` 支持在任意目录独立建项（一项目一目录）；工作区不再强制在 skill 的 workspaces/ 下，所有命令本就接受显式 --data/--out 路径。
 - v0.4.11（2026-11-14）：进度环改三色完成度——绿=已生成完、橙=进行中（部分完成/生成中呼吸闪烁）、灰=未开始；资产计划数约定 `stages.assets.total`（Step 3 落盘）。

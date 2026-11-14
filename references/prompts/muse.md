@@ -1,74 +1,48 @@
-# Muse 提示词（Router）
+# Muse 视频提示词方言（model: muse-video-ext）
 
-> 统一走 Router（TokenTech/new-api）；API 细节见 `../providers/router.md`。
+> **按模型选方言**：`muse-video-ext` → 本文件；`minimax-h3-rh-ck` → `h3.md`。
+> 不要把一种模型的语法套到另一种上。API/费用细节见 `../providers/router.md` 与 `../router-playbook.md`。
 
-## 模型事实（2026-11-13 实测）
+## 模型事实（2026-11-14 实测）
 
 | 项 | 值 |
 |---|---|
-| API | `POST https://router.kcacher.top/v1/videos` |
-| 轮询 | `GET /v1/videos/{id}` |
-| 下载 | `GET /v1/videos/{id}/content` |
-| 鉴权 | `Authorization: Bearer <router key>`；`/v1` 不接受登录会话令牌 |
-| 输出 | 720p（720×1280 竖屏）/ 24fps / H.264 + AAC；2s 已实测 |
-| 时长 | `seconds` 2–10；2s 实测成功，10s 未实测 |
-| 价格 | 2s ≈ ¥1.00；10s ≈ ¥5.00（按 `/api/pricing` 的 USD 表达式 × 7.3） |
-| 参考图 | Muse 原生最多 9 张；Router 的参考图字段**尚未验证**（`image_urls` / `input_reference` / 单个 `image`） |
+| API | `POST /v1/videos` → 轮询 `GET /v1/videos/{id}` → 下载 `GET /v1/videos/{id}/content`（重试 8 次递增退避） |
+| 输出 | 720p（720×1280 竖屏）/ 24fps / H.264+AAC |
+| 时长 | `seconds` 2–10；8/10s 实测 |
+| **参考图（R2V）** | **已验证**：`image`（单 URL）/ `image_urls`（数组）均按参考图处理 |
+| 实扣 | 10s ≈ ¥0.17-0.25（按运行时长，以账单为准） |
 
-## 调用
+## 方言特征：时间线式短文（中文正文）
+
+Muse 吃**紧凑的多镜头时间线**：人物锚定一句 + 场景锚定一句 + 逐秒时间线 + 风格收束。
+不写长论文——段落多了 Muse 会稀释画面执行。
+
+### 固定结构（按序）
+
+1. `竖屏9:16 <风格名>MV片段，<N>秒<K>镜头。`
+2. `女主角/男主角按参考图1：<角色卡一句锚点（年龄/发型/服装/包）>`（R2V 时必写）
+3. `场景按参考图2：<场景一句锚点（地点/品牌物）>`（R2V 双图时必写）
+4. `0-N秒：<镜头1>；N-M秒：<镜头2>；……`（每镜一个动作+一个机位变化）
+5. `<色温/光线>，浅景深，电影感，无多余文字`（收束）
+
+### 样板（风行晨跑 G1 实测原文）
+
+```text
+竖屏9:16写实运动感MV片段，10秒三镜头。男主角按参考图1：28岁中国男生，短碎发，黑色运动背心，臂包，运动短裤。场景按参考图2：清晨蓝灰色江边跑道。0-3秒：凌晨玄关，他蹲身系紧鞋带，起身推门而出；3-6秒：江边跑道起跑，镜头跟随背影掠过栏杆；6-10秒：特写汗珠顺下颌线滑落，呼吸急促，背心线条。清晨蓝灰冷调转微暖，浅景深，电影感，无多余文字
+```
+
+## R2V 配方（默认）
 
 ```bash
-# 已配置 Router key 后
-mvwb muse --prompt "竖屏 9:16，固定机位，夜晚街口，一个女生抬头看雨，电影感，环境声：细雨，无对白。" \
-  --seconds 2 --size 720x1280 --out out/demo.mp4
+python3 scripts/providers/tokentech_video.py \
+  --prompt "<上方时间线式正文>" \
+  --seconds 10 --size 720x1280 --resolution 720p \
+  --image-urls "<角色三视图URL>" "<主场景URL>" --image-field image_urls \
+  --out MV001/03_segments/G1_v1.mp4
 ```
 
-或直接：
-
-```bash
-python3 scripts/mv_keys.py exec --need router -- python3 scripts/providers/tokentech_video.py \
-  --prompt "..." --seconds 2 --size 720x1280 --out out/demo.mp4
-```
-
-请求体（文本生视频，已实测）：
-
-```json
-{
-  "model": "muse-video-ext",
-  "prompt": "...",
-  "seconds": 2,
-  "resolution": "720p",
-  "size": "720x1280"
-}
-```
-
-- 返回 `{"id":"task_...","status":"queued"}`；轮询到 `completed` 后下载 `/content`。
-- 400 校验失败不扣费；200 建任务才扣费，所以不要一次堆很多未验证字段。
-- 参考图：先用 1 张图做 2s 测试，确认字段后再批量；如果 Router 只支持单图，多参考图改用 H3/其他模型。
-
-## 提示词
-
-按顺序写一段自然语言（60–350 字）：
-
-1. 主体锚定：图1是谁、不可变特征（与参考图逐字一致）
-2. 动作：一个主线动作，按时间顺序
-3. 镜头：景别 + 固定机位/轻微手持
-4. 光线：光源、色温、时间
-5. 声音：环境声 / 对白 / 音效（原生音频）
-6. 文字处理：招牌、屏幕、旗帜上的字失焦虚化
-
-- **固定机位优先**；10s 内“轻微推镜”容易跑飞。
-- 不写 `subject_definitions`/`retention_analysis`/毫秒时间码；Muse 会当正文读。
-- 否定句基本无效；用正向描述（柔和散射光、中性白平衡、低饱和）。
-- 外貌描述必须与参考图一致：图里长发就不要写披肩发。
-- 内容审核可能拦亲密/医疗/暴力动作；改成非接触动作。
-
-完整规则：
-
-- [`muse-guide.md`](muse-guide.md)
-
-## 成本门
-
-- 2s ≈ ¥1；10s ≈ ¥5；生成前先 `mvwb quote --model muse-video-ext --seconds N`。
-- 余额在 `mvwb doctor --network` 或工作台右上角查看。
-- 失败/超时是否扣费以 Router 账单为准；批量前先报总价。
+- 图源 = 中转站产物签名 URL（`*_meta/meta.json` 的 `artifact_url`）。
+- 双图分工：图 1 锚人物（脸/发型/服装）、图 2 锚场景与品牌物（实测门头灯牌文字可正确生成）。
+- 空镜/氛围镜头可只带场景图或不带图；**人物镜头禁止纯文生**。
+- 一致性是概率性的：抽帧比对角色卡，不符 → 提示词补锚点细节或换 seed 重跑 v2（旧版保留）。

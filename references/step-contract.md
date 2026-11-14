@@ -223,15 +223,32 @@ python3 scripts/providers/tokentech_task.py image \
 
 **生成（Router 主链 · R2V 是默认：人物镜头必须带参考图，禁止纯文生）**
 
+**提示词按模型自动匹配方言（只读命中的一份，不要互相套用）**：
+
+| 模型 | 提示词方言 | 写法文件 |
+|---|---|---|
+| `muse-video-ext` | 时间线式短文（人物锚定+场景锚定+逐秒时间线+风格收束） | `references/prompts/muse.md` |
+| `minimax-h3-rh-ck` | 八段长文（43.text，官方结构）+ nodeInfoList 参数 | `references/prompts/h3.md` |
+
+模型选 `muse-video-ext`（默认，便宜快速）：
+
 ```bash
 python3 scripts/providers/tokentech_video.py \
-  --prompt "<按画面脚本的多镜头时间线提示词>" \
+  --prompt "<muse 方言：按画面脚本的多镜头时间线提示词>" \
   --seconds <段时长> --size 720x1280 --resolution 720p \
   --image-urls "<角色三视图URL>" "<主场景URL>" --image-field image_urls \
   --out MV001/03_segments/G1_v1.mp4
 ```
 
+模型选 `minimax-h3-rh-ck`（一致性要求更高时）：
+
+```bash
+# 八段长文走 /v1/responses 任务协议，配方见 references/prompts/h3.md
+```
+
 图源用中转站产物签名 URL（`*_meta/meta.json` 的 `artifact_url`）；空镜/氛围镜头可只带场景图或不带图。
+资产提示词一律走 `references/prompts/moss.md` 固定范式（九段式双语）+ 机检
+`python3 scripts/check_asset_prompts.py 图片提示词.md`。
 
 **产物**：`03_segments/G1_v1.mp4`，历史 `G1_v2.mp4`。
 
