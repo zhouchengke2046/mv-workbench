@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.12 — 2026-11-14
+
+- `mvwb init --dir <目录>`: create a standalone project in ANY directory (one project per directory), not only under the skill's `workspaces/`. Refuses non-empty dirs; all other commands already take explicit `--data/--out` paths, so a standalone directory is a first-class citizen (verified against the 半糖晚风 project moved out of the test shell).
+
 ## 0.4.11 — 2026-11-14
 
 - Progress ring simplified to THREE colors by completion (user decision): green = stage fully generated; orange = in progress (partial like 2/4 images, or tasks running — whole ring breathes via the pulse animation while `status:"generating"`); gray = not started. Derivation is data-driven (`detail.script.body` / current music audio / assets count vs `stages.assets.total` / segments with current videos); Step 3 writes `stages.assets.total` so partial completion is visible. Replaces the per-status color map.

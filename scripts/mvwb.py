@@ -345,13 +345,19 @@ def cmd_init(args):
     name = args.name.strip()
     if not name or "/" in name or "\\" in name:
         raise SystemExit("名字不合法")
-    target = ROOT / "workspaces" / name
-    if target.exists():
+    custom_dir = getattr(args, "dir", None)
+    if custom_dir:
+        target = Path(custom_dir).expanduser().resolve()
+        if target.exists() and any(target.iterdir()):
+            raise SystemExit("目录已存在且非空：%s" % target)
+    else:
+        target = ROOT / "workspaces" / name
+    if target.exists() and (target / "data.json").exists():
         raise SystemExit("已存在：%s" % target)
-    target.parent.mkdir(parents=True, exist_ok=True)
+    target.mkdir(parents=True, exist_ok=True)
 
     if getattr(args, "demo", False):
-        shutil.copytree(DEMO, target)
+        shutil.copytree(DEMO, target, dirs_exist_ok=True)
         print("已创建 demo 项目：%s" % target)
         print("下一步：替换 %s/原文/ 里的歌词和脚本，然后用 agent 按四步生成。" % target.name)
         return 0
@@ -435,7 +441,8 @@ def build_parser():
     check.add_argument("--data", default="demo/data.json")
     check.add_argument("--workbench", help="workbench.html 路径；默认 DATA 同目录")
 
-    init = sub.add_parser("init", help="创建空项目（--demo 复制 demo）")
+    init = sub.add_parser("init", help="创建空项目（--demo 复制 demo；--dir 在任意目录独立建项）")
+    init.add_argument("--dir", default="", help="项目目录（一项目一目录）；缺省建在 skill 的 workspaces/<名字>")
     init.add_argument("name")
     init.add_argument("--demo", action="store_true", help="复制 demo 项目（含示例 MV）")
 
