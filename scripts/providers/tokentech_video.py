@@ -2,8 +2,12 @@
 # -*- coding: utf-8 -*-
 """TokenTech / new-api video adapter (Muse / OpenAI-style /v1/videos).
 
-Text-to-video is tested. Reference-image field is NOT verified; pass
---image-field explicitly if you want to test one.
+Text-to-video verified 2026-11-13. Reference images verified 2026-11-14:
+- `image` (single URL) and `image_urls` (array) are both honored as
+  reference images by muse-video-ext.
+- Tested recipe: `--image-urls <角色三视图URL> <场景URL> --image-field image_urls`
+  anchors character + scene/brand (turnaround sheet + storefront).
+- Still pass --image-field explicitly when testing a NEW field.
 
 Never prints the API key.
 """

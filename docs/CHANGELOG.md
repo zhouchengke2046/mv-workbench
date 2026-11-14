@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.7 — 2026-11-14
+
+- Muse R2V reference-image channel verified on `/v1/videos`: `image` (single URL) and `image_urls` (array) are honored as reference images. Tested recipe — character turnaround sheet + storefront image → the same person across shots and correct brand signage in generated video. Documented in `references/providers/router.md`, `config/models.json` (muse router verified) and `scripts/providers/tokentech_video.py`.
+
 ## 0.4.6 — 2026-11-14
 
 - Fixed `mvwb timeline` contract mismatch found during the v0.4.5 end-to-end test:

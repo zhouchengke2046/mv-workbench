@@ -15,7 +15,8 @@
       "providers": {
         "router": {
           "api": "/v1/videos",
-          "verified": "2026-11-13"
+          "verified": "2026-11-14 (含 R2V)",
+          "note": "已实测：POST /v1/videos {model,prompt,seconds,resolution,size} 文生；R2V 参考图通道实测生效——image(单URL)/image_urls(数组) 均按参考图处理，image_urls:[角色三视图,店面场景] 可同时锚定人物+品牌场景（半糖晚风灯牌正确生成）；费用按运行时长实扣"
         }
       }
     },
